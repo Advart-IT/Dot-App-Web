@@ -1,0 +1,726 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+	<title>74568227_9805248</title>
+	<defs>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp1">
+			<path d="m604.4-571.41c-66.4-86.01-94.48 9.03-94.48 9.03z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp2">
+			<path d="m333.58-571.41c66.4-86.01 94.48 9.03 94.48 9.03z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp3">
+			<path d="m485.14-43.08c-258.34 0-467.16-208.79-467.16-467.08 0-258.29 208.82-467.07 467.16-467.07 258.35 0 467.17 208.78 467.17 467.07 0 258.29-208.82 467.08-467.17 467.08z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp4">
+			<path d="m498.4 981.14c-258.35 0-467.17-208.78-467.17-467.08 0-258.29 208.82-467.07 467.17-467.07 258.34 0 467.16 208.78 467.16 467.07 0 258.3-208.82 467.08-467.16 467.08z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp5">
+			<path d="m558.03 770.17l-61.93 15.93-61.93-15.93v-183.76h123.86z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp6">
+			<path d="m348.57 451.95c65.23-70.15 93.58 13 93.58 13z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp7">
+			<path d="m633.96 451.95c-65.23-70.15-93.58 13-93.58 13z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp8">
+			<path d="m-526.54-43.08c-258.35 0-467.17-208.79-467.17-467.08 0-258.29 208.82-467.07 467.17-467.07 258.34 0 467.16 208.78 467.16 467.07 0 258.29-208.82 467.08-467.16 467.08z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp9">
+			<path d="m-518.71 53.39l395.46-61.23c0 0-18.62-111.84-54.98-177.71-50.13-90.85-354.24-136.12-354.24-136.12 0 0-290.76 49.54-339.2 129.59-38.96 64.37-58.17 184.24-58.17 184.24l406.93 61.23v0.66l2.1-0.33 2.1 0.33z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp10">
+			<path d="m-463.72-258.98l-65.25 16.79-65.24-16.79v-193.6h130.49z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp11">
+			<path d="m-392.83-595.21c-60.61-86.2-91.21 3.46-91.21 3.46z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp12">
+			<path d="m-664.69-594.76c60.19-86.49 91.24 3.01 91.24 3.01z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp13">
+			<path d="m-403.13-305.83c-2.73-43.81-34.56-53.66-34.56-53.66 0 0 11.73 56.76-47.12 87.46-31.08 16.22-42.59 48.84-46.55 76.03-2.72-27.19-12.93-59.81-44-76.03-58.85-30.7-40.65-90.17-40.65-90.17 0 0-41.04 10.22-41.04 56.37 0 56.61 64.43 151.92 124.57 154.11q0-0.01 0.05-0.31 0.04 0.3 0.04 0.31c60.14-2.19 132.78-97.6 129.26-154.11z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp14">
+			<path d="m-224.35 758.66c-48.44-65.13-162.48-71.81-162.48-71.81h-276.57c0 0-114.04 6.68-162.48 71.81-48.44 65.13-93.53 277.3-93.53 277.3h384.38 19.83 384.39c0 0-45.1-212.17-93.54-277.3z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp15">
+			<path d="m-687.12 398.75c62.89-103.16 104.63-2.87 104.63-2.87z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp16">
+			<path d="m-390.45 398.75c-62.89-103.16-104.63-2.87-104.63-2.87z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp17">
+			<path d="m-597.72 637.89c34.82 40.08 99.65 33.35 123.21 5.82 17.08-19.97 72.43 33.08 61.78 44.5 0 0-21.73 73.16-123.75 73.16-102.02 0-123.74-72.03-123.74-72.03-16.56-16.48 42.11-74.92 62.5-51.45z"/>
+		</clipPath>
+		<clipPath clipPathUnits="userSpaceOnUse" id="cp18">
+			<path d="m-524.66 981.14c-258.35 0-467.17-208.78-467.17-467.08 0-258.29 208.82-467.07 467.17-467.07 258.34 0 467.16 208.78 467.16 467.07 0 258.3-208.82 467.08-467.16 467.08z"/>
+		</clipPath>
+	</defs>
+	<style>
+		.s0 { fill: #e56220 } 
+		.s1 { fill: none;stroke: #912c12;stroke-miterlimit:10;stroke-width: 2 } 
+		.s2 { fill: none;stroke: #7f1c09;stroke-miterlimit:10;stroke-width: 2 } 
+		.s3 { fill: #7f1c09 } 
+		.s4 { fill: #e23229 } 
+		.s5 { fill: none;stroke: #912c12;stroke-miterlimit:10;stroke-width: 2;stroke-dasharray: 3.87192368507386,3.87192368507386 } 
+		.s6 { fill: none;stroke: #912c12;stroke-miterlimit:10;stroke-width: 2;stroke-dasharray: 4.15931034088134,4.15931034088134 } 
+		.s7 { fill: #5d31fd } 
+		.s8 { fill: #efd28b } 
+		.s9 { fill: #912c12 } 
+		.s10 { fill: none;stroke: #912c12;stroke-linejoin: round;stroke-width: 2 } 
+		.s11 { fill: #e5be67 } 
+		.s12 { fill: #ffffff } 
+		.s13 { fill: none;stroke: #7f1c09;stroke-linejoin: round;stroke-width: 2 } 
+	</style>
+	<g id="OBJECTS">
+		<g id="&lt;Group&gt;">
+			<g id="&lt;Clip Group&gt;">
+				<g id="&lt;Group&gt;">
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Group&gt;">
+								</g>
+							</g>
+						</g>
+					</g>
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Group&gt;">
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+										</g>
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+												</g>
+												<g id="&lt;Group&gt;">
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																	</g>
+																	<g id="&lt;Clip Group&gt;" clip-path="url(#cp1)">
+																	</g>
+																</g>
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																</g>
+																<g id="&lt;Clip Group&gt;" clip-path="url(#cp2)">
+																</g>
+															</g>
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+												</g>
+											</g>
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+													</g>
+												</g>
+											</g>
+										</g>
+									</g>
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+													</g>
+												</g>
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Group&gt;">
+								</g>
+							</g>
+						</g>
+					</g>
+				</g>
+				<g id="&lt;Group&gt;" clip-path="url(#cp3)">
+				</g>
+			</g>
+		</g>
+		<g id="&lt;Group&gt;">
+			<g id="&lt;Group&gt;">
+				<path id="&lt;Path&gt;" fill-rule="evenodd" class="s0" d="m498.4 981.1c-258.3 0-467.2-208.7-467.2-467 0-258.3 208.9-467.1 467.2-467.1 258.3 0 467.2 208.8 467.2 467.1 0 258.3-208.9 467-467.2 467z"/>
+			</g>
+			<g id="&lt;Clip Group&gt;" clip-path="url(#cp4)">
+				<g id="&lt;Group&gt;">
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<path id="&lt;Path&gt;" class="s1" d="m270.4 289.2c-24 16.1-41 42.4-45.9 70.9"/>
+							<path id="&lt;Path&gt;" class="s2" d="m305 568.9c0 0 13 34 17.3 80.5"/>
+							<path id="&lt;Path&gt;" class="s2" d="m705.9 523.9c8.1 37.8 4.8 77.9-9.2 113.9"/>
+							<path id="&lt;Path&gt;" class="s2" d="m643.9 608.6c6.6 37.4-9.5 77.8-39.8 100.6"/>
+							<path id="&lt;Path&gt;" class="s1" d="m691.6 201.5c-6.7-15.5-22.9-26.4-39.7-26.7-16.9-0.4-33.5 9.8-40.9 25-6.5-32-32.5-65.6-60.7-82.1-28.2-16.5-63.6-20.3-94.7-10.3"/>
+							<path id="&lt;Path&gt;" class="s1" d="m413.9 152.9c-21.7-9.5-46.6-11.6-69.6-5.9-23 5.7-44 19.3-58.7 37.9"/>
+							<path id="&lt;Path&gt;" class="s1" d="m313.5 204.8c-20.4-0.8-41 6.5-56.4 19.8-15.5 13.3-25.6 32.6-27.8 52.9"/>
+						</g>
+						<path id="&lt;Path&gt;" class="s3" d="m499.9 234c0 0-225.6 88.4-258.8 179.9l11.3 7.6c0 0-19.8 104 50 181.6l6.2-24.8c0 0 31 54.1 32.6 91.4l62-26.6-10.9 54.4c0 0 113.4 21.1 173.7-71.2l12.4 73.2c0 0 60.1-31.2 60.3-80.1l28.2 30c0 0 42.3-56.3 37.2-116.1l20.2-19.2v-120.4l23.2 10.9c0 0-33.5-152.5-247.6-170.6z"/>
+					</g>
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Group&gt;">
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<path id="&lt;Path&gt;" class="s4" d="m505.8 1066.7l375.4-58.2c0 0-19.2-105.3-52.2-168.6-33.6-64.6-285.2-105.3-334.7-105.2-48.7 0.1-292.1 44.8-323.5 99-35.8 61.8-55.2 174.8-55.2 174.8l386.2 58.2v0.6l2-0.3 2 0.3z"/>
+												</g>
+												<g id="&lt;Group&gt;">
+													<path id="&lt;Path&gt;" class="s1" d="m371.8 909.9c85 45.3 184.8 62.3 279.9 47.6"/>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<path id="&lt;Path&gt;" class="s1" d="m249.2 787c0 0 1.6 0.5 4.3 1.7"/>
+															<path id="&lt;Path&gt;" class="s5" d="m261.2 793.2c14.5 10.1 35.8 35.2 26.4 92.7-2.4 15.2-7.5 40.4-10.3 53.7"/>
+															<path id="&lt;Path&gt;" class="s1" d="m276.4 944c-0.6 2.8-0.9 4.5-0.9 4.5"/>
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<path id="&lt;Path&gt;" class="s1" d="m730.5 948.5c0 0-0.2-1.6-0.5-4.6"/>
+															<path id="&lt;Path&gt;" class="s6" d="m729.1 934.3c-1.1-11.6-2.5-29.8-3.4-52.9 0 0-11.8-96.8 50-80.9"/>
+															<path id="&lt;Path&gt;" class="s1" d="m780.4 801.9q2.1 0.7 4.3 1.5"/>
+														</g>
+													</g>
+												</g>
+											</g>
+											<g id="&lt;Group&gt;">
+												<path id="&lt;Path&gt;" class="s7" d="m327.5 763.5c2.3 2.6 54 81.1 180.8 81.1 126.9 0 147.6-84.4 147.6-84.4l-38.4-8.4-119.1 9.8-118.2-10.1z"/>
+											</g>
+											<path id="&lt;Path&gt;" class="s1" d="m327.5 763.5c2.3 2.6 54 81.1 180.8 81.1 126.9 0 147.6-84.4 147.6-84.4"/>
+										</g>
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<path id="&lt;Path&gt;" class="s8" d="m558 770.2l-61.9 15.9-61.9-15.9v-183.8h123.8z"/>
+															</g>
+															<g id="&lt;Group&gt;">
+																<path id="&lt;Path&gt;" class="s8" d="m498.4 723.2l-118.2 28.3c0 0 41.4 51.2 122 50.1 80.6-1.1 115.3-49.8 115.3-49.8z"/>
+															</g>
+															<path id="&lt;Path&gt;" class="s1" d="m594.7 773.1c15.5-11.1 22.8-21.3 22.8-21.3"/>
+															<path id="&lt;Path&gt;" class="s1" d="m442.7 792.1c16.6 5.8 36.4 9.8 59.5 9.5 31.5-0.4 55.9-8.1 74.1-17.3"/>
+															<path id="&lt;Path&gt;" class="s1" d="m380.2 751.5c0 0 7.6 9.3 22.5 20"/>
+														</g>
+														<g id="&lt;Clip Group&gt;" clip-path="url(#cp5)">
+															<path id="&lt;Path&gt;" class="s9" d="m434.2 674.3c0 0 148.8-34.1 139.2-4.6-20 61.4-139.2 68.8-139.2 68.8z"/>
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<path id="&lt;Path&gt;" class="s8" d="m682.9 362.9c-24.5-105.5-117.4-145.8-187.3-145.8-73.6 0-155.4 23.8-186.3 145.8-25.4 99.8 0 205.5 36.1 247 25.3 29 71.5 91.2 150.9 91.2 83.8 0 125.7-62.8 150.5-91.2 36.1-41.5 59.5-146.7 36.1-247z"/>
+															</g>
+														</g>
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<path id="&lt;Path&gt;" class="s8" d="m237.5 449.4c-20.2 66.5 74.6 155.8 109 73.5 31.1-74.5-80.2-168.6-109-73.5z"/>
+														<path id="&lt;Path&gt;" class="s8" d="m754.9 448.4c20.8 68.5-76.8 160.4-112.2 75.7-32-76.7 82.5-173.6 112.2-75.7z"/>
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<path id="&lt;Path&gt;" class="s9" d="m485.2 543.4c0 0-9.8-13.5-15.8-12.2-6 1.3-3.9 6.9-3.9 6.9"/>
+																<path id="&lt;Path&gt;" class="s1" d="m458.5 511.7c0 0-16.5 19 6.6 25.4"/>
+															</g>
+															<g id="&lt;Group&gt;">
+																<path id="&lt;Path&gt;" class="s9" d="m503.3 543.4c0 0 8.1-13.5 14.1-12.2 6 1.3 3.9 6.9 3.9 6.9"/>
+																<path id="&lt;Path&gt;" class="s1" d="m512 418.3c0 0 32.8 112.4 9.6 118.8"/>
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<path id="&lt;Path&gt;" class="s10" d="m557.9 565.4c0 0-26.2 31.4-59.3 34.3-33.1 3-50.5-8.2-50.5-8.2"/>
+															</g>
+															<path id="&lt;Path&gt;" class="s1" d="m473.5 617.3c15.4 7.5 34.7 6.3 49.2-3"/>
+														</g>
+														<g id="&lt;Group&gt;">
+															<path id="&lt;Path&gt;" fill-rule="evenodd" class="s11" d="m615.5 534.9c-26.7 0-48.4-14.2-48.4-31.8 0-17.5 21.7-31.7 48.4-31.7 26.8 0 48.5 14.2 48.5 31.7 0 17.6-21.7 31.8-48.5 31.8z"/>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																		<g id="&lt;Group&gt;">
+																			<g id="&lt;Group&gt;">
+																				<path id="&lt;Path&gt;" class="s12" d="m348.6 452c65.7-71.1 93.6 12.9 93.6 12.9z"/>
+																			</g>
+																			<g id="&lt;Clip Group&gt;" clip-path="url(#cp6)">
+																				<path id="&lt;Path&gt;" fill-rule="evenodd" class="s9" d="m401.5 478.4c-14.3 0-25.9-14.9-25.9-33.3 0-18.5 11.6-33.4 25.9-33.4 14.3 0 25.9 14.9 25.9 33.4 0 18.4-11.6 33.3-25.9 33.3z"/>
+																			</g>
+																		</g>
+																		<path id="&lt;Path&gt;" class="s1" d="m348.6 452c63.4-71.7 93.6 12.9 93.6 12.9"/>
+																	</g>
+																</g>
+															</g>
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																		<g id="&lt;Group&gt;">
+																			<g id="&lt;Group&gt;">
+																				<path id="&lt;Path&gt;" class="s12" d="m634 452c-65.7-71.1-93.6 12.9-93.6 12.9z"/>
+																			</g>
+																			<g id="&lt;Clip Group&gt;" clip-path="url(#cp7)">
+																				<path id="&lt;Path&gt;" fill-rule="evenodd" class="s9" d="m581.1 478.4c-14.4 0-25.9-14.9-25.9-33.3 0-18.5 11.5-33.4 25.9-33.4 14.3 0 25.8 14.9 25.8 33.4 0 18.4-11.5 33.3-25.8 33.3z"/>
+																			</g>
+																		</g>
+																		<path id="&lt;Path&gt;" class="s1" d="m634 452c-63.5-71.7-93.6 12.9-93.6 12.9"/>
+																	</g>
+																</g>
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<path id="&lt;Path&gt;" fill-rule="evenodd" class="s11" d="m370.2 534.9c-26.8 0-48.5-14.2-48.5-31.8 0-17.5 21.7-31.7 48.5-31.7 26.7 0 48.4 14.2 48.4 31.7 0 17.6-21.7 31.8-48.4 31.8z"/>
+														</g>
+														<g id="&lt;Group&gt;">
+															<path id="&lt;Path&gt;" class="s9" d="m343.5 374c-1.4 2.8-2.6 5.9-1.9 8.8 0.6 2.8 3.3 5.5 7.1 5.7 2.1 0.1 4.3-0.6 6.4-1.3q31.2-9.9 62.4-19.8c6-1.9 12.3-4 17-7.6 4.8-3.6 7.7-9.2 5.2-13.6-2.7-4.9-10.7-6.3-17.8-6.4-30.3-0.4-65.7 9.7-78.4 34.2z"/>
+															<path id="&lt;Path&gt;" class="s9" d="m648.2 374c1.5 2.8 2.6 5.9 2 8.8-0.6 2.8-3.4 5.5-7.1 5.7-2.2 0.1-4.4-0.6-6.4-1.3q-31.2-9.9-62.5-19.8c-6-1.9-12.2-4-17-7.6-4.7-3.6-7.7-9.2-5.2-13.6 2.7-4.9 10.7-6.3 17.9-6.4 30.2-0.4 65.7 9.7 78.3 34.2z"/>
+														</g>
+														<g id="&lt;Group&gt;">
+															<path id="&lt;Path&gt;" class="s1" d="m481.2 648.3c2.6 21.4 6.8 39.6 18.7 55.5 2.8-20 2.8-40.5 1.5-60.7"/>
+															<path id="&lt;Path&gt;" class="s1" d="m508.3 696.7c7.7-15.1 13.8-31 18.2-47.3"/>
+															<path id="&lt;Path&gt;" class="s1" d="m481.2 691.1c5 4.8 13.2 10.6 18.7 12.7"/>
+															<path id="&lt;Path&gt;" class="s1" d="m464.4 657.3c1.6 9 6.1 18.4 10.2 24.8"/>
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+														<path id="&lt;Path&gt;" class="s1" d="m303.5 513.6c0 0-18.8-73.3-49.5-71.4"/>
+														<path id="&lt;Path&gt;" class="s1" d="m261.3 477.9c0 0 9.8-16.6 29.2-0.2"/>
+													</g>
+													<g id="&lt;Group&gt;">
+														<path id="&lt;Path&gt;" class="s1" d="m680 513.6c0 0 18.9-73.3 49.5-71.4"/>
+														<path id="&lt;Path&gt;" class="s1" d="m722.3 477.9c0 0-9.8-16.6-29.2-0.2"/>
+													</g>
+												</g>
+											</g>
+											<path id="&lt;Path&gt;" class="s9" d="m504 256.6c0 0 59.6-20.5 108.1 3.5 38.1 18.9 66.2 64.8 73.8 174.4 0 0 12.4-39.6 12.6-53.3 1.2-77.8 2-207.1-209.5-207.1-189.6 0-197.7 147.7-199.7 178.5-3.2 49.7 12.8 81.9 12.8 81.9 0 0-16-235.3 201.9-177.9z"/>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+						<g id="&lt;Group&gt;">
+							<path id="&lt;Path&gt;" class="s9" d="m612.1 260.1c0 0 6.5-25.3-2.6-65.3 0 0 84.4-18.6 111.6 77.2h-17.7c0 0 26.8 20.4 44.1 85.5l-46.1-11.3c0 0 1.3 62.7-15.5 88.3 0 0 2-75.1-28.7-120.6v25.6c0 0-47.2-47.4-45.1-79.4z"/>
+							<path id="&lt;Path&gt;" class="s9" d="m609.5 194.8c0 0 13.7 20.9 2.6 65.3 0 0-51.5 15.1-101.6 16l1-18.7c0 0-17.2 6.7-91.4 56.5 0 0-16.9-34.8 0-56.5 0 0-28.3 17.2-66.5 66.6l-2.3-28.6c0 0-24.1 39.2-27.8 113 0 0-24.2-26.3-24.1-50.1l-65.3 32.1c0 0-5.7-44.4 29.4-93.5l-22 6.5c0 0-11.1-64.9 76-108.6l-11.7-20c0 0 37.7-37.5 111.7-26l-6.5-26.2c0 0 151.3-24.4 198.5 72.2z"/>
+							<g id="&lt;Group&gt;">
+								<path id="&lt;Path&gt;" class="s2" d="m609.5 194.8l2.6 65.3"/>
+								<path id="&lt;Path&gt;" class="s13" d="m302.1 434.5c1.9-41.6-1-97.8 21-133.1 27.8-44.4 80.4-68.6 132.5-74.7 52.1-6.1 104.6 3.5 156.1 13-58.9-44.5-143-62.7-214.5-44.3-32.3 8.4-64.2 24.5-82.6 52.4-13.1 20.1-18.1 44.3-22.2 67.9-6.5 38.1-2.8 82.3 9.7 118.8z"/>
+								<path id="&lt;Path&gt;" class="s13" d="m313.9 192.2c98.4-30.4 203.6-25.3 295.6 21-58-41.6-122.9-63.3-194.2-66.6"/>
+								<path id="&lt;Path&gt;" class="s2" d="m262.1 296.8c21.9-41.5 59.5-74.3 103.5-90.4"/>
+								<path id="&lt;Path&gt;" class="s13" d="m657.2 313.9c0 0-9.8-47.8-42.5-66.6 0 0 64 17.8 86.7 98.9"/>
+								<path id="&lt;Path&gt;" class="s2" d="m703.4 272c0 0-27.9-42.8-92.8-50.1"/>
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+		<g id="&lt;Group&gt;">
+			<g id="&lt;Group&gt;">
+			</g>
+			<g id="&lt;Clip Group&gt;" clip-path="url(#cp8)">
+				<g id="&lt;Group&gt;">
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Group&gt;">
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+												</g>
+											</g>
+											<g id="&lt;Clip Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;" clip-path="url(#cp9)">
+													</g>
+												</g>
+											</g>
+										</g>
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																	</g>
+																	<g id="&lt;Clip Group&gt;" clip-path="url(#cp10)">
+																	</g>
+																</g>
+															</g>
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																	</g>
+																</g>
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																	</g>
+																	<g id="&lt;Group&gt;">
+																	</g>
+																</g>
+																<g id="&lt;Group&gt;">
+																</g>
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																		<g id="&lt;Group&gt;">
+																			<g id="&lt;Group&gt;">
+																				<g id="&lt;Group&gt;">
+																					<g id="&lt;Group&gt;">
+																						<g id="&lt;Group&gt;">
+																						</g>
+																						<g id="&lt;Clip Group&gt;" clip-path="url(#cp11)">
+																						</g>
+																					</g>
+																				</g>
+																			</g>
+																			<g id="&lt;Group&gt;">
+																				<g id="&lt;Group&gt;">
+																					<g id="&lt;Group&gt;">
+																						<g id="&lt;Group&gt;">
+																						</g>
+																						<g id="&lt;Clip Group&gt;" clip-path="url(#cp12)">
+																						</g>
+																					</g>
+																				</g>
+																			</g>
+																		</g>
+																	</g>
+																</g>
+																<g id="&lt;Group&gt;">
+																</g>
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																		<g id="&lt;Group&gt;">
+																			<g id="&lt;Group&gt;">
+																			</g>
+																		</g>
+																	</g>
+																</g>
+															</g>
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																</g>
+																<g id="&lt;Group&gt;">
+																</g>
+															</g>
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+												</g>
+											</g>
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+												</g>
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Clip Group&gt;" clip-path="url(#cp13)">
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+											</g>
+											<g id="&lt;Group&gt;">
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+							<g id="&lt;Group&gt;">
+							</g>
+						</g>
+						<g id="&lt;Group&gt;">
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+		<g id="&lt;Group&gt;">
+			<g id="&lt;Group&gt;">
+			</g>
+			<g id="&lt;Clip Group&gt;">
+				<g id="&lt;Group&gt;">
+					<g id="&lt;Group&gt;">
+						<g id="&lt;Group&gt;">
+							<g id="&lt;Group&gt;">
+								<g id="&lt;Group&gt;">
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Clip Group&gt;" clip-path="url(#cp14)">
+											<g id="&lt;Group&gt;">
+											</g>
+											<g id="&lt;Group&gt;">
+											</g>
+										</g>
+									</g>
+									<g id="&lt;Group&gt;">
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+											</g>
+										</g>
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+												</g>
+												<g id="&lt;Group&gt;">
+												</g>
+											</g>
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																		<g id="&lt;Group&gt;">
+																		</g>
+																		<g id="&lt;Clip Group&gt;" clip-path="url(#cp15)">
+																		</g>
+																	</g>
+																</g>
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																	<g id="&lt;Group&gt;">
+																		<g id="&lt;Group&gt;">
+																		</g>
+																		<g id="&lt;Clip Group&gt;" clip-path="url(#cp16)">
+																		</g>
+																	</g>
+																</g>
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+													</g>
+												</g>
+												<g id="&lt;Group&gt;">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+														</g>
+													</g>
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+														<g id="&lt;Group&gt;">
+														</g>
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+																<g id="&lt;Group&gt;">
+																</g>
+																<g id="&lt;Group&gt;">
+																</g>
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+										</g>
+										<g id="&lt;Group&gt;">
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Clip Group&gt;" clip-path="url(#cp17)">
+													<g id="&lt;Group&gt;">
+														<g id="&lt;Group&gt;">
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+															<g id="&lt;Group&gt;">
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+											<g id="&lt;Group&gt;">
+												<g id="&lt;Group&gt;">
+												</g>
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+				</g>
+				<g id="&lt;Group&gt;" clip-path="url(#cp18)">
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

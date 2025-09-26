@@ -1,0 +1,1410 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    /* Custom colors for our app */
+    --primary-app: 214 89% 52%;
+    --primary-app-light: 214 89% 62%;
+    --primary-app-dark: 214 89% 42%;
+    --primary-app-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    /* Custom colors for dark mode */
+    --primary-app: 214 89% 52%;
+    --primary-app-light: 214 89% 62%;
+    --primary-app-dark: 214 89% 42%;
+    --primary-app-foreground: 0 0% 100%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+.scrollbar-light {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) hsl(var(--muted));
+}
+
+.scrollbar-light::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-light::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 10px;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--foreground) / 0.3);
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .task-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 30px; 
+    width: 100%;
+    padding: 0px 0px 0px 0px;
+    max-width: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .animate-fade-in-out {
+    animation: fade-in-out 2s ease-in-out;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to right, hsl(var(--primary-app)), hsl(var(--primary-app-light)));
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  }
+
+  .pulse-animation {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+}
+/* Add to your global CSS file (e.g. globals.css or styles.css) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+@layer components {
+  .smart-dropdown-container {
+    @apply relative w-full px-1;
+  }
+
+  .smart-dropdown-button {
+    @apply w-full border rounded-md px-3 py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden;
+  }
+
+  .smart-dropdown-menu {
+    @apply absolute left-0 right-0 top-full mt-1 z-50 bg-white border rounded-md shadow-xl max-h-60 overflow-y-auto;
+  }
+
+  .smart-dropdown-option {
+    @apply px-3 py-2 text-sm cursor-pointer;
+  }
+
+  .smart-dropdown-option-hover {
+    @apply hover:bg-gray-50;
+  }
+
+  .smart-dropdown-option-selected {
+    @apply bg-gray-100 font-medium;
+  }
+
+  .smart-dropdown-option-highlighted {
+    @apply bg-blue-100;
+  }
+
+  .smart-dropdown-search {
+    @apply w-full px-3 py-2 border-b text-sm outline-none;
+  }
+
+  .smart-dropdown-truncate {
+    @apply truncate max-w-[90%] inline-block align-middle;
+  }
+}
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+
+/* appmodal */
+.app-modal {
+  max-width: 90vw;
+  width: 500px;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background-color: white;
+}
+
+.app-modal[data-size="sm"] {
+  width: 400px;
+}
+
+.app-modal[data-size="md"] {
+  width: 600px;
+}
+
+.app-modal[data-size="lg"] {
+  width: 800px;
+}
+
+.app-modal[data-size="xl"] {
+  width: 1000px;
+}
+
+.app-modal[data-size="2xl"] {
+  width: 1200px;
+}
+
+.app-modal[data-size="3xl"] {
+  width: 1400px;
+}
+
+
+
+.app-modal-content {
+  margin: 1rem 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.app-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* checkbox */
+.smart-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.smart-checkbox:hover input[type="checkbox"] {
+  border-color: #6b7280;
+}
+
+.smart-checkbox input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: all 0.2s ease;
+}
+
+.smart-checkbox input[type="checkbox"]:checked {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.smart-checkbox input[type="checkbox"]:checked::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(1);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em white;
+  transform-origin: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-color: white;
+}
+
+.smart-checkbox input[type="checkbox"]:indeterminate {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.smart-checkbox input[type="checkbox"]:indeterminate::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(1);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em white;
+  transform-origin: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E");
+  background-color: white;
+}
+
+.smart-checkbox input[type="checkbox"]:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #e5e7eb, 0 0 0 4px #3b82f6;
+}
+
+.smart-checkbox input[type="checkbox"]:disabled {
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.smart-checkbox input[type="checkbox"]:disabled + span {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.smart-checkbox-label {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  user-select: none;
+}
+
+.smart-checkbox-required {
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+/* date */
+.smart-day-selector {
+  position: relative;
+  width: 100%;
+  padding-left: 0.25rem;  
+}
+
+.smart-day-selector-label {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.smart-day-selector-label-required {
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+.smart-day-selector-button {
+  width: 100%;
+  /* border: 1px solid #d1d5db; */
+  /* border-radius: 0.375rem; */
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  transition: all 0.2s ease;
+  background-color: inherit;
+  color: #111827;
+  cursor: pointer;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.smart-day-selector-button:hover {
+  border-color: #9ca3af;
+}
+
+.smart-day-selector-button:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+.smart-day-selector-dropdown {
+  position: absolute;
+  z-index: 50;
+  margin-top: 0.25rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: auto;
+  min-width: 280px;
+}
+
+/* Override react-calendar base styles */
+.smart-day-selector .react-calendar {
+  border: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+.smart-day-selector .react-calendar__navigation button:enabled:hover,
+.smart-day-selector .react-calendar__navigation button:enabled:focus {
+  background-color: #f3f4f6;
+}
+
+.smart-day-selector .react-calendar__tile:enabled:hover,
+.smart-day-selector .react-calendar__tile:enabled:focus {
+  background-color: #e5e7eb;
+}
+
+.smart-day-selector .react-calendar__tile--active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.smart-day-selector .react-calendar__tile--active:enabled:hover,
+.smart-day-selector .react-calendar__tile--active:enabled:focus {
+  background-color: #2563eb;
+}
+
+.smart-day-selector-actions {
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.smart-day-selector-button-cancel {
+  flex: 1;
+  background-color: #e5e7eb;
+  color: #4b5563;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.smart-day-selector-button-cancel:hover {
+  background-color: #d1d5db;
+}
+
+.smart-day-selector-button-apply {
+  flex: 1;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.smart-day-selector-button-apply:hover {
+  background-color: #2563eb;
+}
+
+/* dropdown */
+/* Global SmartDropdown Styles */
+.smart-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.smart-dropdown-label {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.smart-dropdown-label-required {
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+.smart-dropdown-button {
+  width: 100%;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.smart-dropdown-button:hover {
+  background-color: #f9fafb;
+}
+
+.smart-dropdown-button:focus {
+  outline: none;
+}
+
+.smart-dropdown-button-content {
+  display: flex;
+  /* justify-content: space-between; */
+  align-items: center;
+}
+
+.smart-dropdown-selected-text {
+  display: flex;
+  align-items: center;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.smart-dropdown-arrow {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: #18181b;
+  margin-left: 0.25rem;
+  flex-shrink: 0;
+}
+
+.smart-dropdown-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  z-index: 50;
+  background-color: white;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.smart-dropdown-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.smart-dropdown-option {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.smart-dropdown-option-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  display: flex;
+  align-items: center;
+}
+
+.smart-dropdown-option-highlighted {
+  background-color: #dbeafe;
+}
+
+.smart-dropdown-option-selected {
+  background-color: #f3f4f6;
+  font-weight: 500;
+}
+
+.smart-dropdown-option:hover:not(.smart-dropdown-option-highlighted):not(.smart-dropdown-option-selected) {
+  background-color: #f9fafb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .smart-dropdown-menu {
+    max-height: 12rem;
+  }
+  
+  .smart-dropdown-button,
+  .smart-dropdown-search,
+  .smart-dropdown-option {
+    padding: 0.625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .smart-dropdown-selected-text,
+  .smart-dropdown-option-text {
+    max-width: 85%;
+  }
+}
+
+/* tabswitch */
+
+.tab-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tab-button {
+    position: relative;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #2563eb; /* blue-600 */
+}
+
+.tab-button-active {
+    color: #2563eb;
+}
+
+.tab-button-active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #2563eb; /* blue underline */
+    transition: width 0.3s ease;
+}
+
+.tab-button-inactive {
+    color: #9ca3af; /* gray-400 */
+}
+
+
+/* taskcard */
+.task-card {
+  width: 100%;
+  cursor: pointer;
+  border-radius: 0.75rem; /* rounded-xl */
+  border: 1px solid #e5e7eb; /* border-gray-200 */
+  background-color: #ffffff;
+  transition: box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* hover:shadow-md */
+}
+
+.task-card-body {
+  padding: 1.5rem; /* p-6 */
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.task-card-title {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 500;
+  color: #1f2937; /* text-gray-800 */
+}
+
+.task-card-menu-button {
+  padding: 0.25rem;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.task-card-menu-button:hover {
+  background-color: #f3f4f6; /* hover:bg-gray-100 */
+}
+
+.task-card-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.task-card-pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  background-color: #dbeafe; /* bg-blue-100 */
+  color: #1e3a8a; /* text-blue-800 */
+  font-weight: 500;
+}
+
+.task-card-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563; /* text-gray-600 */
+}
+
+.task-card-progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.task-card-progress-bar {
+  position: relative;
+  width: 8rem; /* 32 Tailwind units */
+  height: 0.5rem;
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.task-card-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #f59e0b; /* amber-500 */
+  border-radius: 9999px;
+}
+
+.task-card-progress-text {
+  font-size: 0.75rem;
+  color: #6b7280; /* gray-500 */
+}
+
+/* activity */
+/* Activity Component Styles */
+
+.activity-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  height: 100vh;           /* Full screen height */
+  overflow-y: auto;        /* Enable vertical scroll */
+
+  /* Hide scrollbar cross-browser */
+  scrollbar-width: none;   /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.activity-container::-webkit-scrollbar {
+  display: none;           /* Chrome, Safari, Edge */
+}
+
+.activity-heading {
+  font-size: 1.125rem;      /* text-lg */
+  font-weight: 600;         /* font-semibold */
+  color: #1f2937;           /* text-gray-800 */
+}
+
+.activity-list {
+  list-style-type: disc;
+  padding-left: 1.25rem;    /* pl-5 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;              /* space-y-2 */
+}
+
+.activity-item {
+  font-size: 0.875rem;      /* text-sm */
+  color: #374151;           /* text-gray-700 */
+}
+
+.activity-loading,
+.activity-empty {
+  color: #6b7280;           /* text-gray-500 */
+}
+
+.activity-error {
+  color: #ef4444;           /* text-red-500 */
+}
+
+/*taskswitch*/
+
+/* TaskStyles.css */
+/* Global styles for task components */
+
+/* Task Tab Switch Styles */
+.task-tab-container {
+  margin-bottom: 1.5rem;
+}
+
+.task-tab-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.task-tab-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.task-tab-button.active {
+  border-bottom: 2px solid #3b82f6; /* border-blue-500 */
+  color: #3b82f6; /* text-blue-500 */
+}
+
+.task-tab-button.inactive {
+  color: #6b7280; /* text-gray-500 */
+}
+
+.task-tab-button.inactive:hover {
+  color: #4b5563; /* text-gray-600 */
+  border-bottom: 2px solid #e5e7eb; /* border-gray-300 */
+}
+
+.task-tab-content {
+  padding-top: 0.5rem;
+}
+
+/* Task Card Styles */
+.task-card-body {
+  padding: 1.5rem; /* p-6 */
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.task-card-title {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 500;
+  color: #1f2937; /* text-gray-800 */
+}
+
+.task-card-menu-button {
+  padding: 0.25rem;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.task-card-menu-button:hover {
+  background-color: #f3f4f6; /* hover:bg-gray-100 */
+}
+
+.task-card-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.task-card-pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  background-color: #dbeafe; /* bg-blue-100 */
+  color: #1e3a8a; /* text-blue-800 */
+  font-weight: 500;
+}
+
+.task-card-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563; /* text-gray-600 */
+}
+
+.task-card-progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.task-card-progress-bar {
+  position: relative;
+  width: 8rem; /* 32 Tailwind units */
+  height: 0.5rem;
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.task-card-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #f59e0b; /* amber-500 */
+  border-radius: 9999px;
+}
+
+.task-card-progress-text {
+  font-size: 0.75rem;
+  color: #6b7280; /* gray-500 */
+}
+
+/* Activity Component Styles */
+.activity-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  height: 100vh;           /* Full screen height */
+  overflow-y: auto;        /* Enable vertical scroll */
+
+  /* Hide scrollbar cross-browser */
+  scrollbar-width: none;   /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.activity-container::-webkit-scrollbar {
+  display: none;           /* Chrome, Safari, Edge */
+}
+
+.activity-heading {
+  font-size: 1.125rem;      /* text-lg */
+  font-weight: 600;         /* font-semibold */
+  color: #1f2937;           /* text-gray-800 */
+}
+
+.activity-list {
+  list-style-type: disc;
+  padding-left: 1.25rem;    /* pl-5 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;              /* space-y-2 */
+}
+
+.activity-item {
+  font-size: 0.875rem;      /* text-sm */
+  color: #374151;           /* text-gray-700 */
+}
+
+.activity-loading,
+.activity-empty {
+  color: #6b7280;           /* text-gray-500 */
+}
+
+.activity-error {
+  color: #ef4444;           /* text-red-500 */
+}
+
+/* reviewchecklist */
+/* ReviewChecklist Styles */
+
+.review-checklist-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* space-y-6 */
+}
+
+.review-checklist-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  background-color: #f9fafb;
+  padding: 1rem;
+}
+
+.review-checklist-date {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.review-checklist-time {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.review-checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.review-checklist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.review-checklist-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.review-checklist-meta {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.review-checklist-status {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.review-checklist-status.completed {
+  background-color: #d1fae5; /* green-100 */
+  color: #065f46;            /* green-800 */
+}
+
+.review-checklist-status.pending {
+  background-color: #fee2e2; /* red-100 */
+  color: #991b1b;            /* red-800 */
+}
+
+.review-checklist-empty {
+  width: 100%;
+  padding: 0.5rem 3rem 0.5rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+  height: 88px;
+}
+
+/* dashboard */
+.dashboard-container {
+  background-color: var(--background-color);
+  min-height: 100vh;
+}
+
+/* Card styles */
+.dashboard-card {
+  background-color: var(--card-background);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Task item styles */
+.task-item {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.task-item:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.task-title {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.task-date {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Progress indicators */
+.progress-indicator {
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.progress-red {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: rgb(220, 38, 38);
+}
+
+.progress-yellow {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: rgb(217, 119, 6);
+}
+
+.progress-blue {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: rgb(37, 99, 235);
+}
+
+.progress-green {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: rgb(5, 150, 105);
+}
+
+/* Scrollbars */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+/* Task create modal styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: var(--card-background);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* addchecklist */
+
+/* Container for the checklist component */
+.checklist-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* spacing between input rows and the button */
+  width: 100%;
+}
+
+/* Each checklist item input row */
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Optional: Consistent styling for SmartInputBox if it accepts className */
+.smart-input {
+  flex-grow: 1;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--input-background, #fff);
+  color: var(--text-primary);
+}
+
+/* Add Checklist Button styling */
+.add-checklist-button {
+  color: var(--primary-color);
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.add-checklist-button:hover {
+  background-color: var(--primary-color);
+  color: #303030;
+}
+
+/* meta */
+.task-meta-grid .meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+}
+
+.meta-label {
+  width: 6rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937); /* zinc-800 fallback */
+}
+
+.meta-value {
+  flex-grow: 1;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280); /* gray-500 fallback */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.progress-bar-container {
+  position: relative;
+  width: 4rem;
+  height: 0.375rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #4ade80;
+  border-radius: inherit;
+}
+
+.review-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.truncated-box {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background-color: var(--hover-bg, #f9fafb);
+}
+
+
+/* Required styles for react-beautiful-dnd */
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.grid-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+}
+
+.grid-item:active {
+  cursor: grabbing;
+}
+
+.wrap-text {
+  text-wrap: wrap; /* Ensures text wraps within the container */
+  white-space: normal; /* Default, but reinforces line breaks */
+  word-break: break-word; /* Breaks long words if needed */
+  overflow-wrap: break-word;
+}
