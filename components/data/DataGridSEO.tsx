@@ -35,6 +35,8 @@ import {
   generateDailySummaryColumnDefs,
   mapQueryTotalsToRows,
   generateQueryTotalsColumnDefs,
+  mapIndexedPagesToRows,
+  generateIndexedPagesColumnDefs,
 } from "./columnutils-seo";
 
 // Detects query_totals format (array of objects with query, current_period.query_totals, comparison_period.query_totals)
@@ -43,6 +45,11 @@ function looksLikeQueryTotalsFormat(x: any): boolean {
     (x.current_period && x.current_period.query_totals) ||
     (x.comparison_period && x.comparison_period.query_totals)
   );
+}
+
+// Detects indexed pages format (array of objects with s_no, page_url, optional issue_type/issue_count)
+function looksLikeIndexedPagesFormat(x: any): boolean {
+  return x && typeof x === "object" && typeof x.s_no === "number" && typeof x.page_url === "string";
 }
 
 ModuleRegistry.registerModules([
@@ -109,10 +116,12 @@ const dropdownStyles = `
 `;
 
 type Props = {
-  /** Page-level array OR Query-wise object OR array of query-wise objects */
+  /** Page-level array OR Query-wise object OR array of query-wise objects OR indexed pages array */
   rawData: any[] | Record<string, any>;
   /** Optional override. If omitted, we auto-detect. */
   mode?: "page" | "query";
+  /** For indexed pages, specify the tab type to determine column visibility */
+  tabType?: 'no_issues' | 'with_issues' | 'not_indexed';
 };
 
 function looksLikeQueryWise(x: any): boolean {
@@ -170,12 +179,13 @@ function getAvailableUserTypes(rawData: any[]): string[] {
   });
 }
 
-export default function DataGridSEO({ rawData, mode }: Props) {
+export default function DataGridSEO({ rawData, mode, tabType = 'no_issues' }: Props) {
 
   // Detect format
   const formatType = useMemo(() => {
     if (Array.isArray(rawData)) {
       const first = rawData[0];
+      if (looksLikeIndexedPagesFormat(first)) return "indexed_pages";
       if (looksLikeDailyFormat(first)) return "daily";
       if (looksLikeSummaryFormat(first)) return "summary";
       if (looksLikeQueryTotalsFormat(first)) return "query_totals";
@@ -271,6 +281,9 @@ export default function DataGridSEO({ rawData, mode }: Props) {
 
   // Build rows
   const rowData = useMemo(() => {
+    if (formatType === "indexed_pages") {
+      return mapIndexedPagesToRows(Array.isArray(rawData) ? rawData : [rawData]);
+    }
     if (formatType === "daily") {
       return mapDailySummaryToRows(Array.isArray(rawData) ? rawData : [rawData], selectedUserTypes);
     }
@@ -299,7 +312,8 @@ export default function DataGridSEO({ rawData, mode }: Props) {
   const columnDefs = useMemo(() => {
     let cols;
     const hasBothPeriods = periods.current && periods.previous;
-    if (formatType === "daily") cols = generateDailySummaryColumnDefs(selectedUserTypes);
+    if (formatType === "indexed_pages") cols = generateIndexedPagesColumnDefs(tabType);
+    else if (formatType === "daily") cols = generateDailySummaryColumnDefs(selectedUserTypes);
     else if (formatType === "summary") cols = generateSeoSummaryColumnDefs(selectedUserTypes);
     else if (formatType === "query_totals") cols = generateQueryTotalsColumnDefs();
     else if (formatType === "query") {
@@ -336,7 +350,7 @@ export default function DataGridSEO({ rawData, mode }: Props) {
       cols = cols.filter(col => col.field !== "period");
     }
     return cols;
-  }, [formatType, selectedUserTypes, periods, rawData]);
+  }, [formatType, selectedUserTypes, periods, rawData, tabType]);
 
   // --- Memoized Visible Columns ---
   const visibleColumnDefs = useMemo(() => {

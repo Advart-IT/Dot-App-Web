@@ -1,3 +1,4 @@
+// dataapi.ts (with new API function)
 import { API_URL } from './apiurl';
 
 export async function fetchColumnsAndFields(business: string): Promise<any> {
@@ -119,6 +120,7 @@ export interface SaleReportParams {
     start_date: string;
     end_date: string;
   };
+  target_filter_type?: 'single_filter' | 'dual_filter';
 }
 
 export async function fetchSaleReport(params: SaleReportParams): Promise<any> {
@@ -137,6 +139,9 @@ export async function fetchSaleReport(params: SaleReportParams): Promise<any> {
     }
     if (params.compare_with) {
       query.append("compare_with", JSON.stringify(params.compare_with));
+    }
+    if (params.target_filter_type) {
+      query.append("target_filter_type", params.target_filter_type);
     }
 
     const response = await fetch(
@@ -277,23 +282,23 @@ export async function setDailyTargets(
   }
 }
 
-
-export interface UpdateTargetEntryPayload {
+export interface DualFilterTargetPayload {
   Business_Name: string;
-  Target_Column: string;
-  Target_Key: string;
   Start_Date: string;
-  Target_Value?: number;
-  status?: boolean;
-  is_deleted?: boolean; // Added property
+  Primary_Target_Column: string;
+  Primary_Target_Key: string;
+  Secondary_Target_Column: string;
+  Secondary_Target_Key: string;
+  Target_Value: number;
+  target_filter_type: "dual_filter";
 }
 
-export async function updateTargetEntry(
-  payload: UpdateTargetEntryPayload
+export async function setDualFilterTargets(
+  targets: DualFilterTargetPayload[]
 ): Promise<any> {
   try {
     const response = await fetch(
-      `${API_URL}/api/target/update-target-entry`,
+      `${API_URL}/api/target/set-dual-filter-targets`,
       {
         method: "POST",
         credentials: "include",
@@ -301,18 +306,18 @@ export async function updateTargetEntry(
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(targets),
       }
     );
 
     if (response.ok) {
       return await response.json();
     } else {
-      throw new Error(`Failed to update target entry: ${response.status}`);
+      throw new Error(`Failed to set dual filter targets: ${response.status}`);
     }
   } catch (error) {
-    console.error("Error updating target entry:", error);
-    throw new Error("An error occurred while updating target entry");
+    console.error("Error setting dual filter targets:", error);
+    throw new Error("An error occurred while setting dual filter targets");
   }
 }
 
@@ -350,6 +355,7 @@ export interface SaleReportDetailedParams {
   col: string;
   group_by?: string;
   item_filter?: Record<string, any>;
+  target_filter_type?: 'single_filter' | 'dual_filter';
 }
 
 export async function fetchSaleReportDetailed(params: SaleReportDetailedParams): Promise<any> {
@@ -372,6 +378,9 @@ export async function fetchSaleReportDetailed(params: SaleReportDetailedParams):
     if (params.item_filter) {
       query.append("item_filter", JSON.stringify(params.item_filter));
     }
+    if (params.target_filter_type) {
+      query.append("target_filter_type", params.target_filter_type);
+    }
 
     const response = await fetch(
       `${API_URL}/api/Sale-Report/Detiled?${query.toString()}`,
@@ -392,5 +401,85 @@ export async function fetchSaleReportDetailed(params: SaleReportDetailedParams):
   } catch (error) {
     console.error("Error fetching detailed sale report:", error);
     throw new Error("An error occurred while fetching detailed sale report");
+  }
+}
+
+export interface UpdateDualFilterTargetEntryPayload {
+  Business_Name: string;
+  Primary_Target_Column: string;
+  Primary_Target_Key: string;
+  Secondary_Target_Column: string;
+  Secondary_Target_Key: string;
+  Start_Date: string;
+  status?: boolean;
+  Target_Value?: number;
+  is_deleted?: boolean;
+  target_filter_type?: "dual_filter";
+}
+
+export async function updateDualFilterTargetEntry(
+  payload: UpdateDualFilterTargetEntryPayload
+): Promise<any> {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/target/update-dual-filter-target-entry`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error(`Failed to update dual filter target entry: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error updating dual filter target entry:", error);
+    throw new Error("An error occurred while updating dual filter target entry");
+  }
+}
+
+export interface UpdateTargetEntryPayload {
+  Business_Name: string;
+  Target_Column: string;
+  Target_Key: string;
+  Start_Date: string;
+  Target_Value?: number;
+  status?: boolean;
+  is_deleted?: boolean; // Added property
+  target_filter_type?: "single_filter"; // Added for clarity if needed by backend
+}
+
+export async function updateTargetEntry(
+  payload: UpdateTargetEntryPayload
+): Promise<any> {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/target/update-target-entry`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error(`Failed to update target entry: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error updating target entry:", error);
+    throw new Error("An error occurred while updating target entry");
   }
 }

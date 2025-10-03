@@ -6,6 +6,9 @@ import FilterGroup from "@/components/tasks/task-filter";
 import TaskCreate from "@/components/tasks/task-create";
 import { AppModal } from "@/components/custom-ui/app-modal";
 import TaskCardGrid from "@/components/tasks/task-card";
+import { useSearchParams, useRouter } from 'next/navigation';
+
+const STORAGE_KEY = 'task_filter_state';
 
 const FILTERS_TEMPLATE = [
   { label: "My Tasks", value: "assigned_to", count: 0 },
@@ -41,6 +44,27 @@ export default function TasksPage() {
   const [sortOrder, setSortOrder] = useState("desc");
   const lastParamsRef = useRef<string | null>(null);
   const forceRefreshRef = useRef(0);
+
+  const saveFilterState = (state: any) => {
+    if (typeof window !== 'undefined') {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+};
+
+const getStoredFilterState = () => {
+    if (typeof window !== 'undefined') {
+        const stored = sessionStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+};
+const isPageRefresh = () => {
+    if (typeof window !== 'undefined') {
+        return window.performance && 
+               window.performance.navigation.type === window.performance.navigation.TYPE_RELOAD;
+    }
+    return false;
+};
 
   useEffect(() => {
     const fetchTasksData = async (isLoadMore = false) => {

@@ -694,3 +694,91 @@ export function generateDailySummaryColumnDefs(selectedTypes: string[]): ColDef<
 
   return baseCols;
 }
+
+// Types for indexed pages data
+export type RowIndexedPage = {
+  s_no: number;
+  page_url: string;
+  issue_type?: string;
+  issue_count?: number;
+};
+
+// Map indexed pages data to rows
+export function mapIndexedPagesToRows(raw: any[]): RowIndexedPage[] {
+  return raw.map(item => ({
+    s_no: item.s_no ?? 0,
+    page_url: item.page_url ?? "",
+    issue_type: item.issue_type,
+    issue_count: item.issue_count,
+  }));
+}
+
+// Generate column definitions for indexed pages based on tab type
+export function generateIndexedPagesColumnDefs(tabType: 'no_issues' | 'with_issues' | 'not_indexed'): ColDef<RowIndexedPage>[] {
+  const baseCols: ColDef<RowIndexedPage>[] = [
+    {
+      headerName: "S.No",
+      field: "s_no",
+      filter: "agNumberColumnFilter",
+      sortable: true,
+      resizable: true,
+      minWidth: 80,
+      maxWidth: 100,
+    },
+    {
+      headerName: "Page URL",
+      field: "page_url",
+      filter: "agTextColumnFilter",
+      sortable: true,
+      resizable: true,
+      minWidth: 300,
+      cellRenderer: (params: any) => {
+        const url = params.value;
+        return url ? (
+          <a 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ 
+              color: '#2563eb', 
+              textDecoration: 'underline',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#1d4ed8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#2563eb';
+            }}
+          >
+            {url}
+          </a>
+        ) : "";
+      },
+    },
+  ];
+
+  // Add issue columns only for 'with_issues' tab
+  if (tabType === 'with_issues') {
+    baseCols.push(
+      {
+        headerName: "Issue Type",
+        field: "issue_type",
+        filter: "agTextColumnFilter",
+        sortable: true,
+        resizable: true,
+        minWidth: 150,
+      },
+      {
+        headerName: "Issue Count",
+        field: "issue_count",
+        filter: "agNumberColumnFilter",
+        sortable: true,
+        resizable: true,
+        minWidth: 120,
+      }
+    );
+  }
+
+  return baseCols;
+}

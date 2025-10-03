@@ -1,0 +1,1002 @@
+{
+  "site": "sc-domain:beelittle.in",
+  "total_urls": 85,
+  "summary": {
+    "indexed_no_major_issues": 14,
+    "indexed_with_issues": 56,
+    "not_indexed": 15,
+    "errors": 0
+  },
+  "indexed_pages_no_major_issues": [
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-frock-for-baby-girls",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-ethnic-shirt-dhoti-set",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-baby-hoodie",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/best-organic-newborn-baby-diapers",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-baby-briefs-newborn",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-cloth-diapers-nappies-muslin",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/carry-nest-newborn-sleeping-bag",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-cotton-face-mask",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-comb-brush-set",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/muslin-baby-swaddle",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-toddler-blankets-and-quilts",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/portable-baby-changing-mat",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/thottil-chain-baby-cradle",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/thottil-stick-neem-wood",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "General",
+          "message": "No major issues detected",
+          "severity": "INFO",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "indexed_pages_with_issues": [
+    {
+      "page_url": "https://www.beelittle.in/store/collections/traditional-baby-thottil",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 50
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cotton-thottil-baby-cradle-for-newborns",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 50
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/newborn-baby-clothes-organic-cotton-jablas",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothing-sets",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-kids-toddler-pajamas",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 39
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-vests-cotton-sleeveless",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 53
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-printed-cotton-shirt",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-muslin-baby-pyjamas",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 39
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-cotton-ethnic-frock",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/soft-silk-jabla-panjakajam-set",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 9
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cotton-baby-sweater",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 17
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cloth-diapers-for-babies",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/muslin-towel-newborn",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 26
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/muslin-hooded-towel-newborn",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 17
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/muslin-baby-wipes-newborn",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/neem-oil-baby-detergent-soap",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-bed-protector",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 9
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-bed-set-kapok-cotton",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-wrap-bed-newborn",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 19
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-pillow-bolster-set",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 14
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cotton-nursing-cover",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 14
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-feeding-pillow-cover",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/muslin-burp-cloth",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 17
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-diaper-caddy-storage-bag",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-wooden-baby-rattle-toys",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/wooden-wheel-toys-baby",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/newborn-baby-gift-hamper",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 16
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/newborn-essential-kit-baby-care",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/hospital-kit-newborn-baby-essentials",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-milestone-photo-cards",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-maternity-pads",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-baby-holding-sheet",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 25
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-baby-clothes-jablas",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cotton-baby-sleeping-bag",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-suit-set-velvet-coat-cotton-pants",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 16
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-bed-with-net",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 15
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/winter-throw-blanket",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 7
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/stretchable-maternity-pants",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-vests-tshirts",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 54
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-cotton-pants-and-shorts",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-top-bottom-sets",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/newborn-cap-mittens-booties-set",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 60
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/premium-thottil-starter-kit",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 27
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/swaddle-cloth",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 16
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/kids-baby-sleepwear-pyjamas",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 45
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-blanket",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/muslin-towels",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 28
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/hooded-towels",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 17
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-wipes",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/thottil-mosquito-net",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 27
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-rompers",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 52
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/thottil-chain",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/thottil-stick",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-thottil",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 27
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/mosquito-net",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 48
+        }
+      ]
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-thottil-kit-complete-cradle-set",
+      "indexed": true,
+      "status": "Submitted and indexed",
+      "issues": [
+        {
+          "type": "Product snippets",
+          "message": "Either \"offers\", \"review\", or \"aggregateRating\" should be specified",
+          "severity": "ERROR",
+          "count": 30
+        }
+      ]
+    }
+  ],
+  "not_indexed_pages": [
+    {
+      "page_url": "https://www.beelittle.in/store/collections/mosquito-net-for-thottil",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-muslin-cotton-baby-swaddle-wrap-newborn",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-cotton-kids-tshirts",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-cotton-shorts",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-cotton-pants",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-jablas-shorts-set",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-clothes-tshirt-shorts-set",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-baby-joggers",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/toddler-quilt-soft-blanket",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/cotton-dohar-baby-blanket",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cotton-baby-socks",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-drool-bib-for-babies",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/organic-cotton-baby-cap",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/newborn-muslin-mittens",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    },
+    {
+      "page_url": "https://www.beelittle.in/store/collections/baby-muslin-booties",
+      "indexed": false,
+      "status": "URL is unknown to Google"
+    }
+  ],
+  "error_pages": []
+}

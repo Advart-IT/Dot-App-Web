@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-
 import { Button } from '@/components/custom-ui/button2';
 import CustomSearch from './customsearch';
 import SearchConsole from './searchconsole';
+import IndexedPages from './indexed_pages';
 
 
 const SECTION_OPTIONS = ['Search Console', 'Indexed Pages', 'Custom Search'];
@@ -32,9 +32,9 @@ export default function seo({ brandName }: { brandName: string }) {
                         <div style={{ display: selectedSection === 'Search Console' ? 'block' : 'none' }}>
                             <SearchConsole brandName={brandName} />
                         </div>
-                        {/* <div style={{ display: selectedSection === 'Indexed Pages' ? 'block' : 'none' }}>
-                            <CollectionPageSection brandName={brandName} />
-                        </div> */}
+                        <div style={{ display: selectedSection === 'Indexed Pages' ? 'block' : 'none' }}>
+                            <IndexedPages brandName={brandName} />
+                        </div>
                         <div style={{ display: selectedSection === 'Custom Search' ? 'block' : 'none' }}>
                             <CustomSearch />
                         </div>
