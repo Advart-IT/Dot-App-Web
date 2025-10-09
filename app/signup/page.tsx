@@ -183,7 +183,6 @@ export default function SignupPage() {
                 {/* Show info for invite signup */}
                 {isInviteSignup && (
                   <div className="text-center text-sm text-gray-600">
-                    <p>You were invited to join the Task Management System</p>
                     <p className="mt-1">
                       Already have an account?{" "}
                       <Link href="/login" className="text-primary hover:underline">
