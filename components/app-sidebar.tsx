@@ -5,7 +5,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useUser } from "@/hooks/usercontext"
-import { LogOut, Home, CheckSquare, Menu, X, PanelRight, PanelLeft, Edit, ChartLine } from "lucide-react"
+import { LogOut, Home, CheckSquare, Menu, X, PanelRight, PanelLeft, Edit, ChartLine, Settings } from "lucide-react"
 
 interface NavItem {
     title: string
@@ -113,23 +113,43 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
                 {/* Footer */}
                 <div className="p-2 mt-auto border-t border-gray-100">
                     {isDesktopSidebarOpen ? (
-                        <div className="flex items-center justify-between w-full py-1.5 px-2 text-gray-500 hover:text-gray-700 transition-colors">
-                            <div className="flex items-center space-x-2">
-                                <div className="h-6 w-6 rounded-full bg-[#fcfaf8] flex items-center justify-center">
-                                    <span className="text-xs font-medium text-gray-600">{user?.username?.charAt(0) || "U"}</span>
+                        <div className="space-y-1">
+                            {user?.depatment === 'Advart' && (
+                                <Link
+                                    href="/profile"
+                                    className="flex items-center w-full py-1.5 px-2 text-gray-500 hover:text-gray-700 transition-colors rounded-md"
+                                >
+                                    <Settings className="h-5 w-5 mr-3" />
+                                    <span className="text-sm">Settings</span>
+                                </Link>
+                            )}
+                            <div className="flex items-center justify-between w-full py-1.5 px-2 text-gray-500 hover:text-gray-700 transition-colors">
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-6 w-6 rounded-full bg-[#fcfaf8] flex items-center justify-center">
+                                        <span className="text-xs font-medium text-gray-600">{user?.username?.charAt(0) || "U"}</span>
+                                    </div>
+                                    <span className="text-sm">{user?.username || "User"}</span>
                                 </div>
-                                <span className="text-sm">{user?.username || "User"}</span>
+                                <button
+                                    onClick={handleLogout}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                    aria-label="Log out"
+                                >
+                                    <LogOut className="h-5 w-5" />
+                                </button>
                             </div>
-                            <button
-                                onClick={handleLogout}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
-                                aria-label="Log out"
-                            >
-                                <LogOut className="h-5 w-5" />
-                            </button>
                         </div>
                     ) : (
-                        <div className="flex justify-center">
+                        <div className="flex flex-col items-center space-y-2">
+                            {user?.depatment === 'Advart' && (
+                                <Link
+                                    href="/profile"
+                                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors rounded-md"
+                                    aria-label="Settings"
+                                >
+                                    <Settings className="h-5 w-5" />
+                                </Link>
+                            )}
                             <button
                                 onClick={handleLogout}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -200,7 +220,17 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
                     </ul>
                 </nav>
 
-                <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-gray-100">
+                <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-gray-100 space-y-1">
+                    {user?.depatment === 'Advart' && (
+                        <Link
+                            href="/profile"
+                            className="flex items-center w-full py-1.5 px-2 text-gray-500 hover:text-gray-700 transition-colors rounded-md"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            <Settings className="h-5 w-5 mr-3" />
+                            <span className="text-sm">Settings</span>
+                        </Link>
+                    )}
                     <div className="flex items-center justify-between w-full py-1.5 px-2 text-gray-500 hover:text-gray-700 transition-colors">
                         <div className="flex items-center space-x-2">
                             <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center">

@@ -10,7 +10,8 @@ interface User {
   username: string;
   email: string;
   designation: string;
-  permissions?: {
+  depatment?: string; // Note: backend has typo 'depatment' instead of 'department'
+  permissions: {
     admin: boolean;
     brands: {
       [brandName: string]: {
@@ -18,16 +19,26 @@ interface User {
       };
     };
     settings: boolean;
-    reportrix?: {
+    reportrix: {
       [brand: string]: string[];
-    }; // <-- Updated structure: brand keys with string[] values
+    };
+    brand_admin?: boolean;
+    reportrix_admin?: boolean;
+    invite_level?: 'own_brand' | 'any_brand';
   };
   people: Array<{
     employee_id: number;
     username: string;
   }>;
-  dropdowns?: {
-    [key: string]: string[]; // Dynamic keys with string array values
+  dropdowns: {
+    brand_name: string[];
+    role: string[];
+    format_type: string[];
+    top_pointers: string[];
+    post_type: string[];
+    marketing_funnel: string[];
+    status: string[];
+    ads_type: string[];
   };
 }
 

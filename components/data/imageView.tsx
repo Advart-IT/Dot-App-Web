@@ -25,7 +25,7 @@ const REQUIRED_FIELDS = [
     "Days_Sold_Out_Past"
 ];
 const API_BASE =   // CRA
-  "https://localhost:9000";
+  "https://data.advartit.in";
 
 interface ImageViewProps {
     data: Item[];

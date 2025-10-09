@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/custom-ui/toast-provider";
 import { signupUser } from "@/lib/auth-api";
+import { completeInviteRegistration } from "@/lib/registration/register";
 import { Button } from "@/components/custom-ui/button";
 import SmartInputBox from "@/components/custom-ui/input-box";
 import { Label } from "@/components/ui/label";
@@ -21,14 +22,35 @@ import { Loader2 } from "lucide-react";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [designation, setDesignation] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInviteSignup, setIsInviteSignup] = useState(false);
+  const [inviteToken, setInviteToken] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+
+  // Check for invite parameters on component mount
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const employee_id = searchParams.get('employee_id');
+    
+    console.log('URL parameters:', { token, employee_id });
+    
+    if (token && employee_id) {
+      setIsInviteSignup(true);
+      setInviteToken(token);
+      setEmployeeId(employee_id);
+      console.log('Invite signup mode enabled');
+    } else {
+      setIsInviteSignup(false);
+      console.log('Regular signup mode');
+    }
+  }, [searchParams]);
 
   const validatePassword = () => {
     if (password !== confirmPassword) {
@@ -51,18 +73,27 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      await signupUser(username, password, email, designation);
-      toast({
-        title: "Account Created!",
-        description: "Your account has been successfully created.",
-      });
+      if (isInviteSignup) {
+        // Handle invite-based registration
+        await completeInviteRegistration(inviteToken, username, password, designation);
+        toast({
+          title: "Registration Completed!",
+          description: "Your account has been successfully created from the invitation.",
+        });
+      } else {
+        // Handle regular signup
+        await signupUser(username, password, designation);
+        toast({
+          title: "Account Created!",
+          description: "Your account has been successfully created.",
+        });
+      }
       router.push("/login");
     } catch (error) {
       console.error("Signup error:", error);
       toast({
-        title: "Signup Failed",
-        description:
-          "An error occurred while creating your account. Please try again.",
+        title: isInviteSignup ? "Registration Failed" : "Signup Failed",
+        description: error instanceof Error ? error.message : "An error occurred while creating your account. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -76,8 +107,12 @@ export default function SignupPage() {
         <div className="w-full sm:w-1/2">
           <Card className="h-full rounded-none border-none shadow-none">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-              <CardDescription>Enter your information to create an account</CardDescription>
+              <CardTitle className="text-2xl font-bold">
+    Create an account
+              </CardTitle>
+              <CardDescription>
+                Enter your information to create an account
+              </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
@@ -86,16 +121,6 @@ export default function SignupPage() {
                   <SmartInputBox
                     value={username}
                     onChange={setUsername}
-                    required
-                    inputClassName="w-full p-2 text-md text-gray-900 border border-gray-300 rounded-md text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <SmartInputBox
-                    value={email}
-                    onChange={setEmail}
                     required
                     inputClassName="w-full p-2 text-md text-gray-900 border border-gray-300 rounded-md text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   />
@@ -138,19 +163,35 @@ export default function SignupPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
+                      {isInviteSignup ? "Completing registration..." : "Creating account..."}
                     </>
                   ) : (
-                    "Create account"
+                    isInviteSignup ? "Complete Registration" : "Create account"
                   )}
                 </Button>
 
-                <div className="text-center text-sm">
-                  Already have an account?{" "}
-                  <Link href="/login" className="text-primary hover:underline">
-                    Sign in
-                  </Link>
-                </div>
+                {/* Show login link only for regular signup */}
+                {!isInviteSignup && (
+                  <div className="text-center text-sm">
+                    Already have an account?{" "}
+                    <Link href="/login" className="text-primary hover:underline">
+                      Sign in
+                    </Link>
+                  </div>
+                )}
+                
+                {/* Show info for invite signup */}
+                {isInviteSignup && (
+                  <div className="text-center text-sm text-gray-600">
+                    <p>You were invited to join the Task Management System</p>
+                    <p className="mt-1">
+                      Already have an account?{" "}
+                      <Link href="/login" className="text-primary hover:underline">
+                        Sign in instead
+                      </Link>
+                    </p>
+                  </div>
+                )}
               </CardFooter>
             </form>
           </Card>
