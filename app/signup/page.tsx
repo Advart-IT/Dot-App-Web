@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-export default function SignupPage() {
+// Separate component that uses useSearchParams
+function SignupForm() {
   const [username, setUsername] = useState("");
   const [designation, setDesignation] = useState("");
   const [password, setPassword] = useState("");
@@ -208,5 +209,21 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main page component that wraps the form in Suspense
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }
