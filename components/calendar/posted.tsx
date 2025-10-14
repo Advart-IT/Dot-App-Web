@@ -4,6 +4,8 @@ import SmartDaySelector from "../custom-ui/dayselectcalendar";
 import SmartInput from "../custom-ui/input-box";
 import ContentView from "../socialmedia/contentview";
 import { Button } from "../custom-ui/button2";
+import SmartDropdown from "../custom-ui/dropdown2";
+import { useUser } from "@/hooks/usercontext";
 
 interface PostedViewProps {
     brandName: string;
@@ -13,6 +15,16 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
     const [contentList, setContentList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [selectedFormatType, setSelectedFormatType] = useState<string>("");
+    const { user } = useUser();
+
+    // Set default format type to first sorted option when user data loads
+    useEffect(() => {
+        if (user?.dropdowns?.format_type?.length && !selectedFormatType) {
+            const sortedFormatTypes = [...user.dropdowns.format_type].sort((a, b) => a.localeCompare(b));
+            setSelectedFormatType(sortedFormatTypes[0]);
+        }
+    }, [user, selectedFormatType]);
 
     useEffect(() => {
         if (!brandName) return;
@@ -26,12 +38,15 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             setLoading(true);
             try {
                 while (hasMore) {
-                    const response = await fetchContent({
+                    const requestPayload = {
                         brand_name: brandName,
                         status: "completed",
                         offset,
                         limit,
-                    });
+                        format_type: selectedFormatType,
+                    };
+                    
+                    const response = await fetchContent(requestPayload);
 
                     if (response?.data?.length) {
                         // Filter to include only past dates (before today)
@@ -61,7 +76,7 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         }
 
         fetchAllContent();
-    }, [brandName]);
+    }, [brandName, selectedFormatType]);
 
     const handleMarkAsPosted = async (contentId: number) => {
         try {
@@ -151,9 +166,28 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         setContentList(updatedData);
     };
 
+    // Prepare format type options from user data (sorted alphabetically)
+    const formatTypeOptions = [
+        ...(user?.dropdowns?.format_type?.map(format => ({
+            label: format,
+            value: format
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [])
+    ];
+
     return (
         <div className="w-full h-full text-14">
-            <h2 className="text-lg font-semibold mb-4">Completed Content</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Completed Content</h2>
+                <div className="w-48">
+                    <SmartDropdown
+                        options={formatTypeOptions}
+                        value={selectedFormatType}
+                        onChange={(value) => {
+                            setSelectedFormatType(value as string);
+                        }}
+                    />
+                </div>
+            </div>
 
             {loading ? (
                 <div className="flex justify-center items-center h-40 text-gray-600">
@@ -168,6 +202,15 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
                                     <SmartInput
                                         label="Content Name"
                                         value={content.content_name || ""}
+                                        onChange={() => { }}
+                                        readOnly
+                                    />
+                                </div>
+
+                                <div className="flex-[2]">
+                                    <SmartInput
+                                        label="Task Name"
+                                        value={content.task_name || ""}
                                         onChange={() => { }}
                                         readOnly
                                     />

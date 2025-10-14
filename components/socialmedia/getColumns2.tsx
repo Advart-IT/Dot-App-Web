@@ -62,7 +62,10 @@ export const getColumns2 = (format: string, status: string) => {
                 ["marketing_funnel", "top_pointers", "description", "hashtags", "seo_keywords"].includes(col.accessor)
             );
         } else if (format === "Ads") {
-            return commonformatColumns.filter((col) => ["ads_type"].includes(col.accessor));
+            return [
+                ...commonformatColumns.filter((col) => ["ads_type"].includes(col.accessor)),
+                { id: "category", label: "Category", accessor: "category", width: "150px" }
+            ];
         }
         return [];
     })();
