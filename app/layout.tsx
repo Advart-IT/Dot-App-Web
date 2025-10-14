@@ -58,7 +58,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <UserProvider>
-          <CollectionsProvider>npm r
+          <CollectionsProvider>
             <ToastProvider>
               {children}
             </ToastProvider>
