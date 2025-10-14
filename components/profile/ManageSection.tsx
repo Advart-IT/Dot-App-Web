@@ -39,6 +39,8 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [inviteEmail, setInviteEmail] = useState<string>('');
   const [selectedInviteBrands, setSelectedInviteBrands] = useState<string[]>([]); // Changed initial value
+  const [emailError, setEmailError] = useState<string>('');
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
 
   // Create user options from userData.people
   const userOptions = userData.people?.map(person => ({
@@ -48,7 +50,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   // Create invite brand options from actual brand names including advart
   const inviteBrandOptions = [
-    { label: 'Advart', value: 'Advart' },
+    { label: 'Advart', value: 'advart' },
     ...(userData.dropdowns?.brand_name?.map(brand => ({
       label: brand.charAt(0).toUpperCase() + brand.slice(1),
       value: brand
@@ -284,10 +286,56 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     }
   };
 
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Handle email input change with validation
+  const handleEmailChange = (email: string) => {
+    setInviteEmail(email);
+    
+    if (email.trim() === '') {
+      setEmailError('');
+      setIsEmailValid(true);
+      return;
+    }
+    
+    if (!validateEmail(email.trim())) {
+      setEmailError('Please enter a valid email address');
+      setIsEmailValid(false);
+    } else {
+      setEmailError('');
+      setIsEmailValid(true);
+    }
+  };
+
+  // Handle form submission (Enter key or button click)
+  const handleFormSubmit = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
+    if (!inviteEmail.trim()) {
+      setEmailError('Email address is required');
+      setIsEmailValid(false);
+      return;
+    }
+    
+    if (!isEmailValid) {
+      return;
+    }
+    
+    handleSendInvite();
+  };
+
   const handleCloseModal = () => {
     setShowInviteModal(false);
     setInviteEmail('');
     setSelectedInviteBrands([]);
+    setEmailError('');
+    setIsEmailValid(true);
   };
 
   // Check current user's admin status
@@ -489,33 +537,56 @@ export default function ManageSection({ userData }: ManageSectionProps) {
               )}
 
               {/* Email Input */}
-              <div className="mb-6">
+              <form onSubmit={handleFormSubmit} className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Recipient Email
                 </label>
                 <div className="flex gap-3">
-                  <input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="Enter email address"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <div className="flex-1">
+                    <input
+                      type="email"
+                      value={inviteEmail}
+                      onChange={(e) => handleEmailChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleFormSubmit();
+                        }
+                      }}
+                      placeholder="Enter email address"
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 transition-colors ${
+                        emailError
+                          ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                      }`}
+                      autoComplete="email"
+                      required
+                    />
+                    {emailError && (
+                      <p className="mt-1 text-xs text-red-600 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        {emailError}
+                      </p>
+                    )}
+                  </div>
                   <button
-                    onClick={handleSendInvite}
+                    type="submit"
                     disabled={
                       !inviteEmail.trim() || 
+                      !isEmailValid ||
                       inviteLoading ||
                       currentUserInviteLevel === false ||
                       currentUserInviteLevel === 'false' ||
                       (currentUserInviteLevel === 'any_brand' && selectedInviteBrands.length === 0)
                     }
-                    className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {inviteLoading ? 'Sending...' : 'Send Invite'}
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

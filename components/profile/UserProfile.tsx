@@ -1,5 +1,5 @@
 // components/UserProfile.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { updateUsername, updatePassword } from '@/lib/profile/userdetails';
 import { Button } from '@/components/custom-ui/button2';
 import SmartInputBox from '@/components/custom-ui/input-box'; 
@@ -63,11 +63,9 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
       setEditedName(initialUserData.username);
       // Initialize all brands as collapsed
       const initialExpandedBrands: Record<string, boolean> = {};
-      if (initialUserData.permissions && initialUserData.permissions.brands) {
-        Object.keys(initialUserData.permissions.brands).forEach(brand => {
-          initialExpandedBrands[brand] = false;
-        });
-      }
+      Object.keys(initialUserData.permissions.brands).forEach(brand => {
+        initialExpandedBrands[brand] = false;
+      });
       setExpandedBrands(initialExpandedBrands);
       setLoading(false);
       return;
@@ -100,7 +98,8 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
     }));
   };
 
-  const handleSaveName = async () => {
+  const handleSaveName = async (e?: React.FormEvent) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
     if (!editedName.trim() || !userData) return;
 
     try {
@@ -213,7 +212,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
               <div className="flex items-center space-x-4">
                 <div className="text-xs text-gray-500 uppercase tracking-wide font-medium w-20">NAME</div>
                 {isEditingName ? (
-                  <div className="flex items-center flex-1">
+                  <form className="flex items-center flex-1" onSubmit={handleSaveName}>
                     <SmartInputBox
                       value={editedName}
                       onChange={setEditedName}
@@ -223,7 +222,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
                       readOnly={isUpdating}
                     />
                     <Button
-                      onClick={handleSaveName}
+                      type="submit"
                       disabled={isUpdating || !editedName.trim()}
                       variant="primary"
                       size="s"
@@ -244,7 +243,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
                     >
                       Cancel
                     </Button>
-                  </div>
+                  </form>
                 ) : (
                   <div className="flex items-center flex-1">
                     <div className="text-sm font-medium text-gray-900 flex-1">{userData.username}</div>
@@ -293,7 +292,14 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
           {/* Password Change Section */}
           {isChangingPassword && (
             <div className="mt-6 p-4 bg-gray-50 rounded-md border border-gray-200">
-              <div className="grid grid-cols-3 gap-4">
+              <div 
+                className="grid grid-cols-3 gap-4"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isUpdating && passwordData.currentPassword && passwordData.newPassword && passwordData.newPassword === passwordData.confirmPassword) {
+                    handlePasswordChange();
+                  }
+                }}
+              >
                 <div>
                   <SmartInputBox
                     value={passwordData.currentPassword}
@@ -373,10 +379,9 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
       </div>
 
       {/* Content Permissions Section - Only show if there are brands with permissions */}
-      {userData.permissions && userData.permissions.brands && Object.keys(userData.permissions.brands).length > 0 && 
-       Object.keys(userData.permissions.brands).some(brand => {
+      {Object.keys(userData.permissions.brands).some(brand => {
         const brandPermissions = userData.permissions.brands[brand];
-        return brandPermissions && Object.keys(brandPermissions).some(formatType => {
+        return Object.keys(brandPermissions).some(formatType => {
           const permissions = brandPermissions[formatType];
           return Array.isArray(permissions) && permissions.length > 0;
         });
@@ -407,7 +412,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
               {Object.keys(userData.permissions.brands).filter(brand => {
                 // Only show brands that have at least one permission assigned
                 const brandPermissions = userData.permissions.brands[brand];
-                return brandPermissions && Object.keys(brandPermissions).some(formatType => {
+                return Object.keys(brandPermissions).some(formatType => {
                   const permissions = brandPermissions[formatType];
                   return Array.isArray(permissions) && permissions.length > 0;
                 });
@@ -447,7 +452,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {userData.permissions.brands[brand] && Object.keys(userData.permissions.brands[brand]).filter(formatType => {
+                          {Object.keys(userData.permissions.brands[brand]).filter(formatType => {
                             // Only show format types that have permissions
                             const permissions = userData.permissions.brands[brand][formatType];
                             return Array.isArray(permissions) && permissions.length > 0;
@@ -473,8 +478,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
       )}
 
       {/* Data Permissions Section - Only show if there are brands with permissions */}
-      {userData.permissions && userData.permissions.reportrix && Object.keys(userData.permissions.reportrix).length > 0 && 
-       Object.keys(userData.permissions.reportrix).some(brand => {
+      {Object.keys(userData.permissions.reportrix).some(brand => {
         const permissions = userData.permissions.reportrix[brand];
         const permissionArray = Array.isArray(permissions) ? permissions : [];
         return permissionArray.length > 0;

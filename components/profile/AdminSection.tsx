@@ -57,6 +57,12 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
   const [dataPermissions, setDataPermissions] = useState<Record<string, Record<string, boolean>>>({});
   const [brandAdmin, setBrandAdmin] = useState<boolean>(false);
   const [reportrixAdmin, setReportrixAdmin] = useState<boolean>(false);
+  
+  // Track original state to detect unsaved changes
+  const [originalPermissions, setOriginalPermissions] = useState<Record<string, Record<string, Record<string, boolean>>>>({});
+  const [originalDataPermissions, setOriginalDataPermissions] = useState<Record<string, Record<string, boolean>>>({});
+  const [originalBrandAdmin, setOriginalBrandAdmin] = useState<boolean>(false);
+  const [originalReportrixAdmin, setOriginalReportrixAdmin] = useState<boolean>(false);
 
   // Memoized computed values to prevent unnecessary calculations
   const userOptions = useMemo(() => {
@@ -112,6 +118,31 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
     }));
   }, []);
 
+  // Function to check if there are unsaved changes
+  const hasUnsavedChanges = useCallback(() => {
+    // Only check for changes if we have a selected user and loaded their data
+    if (!selectedUserId || !selectedUserData) return false;
+    
+    if (activeSection === 'Content') {
+      // Check if brand admin status changed
+      if (brandAdmin !== originalBrandAdmin) return true;
+      
+      // Check if any content permissions changed - only if we have original data
+      if (Object.keys(originalPermissions).length > 0) {
+        return JSON.stringify(permissions) !== JSON.stringify(originalPermissions);
+      }
+    } else if (activeSection === 'Data') {
+      // Check if reportrix admin status changed
+      if (reportrixAdmin !== originalReportrixAdmin) return true;
+      
+      // Check if any data permissions changed - only if we have original data
+      if (Object.keys(originalDataPermissions).length > 0) {
+        return JSON.stringify(dataPermissions) !== JSON.stringify(originalDataPermissions);
+      }
+    }
+    return false;
+  }, [activeSection, selectedUserId, selectedUserData, brandAdmin, originalBrandAdmin, reportrixAdmin, originalReportrixAdmin, permissions, originalPermissions, dataPermissions, originalDataPermissions]);
+
   const handleUpdatePermissions = useCallback(async () => {
     if (!selectedUserId || !selectedUserData || permissionsLoading) return;
 
@@ -119,24 +150,27 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       setPermissionsLoading(true);
       
       if (activeSection === 'Content') {
-        // Convert permissions state to backend format
+        // Convert permissions state to backend format - only include brands with permissions
         const brandsData: Record<string, Record<string, string[]>> = {};
         Object.keys(permissions).forEach(brand => {
           const brandFormats: Record<string, string[]> = {};
+          let brandHasPermissions = false;
+          
           Object.keys(permissions[brand]).forEach(formatType => {
             const roles: string[] = [];
             if (permissions[brand][formatType].Creator) roles.push('creator');
             if (permissions[brand][formatType].Viewer) roles.push('viewer');
             if (permissions[brand][formatType].Reviewer) roles.push('reviewer');
             
-            // Only add format type if it has at least one permission
+            // Only include format types that have at least one permission
             if (roles.length > 0) {
               brandFormats[formatType] = roles;
+              brandHasPermissions = true;
             }
           });
           
-          // Only add brand if it has at least one format with permissions
-          if (Object.keys(brandFormats).length > 0) {
+          // Only include brands that have at least one permission
+          if (brandHasPermissions) {
             brandsData[brand] = brandFormats;
           }
         });
@@ -147,14 +181,14 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
           brand_admin: brandAdmin
         });
       } else if (activeSection === 'Data') {
-        // Convert data permissions to backend format
+        // Convert data permissions to backend format - only include brands with permissions
         const reportrixData: Record<string, string[]> = {};
         Object.keys(dataPermissions).forEach(brand => {
           const permissionsArray: string[] = [];
           if (dataPermissions[brand].Product) permissionsArray.push('Product');
           if (dataPermissions[brand].SEO) permissionsArray.push('Seo');
           
-          // Only add brand if it has at least one permission
+          // Only include brands that have at least one permission
           if (permissionsArray.length > 0) {
             reportrixData[brand] = permissionsArray;
           }
@@ -172,14 +206,53 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       const updatedPermissions = await fetchUserPermissions(selectedUserId, filterType);
       setSelectedUserData(updatedPermissions);
       
+      // Update original state to reflect saved changes
+      if (activeSection === 'Content') {
+        setOriginalPermissions({ ...permissions });
+        setOriginalBrandAdmin(brandAdmin);
+      } else if (activeSection === 'Data') {
+        setOriginalDataPermissions({ ...dataPermissions });
+        setOriginalReportrixAdmin(reportrixAdmin);
+      }
+      
       alert('Permissions updated successfully!');
     } catch (error) {
       console.error('Error updating permissions:', error);
       alert('Failed to update permissions. Please try again.');
+      throw error; // Re-throw for handleSectionChange to catch
     } finally {
       setPermissionsLoading(false);
     }
   }, [selectedUserId, selectedUserData, permissionsLoading, activeSection, permissions, dataPermissions, brandAdmin, reportrixAdmin]);
+
+  // Function to handle section switching with confirmation
+  const handleSectionChange = useCallback((newSection: string) => {
+    // If switching away from Content or Data sections and there are unsaved changes
+    if ((activeSection === 'Content' || activeSection === 'Data') && hasUnsavedChanges()) {
+      const confirmed = window.confirm(
+        'You have unsaved changes. Do you want to update the permissions before switching tabs?\n\nClick "OK" to update and continue, or "Cancel" to discard changes and continue.'
+      );
+      
+      if (confirmed) {
+        // User wants to save changes first
+        handleUpdatePermissions().then(() => {
+          setActiveSection(newSection);
+        }).catch(() => {
+          // If update fails, ask if they still want to continue
+          const forceSwitch = window.confirm('Failed to update permissions. Do you still want to switch tabs and lose your changes?');
+          if (forceSwitch) {
+            setActiveSection(newSection);
+          }
+        });
+      } else {
+        // User wants to discard changes
+        setActiveSection(newSection);
+      }
+    } else {
+      // No unsaved changes, switch normally
+      setActiveSection(newSection);
+    }
+  }, [activeSection, hasUnsavedChanges, handleUpdatePermissions]);
 
   const handleRevokeContentPermissions = useCallback(async () => {
     if (!selectedUserId || permissionsLoading) return;
@@ -329,9 +402,9 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       setDataPermissions(initialDataPermissions);
 
       // Initialize admin permissions from current user's permissions
-      const currentUserBrandAdmin = initialUserData.permissions?.brand_admin || false;
-      const currentUserReportrixAdmin = initialUserData.permissions?.reportrix_admin || false;
-      const currentUserGeneralAdmin = initialUserData.permissions?.admin || false;
+      const currentUserBrandAdmin = initialUserData.permissions.brand_admin || false;
+      const currentUserReportrixAdmin = initialUserData.permissions.reportrix_admin || false;
+      const currentUserGeneralAdmin = initialUserData.permissions.admin || false;
       
       setBrandAdmin(currentUserBrandAdmin);
       setReportrixAdmin(currentUserReportrixAdmin);
@@ -387,6 +460,16 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
     }
   }, [activeSection]);
 
+  // Reset original state when user changes (to avoid false positive unsaved changes detection)
+  useEffect(() => {
+    if (!selectedUserId) {
+      setOriginalPermissions({});
+      setOriginalDataPermissions({});
+      setOriginalBrandAdmin(false);
+      setOriginalReportrixAdmin(false);
+    }
+  }, [selectedUserId]);
+
   // Load permissions for selected user when user or active section changes
   useEffect(() => {
     let isMounted = true;
@@ -417,7 +500,7 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
           const initialPermissions: Record<string, Record<string, Record<string, boolean>>> = {};
           const availableBrands = userData.dropdowns.brand_name || [];
           const availableFormats = userData.dropdowns.format_type || [];
-          const userBrands = userPermissions.permissions?.brands || {};
+          const userBrands = userPermissions.permissions.brands || {};
           
           // Initialize all brands and formats, then populate with user's actual permissions
           availableBrands.forEach((brand: string) => {
@@ -435,13 +518,15 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
             });
           });
           setPermissions(initialPermissions);
-          setBrandAdmin(userPermissions.permissions?.brand_admin || false);
+          setOriginalPermissions(initialPermissions);
+          setBrandAdmin(userPermissions.permissions.brand_admin || false);
+          setOriginalBrandAdmin(userPermissions.permissions.brand_admin || false);
         }
 
         if (activeSection === 'Data' && userData) {
           const initialDataPermissions: Record<string, Record<string, boolean>> = {};
           const availableBrands = userData.dropdowns.brand_name || [];
-          const reportrix = userPermissions.permissions?.reportrix || {};
+          const reportrix = userPermissions.permissions.reportrix || {};
           
           // Initialize all brands, then populate with user's actual permissions
           availableBrands.forEach((brand: string) => {
@@ -465,7 +550,9 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
           });
           
           setDataPermissions(initialDataPermissions);
-          setReportrixAdmin(userPermissions.permissions?.reportrix_admin || false);
+          setOriginalDataPermissions(initialDataPermissions);
+          setReportrixAdmin(userPermissions.permissions.reportrix_admin || false);
+          setOriginalReportrixAdmin(userPermissions.permissions.reportrix_admin || false);
         }
       } catch (err) {
         if (isMounted) {
@@ -565,26 +652,28 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
                   </div>
                 ) : selectedUserData ? ( // Show toggle and table together when data is loaded
                   <>
-                    {/* Brand Admin Toggle */}
-                    <div className="flex justify-between items-center mb-4 p-3 bg-gray-300 rounded-lg border">
-                      <label className="text-sm font-medium text-gray-700 mr-4">Brand Admin</label>
-                      <label className="inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={brandAdmin}
-                          onChange={(e) => setBrandAdmin(e.target.checked)}
-                          disabled={permissionsLoading}
-                        />
-                        <div className={`relative inline-block w-12 h-6 rounded-full transition-colors ${
-                          brandAdmin ? 'bg-gray-800' : 'bg-gray-100'
-                        } ${permissionsLoading ? 'opacity-50' : ''}`}>
-                          <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                            brandAdmin ? 'translate-x-6' : 'translate-x-0'
-                          }`}></div>
-                        </div>
-                      </label>
-                    </div>
+                    {/* Brand Admin Toggle - Only visible to admin users */}
+                    {userData.permissions?.admin && (
+                      <div className="flex justify-between items-center mb-4 p-3 bg-gray-300 rounded-lg border">
+                        <label className="text-sm font-medium text-gray-700 mr-4">Brand Admin</label>
+                        <label className="inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={brandAdmin}
+                            onChange={(e) => setBrandAdmin(e.target.checked)}
+                            disabled={permissionsLoading}
+                          />
+                          <div className={`relative inline-block w-12 h-6 rounded-full transition-colors ${
+                            brandAdmin ? 'bg-gray-800' : 'bg-gray-100'
+                          } ${permissionsLoading ? 'opacity-50' : ''}`}>
+                            <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                              brandAdmin ? 'translate-x-6' : 'translate-x-0'
+                            }`}></div>
+                          </div>
+                        </label>
+                      </div>
+                    )}
 
                     {/* Brand Sections - Scrollable container */}
                     <div className="flex-1 overflow-y-auto">
@@ -735,28 +824,30 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
                   </div>
                 ) : selectedUserData ? ( // Show toggle and table together when data is loaded
                   <>
-                    {/* Reportrix Admin Toggle */}
-                    <div className="flex justify-between items-center mb-4 p-3 bg-gray-300 rounded-lg border">
-                      <label className="text-sm font-medium text-gray-700">Reportrix Admin</label>
-                      <div>
-                      <label className="inline-flex items-center cursor-pointer">
-                        <input
-                        type="checkbox"
-                        className="sr-only"
-                        checked={reportrixAdmin}
-                        onChange={(e) => setReportrixAdmin(e.target.checked)}
-                        disabled={permissionsLoading}
-                        />
-                        <div className={`relative inline-block w-12 h-6 rounded-full transition-colors ${
-                        reportrixAdmin ? 'bg-gray-800' : 'bg-gray-300'
-                        } ${permissionsLoading ? 'opacity-50' : ''}`}>
-                        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          reportrixAdmin ? 'translate-x-6' : 'translate-x-0'
-                        }`}></div>
+                    {/* Reportrix Admin Toggle - Only visible to admin users */}
+                    {userData.permissions?.admin && (
+                      <div className="flex justify-between items-center mb-4 p-3 bg-gray-300 rounded-lg border">
+                        <label className="text-sm font-medium text-gray-700">Reportrix Admin</label>
+                        <div>
+                        <label className="inline-flex items-center cursor-pointer">
+                          <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={reportrixAdmin}
+                          onChange={(e) => setReportrixAdmin(e.target.checked)}
+                          disabled={permissionsLoading}
+                          />
+                          <div className={`relative inline-block w-12 h-6 rounded-full transition-colors ${
+                          reportrixAdmin ? 'bg-gray-800' : 'bg-gray-100'
+                          } ${permissionsLoading ? 'opacity-50' : ''}`}>
+                          <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                            reportrixAdmin ? 'translate-x-6' : 'translate-x-0'
+                          }`}></div>
+                          </div>
+                        </label>
                         </div>
-                      </label>
                       </div>
-                    </div>
+                    )}
 
                     {/* Data Permissions Table - Scrollable container */}
                     <div className="flex-1 overflow-y-auto">
@@ -834,7 +925,7 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       <Sidebar 
         userData={userData} 
         activeSection={activeSection} 
-        setActiveSection={setActiveSection}
+        setActiveSection={handleSectionChange}
         brandAdmin={brandAdmin}
         reportrixAdmin={reportrixAdmin}
       />
