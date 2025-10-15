@@ -403,9 +403,9 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       setDataPermissions(initialDataPermissions);
 
       // Initialize admin permissions from current user's permissions
-      const currentUserBrandAdmin = initialUserData.permissions?.brand_admin || false;
-      const currentUserReportrixAdmin = initialUserData.permissions?.reportrix_admin || false;
-      const currentUserGeneralAdmin = initialUserData.permissions?.admin || false;
+      const currentUserBrandAdmin = initialUserData.permissions.brand_admin || false;
+      const currentUserReportrixAdmin = initialUserData.permissions.reportrix_admin || false;
+      const currentUserGeneralAdmin = initialUserData.permissions.admin || false;
       
       setBrandAdmin(currentUserBrandAdmin);
       setReportrixAdmin(currentUserReportrixAdmin);
@@ -520,8 +520,13 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
           });
           setPermissions(initialPermissions);
           setOriginalPermissions(initialPermissions);
+<<<<<<< HEAD
           setBrandAdmin(userPermissions.permissions?.brand_admin || false);
           setOriginalBrandAdmin(userPermissions.permissions?.brand_admin || false);
+=======
+          setBrandAdmin(userPermissions.permissions.brand_admin || false);
+          setOriginalBrandAdmin(userPermissions.permissions.brand_admin || false);
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
         }
 
         if (activeSection === 'Data' && userData) {

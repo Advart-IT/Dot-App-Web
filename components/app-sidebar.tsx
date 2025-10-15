@@ -50,7 +50,11 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
             url: "/data",
             icon: ChartLine,
         },
+<<<<<<< HEAD
         ...(user?.permissions?.Stats && (user.permissions.Stats.people || (user.permissions.Stats.content && user.permissions.Stats.content.length > 0)) ? [{
+=======
+        ...(user?.permissions?.admin ? [{
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
             title: "Stats",
             url: "/stats",
             icon: SquareActivity ,

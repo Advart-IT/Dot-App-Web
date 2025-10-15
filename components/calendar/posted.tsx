@@ -17,6 +17,17 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
     const [selectedRow, setSelectedRow] = useState<any>(null);
     const [selectedFormatType, setSelectedFormatType] = useState<string>("");
     const { user } = useUser();
+<<<<<<< HEAD
+=======
+
+    // Set default format type to first sorted option when user data loads
+    useEffect(() => {
+        if (user?.dropdowns?.format_type?.length && !selectedFormatType) {
+            const sortedFormatTypes = [...user.dropdowns.format_type].sort((a, b) => a.localeCompare(b));
+            setSelectedFormatType(sortedFormatTypes[0]);
+        }
+    }, [user, selectedFormatType]);
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 
     // Refs to store cached data and loading state
     const cache = useRef<Record<string, any[]>>({}); // Cache for content lists per brand-format combination
@@ -62,7 +73,11 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
                         limit,
                         format_type: selectedFormatType,
                     };
+<<<<<<< HEAD
 
+=======
+                    
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
                     const response = await fetchContent(requestPayload);
 
                     if (response?.data?.length) {
@@ -96,7 +111,11 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         };
 
         fetchAllContent();
+<<<<<<< HEAD
     }, [brandName, selectedFormatType]); // Only re-run when brandName or selectedFormatType changes
+=======
+    }, [brandName, selectedFormatType]);
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 
     const handleMarkAsPosted = async (contentId: number) => {
         try {
@@ -205,6 +224,10 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         }
     };
 
+<<<<<<< HEAD
+=======
+    // Prepare format type options from user data (sorted alphabetically)
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
     const formatTypeOptions = [
         ...(user?.dropdowns?.format_type?.map(format => ({
             label: format,

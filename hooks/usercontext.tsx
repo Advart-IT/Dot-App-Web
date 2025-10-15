@@ -43,6 +43,10 @@ interface User {
     marketing_funnel: string[];
     status: string[];
     ads_type: string[];
+    designation: string[];
+    category: {
+      [brandName: string]: string[];
+    };
   };
 }
 

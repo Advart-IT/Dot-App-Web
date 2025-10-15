@@ -1,6 +1,10 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useEffect, useMemo } from 'react';
+=======
+import { useState, useEffect } from 'react';
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 import { Button } from '@/components/custom-ui/button2';
 import { fetchContentMonthlyStats } from '@/lib/stats/stats-data';
 import TaskDataGrid from './stats-grid/Datagris';
@@ -21,6 +25,7 @@ interface ContentProps {
       ads?: any;
     }
   }>>;
+<<<<<<< HEAD
   userContentPermissions: string[];
 }
 
@@ -33,6 +38,11 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
   ], [userContentPermissions]);
 
   // Set initial content type to first available
+=======
+}
+
+export default function Content({ selectedDate, dataCache, setDataCache }: ContentProps) {
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
   const [selectedContentType, setSelectedContentType] = useState<'social_media' | 'ads'>('social_media');
   
   // Separate states for each content type
@@ -52,6 +62,7 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
   const currentState = selectedContentType === 'social_media' ? socialMediaState : adsState;
   const setCurrentState = selectedContentType === 'social_media' ? setSocialMediaState : setAdsState;
 
+<<<<<<< HEAD
   // Update selected content type when available types change
   useEffect(() => {
     if (availableContentTypes.length > 0) {
@@ -61,11 +72,21 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
       }
     }
   }, [availableContentTypes, selectedContentType]);
+=======
+  const contentTypes = [
+    { key: 'social_media', label: 'Social Media' },
+    { key: 'ads', label: 'Ads' }
+  ];
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 
   // Auto-fetch data when selectedDate or selectedContentType changes, with caching
   useEffect(() => {
     const fetchData = async () => {
+<<<<<<< HEAD
       if (!selectedDate || availableContentTypes.length === 0) return;
+=======
+      if (!selectedDate) return;
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 
       // Check if data already exists in cache for this date and content type
       const cacheKey = selectedContentType === 'social_media' ? 'socialMedia' : 'ads';
@@ -108,7 +129,11 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
     };
 
     fetchData();
+<<<<<<< HEAD
   }, [selectedDate, selectedContentType, dataCache, setDataCache, availableContentTypes.length]);
+=======
+  }, [selectedDate, selectedContentType, dataCache, setDataCache]);
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 
   const handleContentClick = (contentData: any) => {
     console.log('Content clicked:', contentData);
@@ -119,6 +144,7 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
     <div className="w-full p-6 bg-white rounded-lg shadow-sm">
       <div className="mb-6">
         {/* Header with Content Type Buttons */}
+<<<<<<< HEAD
         {availableContentTypes.length > 0 && (
           <div className="flex items-center justify-start mb-6">
             {/* Content Type Buttons - Top Left */}
@@ -144,6 +170,24 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
             <p className="text-gray-500">You don't have permission to access any content statistics.</p>
           </div>
         )}
+=======
+        <div className="flex items-center justify-start mb-6">
+          {/* Content Type Buttons - Top Left */}
+          <div className="flex gap-2">
+            {contentTypes.map(type => (
+              <Button
+                key={type.key}
+                onClick={() => setSelectedContentType(type.key as 'social_media' | 'ads')}
+                variant='outline'
+                size="m"
+                className={selectedContentType === type.key ? '!bg-newsecondary !text-themeBase' : ''}
+              >
+                {type.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
 
         {/* Error Message */}
         {currentState.error && (
@@ -161,7 +205,11 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
       </div>
 
       {/* Data Grid */}
+<<<<<<< HEAD
       {currentState.contentData && !currentState.loading && availableContentTypes.length > 0 && (
+=======
+      {currentState.contentData && !currentState.loading && (
+>>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           <TaskDataGrid
             rawData={currentState.contentData}
