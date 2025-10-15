@@ -7,7 +7,6 @@ import People from '@/components/stat/People';
 import Content from '@/components/stat/Content';
 
 export default function StatsPage() {
-<<<<<<< HEAD
     const { user } = useUser();
     const router = useRouter();
 
@@ -24,10 +23,6 @@ export default function StatsPage() {
         // Set initial tab to the first available tab
         return availableTabs.length > 0 ? availableTabs[0] : '';
     });
-
-=======
-    const [selectedTab, setSelectedTab] = useState<string>('People');
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
     const [selectedDate, setSelectedDate] = useState<string>(() => {
         const now = new Date();
         const year = now.getFullYear();
@@ -43,7 +38,6 @@ export default function StatsPage() {
             ads?: any;
         }
     }>({});
-<<<<<<< HEAD
 
     // Check if user has Stats permissions, redirect if not
     useEffect(() => {
@@ -51,23 +45,10 @@ export default function StatsPage() {
             (!user.permissions.Stats.people && 
              (!user.permissions.Stats.content || user.permissions.Stats.content.length === 0)))) {
             router.push('/dashboard'); // Redirect to dashboard if no stats permissions
-=======
-    
-    const { user } = useUser();
-    const router = useRouter();
-
-    const availableTabs = ['People', 'Content'];
-
-    // Check if user is admin, redirect if not
-    useEffect(() => {
-        if (user && !user.permissions?.admin) {
-            router.push('/dashboard'); // Redirect to dashboard if not admin
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
             return;
         }
     }, [user, router]);
 
-<<<<<<< HEAD
     // Update selected tab when permissions change
     useEffect(() => {
         if (availableTabs.length > 0 && !availableTabs.includes(selectedTab)) {
@@ -79,10 +60,6 @@ export default function StatsPage() {
     if (!user || !user.permissions?.Stats || 
         (!user.permissions.Stats.people && 
          (!user.permissions.Stats.content || user.permissions.Stats.content.length === 0))) {
-=======
-    // Show loading or nothing while checking user status
-    if (!user || !user.permissions?.admin) {
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
         return (
             <div className="min-h-screen flex items-center justify-center bg-themeBase-l1">
                 <div className="text-center">
@@ -93,7 +70,6 @@ export default function StatsPage() {
         );
     }
 
-<<<<<<< HEAD
     // If no available tabs, show access denied
     if (availableTabs.length === 0) {
         return (
@@ -104,9 +80,6 @@ export default function StatsPage() {
             </div>
         );
     }
-
-=======
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
     return (
         <div className="min-h-screen flex flex-col bg-themeBase-l1">
             {/* Top Bar */}
@@ -154,10 +127,7 @@ export default function StatsPage() {
                         selectedDate={selectedDate}
                         dataCache={dataCache}
                         setDataCache={setDataCache}
-<<<<<<< HEAD
                         userContentPermissions={user?.permissions?.Stats?.content || []}
-=======
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
                     />
                 </div>
             </div>

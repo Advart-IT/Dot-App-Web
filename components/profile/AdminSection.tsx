@@ -520,13 +520,8 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
           });
           setPermissions(initialPermissions);
           setOriginalPermissions(initialPermissions);
-<<<<<<< HEAD
           setBrandAdmin(userPermissions.permissions?.brand_admin || false);
           setOriginalBrandAdmin(userPermissions.permissions?.brand_admin || false);
-=======
-          setBrandAdmin(userPermissions.permissions.brand_admin || false);
-          setOriginalBrandAdmin(userPermissions.permissions.brand_admin || false);
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
         }
 
         if (activeSection === 'Data' && userData) {

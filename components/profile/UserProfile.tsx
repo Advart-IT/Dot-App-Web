@@ -66,17 +66,11 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
       setEditedName(initialUserData.username);
       // Initialize all brands as collapsed
       const initialExpandedBrands: Record<string, boolean> = {};
-<<<<<<< HEAD
       if (initialUserData.permissions?.brands) {
         Object.keys(initialUserData.permissions.brands).forEach(brand => {
           initialExpandedBrands[brand] = false;
         });
       }
-=======
-      Object.keys(initialUserData.permissions.brands).forEach(brand => {
-        initialExpandedBrands[brand] = false;
-      });
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
       setExpandedBrands(initialExpandedBrands);
       setLoading(false);
       return;
@@ -390,15 +384,9 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
       </div>
 
       {/* Content Permissions Section - Only show if there are brands with permissions */}
-<<<<<<< HEAD
       {userData.permissions?.brands && Object.keys(userData.permissions.brands).some(brand => {
         const brandPermissions = userData.permissions?.brands?.[brand];
         return brandPermissions && Object.keys(brandPermissions).some(formatType => {
-=======
-      {Object.keys(userData.permissions.brands).some(brand => {
-        const brandPermissions = userData.permissions.brands[brand];
-        return Object.keys(brandPermissions).some(formatType => {
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
           const permissions = brandPermissions[formatType];
           return Array.isArray(permissions) && permissions.length > 0;
         });
@@ -428,13 +416,8 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
             <div className="p-4 space-y-3 rounded-b-lg">
               {userData.permissions?.brands && Object.keys(userData.permissions.brands).filter(brand => {
                 // Only show brands that have at least one permission assigned
-<<<<<<< HEAD
                 const brandPermissions = userData.permissions?.brands?.[brand];
                 return brandPermissions && Object.keys(brandPermissions).some(formatType => {
-=======
-                const brandPermissions = userData.permissions.brands[brand];
-                return Object.keys(brandPermissions).some(formatType => {
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
                   const permissions = brandPermissions[formatType];
                   return Array.isArray(permissions) && permissions.length > 0;
                 });
@@ -474,11 +457,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-<<<<<<< HEAD
                           {userData.permissions?.brands?.[brand] && Object.keys(userData.permissions.brands[brand]).filter(formatType => {
-=======
-                          {Object.keys(userData.permissions.brands[brand]).filter(formatType => {
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
                             // Only show format types that have permissions
                             const permissions = userData.permissions?.brands?.[brand]?.[formatType];
                             return Array.isArray(permissions) && permissions.length > 0;
@@ -504,13 +483,8 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
       )}
 
       {/* Data Permissions Section - Only show if there are brands with permissions */}
-<<<<<<< HEAD
       {userData.permissions?.reportrix && Object.keys(userData.permissions.reportrix).some(brand => {
         const permissions = userData.permissions?.reportrix?.[brand];
-=======
-      {Object.keys(userData.permissions.reportrix).some(brand => {
-        const permissions = userData.permissions.reportrix[brand];
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
         const permissionArray = Array.isArray(permissions) ? permissions : [];
         return permissionArray.length > 0;
       }) && (

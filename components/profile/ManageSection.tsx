@@ -50,10 +50,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [inviteEmail, setInviteEmail] = useState<string>('');
   const [selectedInviteBrands, setSelectedInviteBrands] = useState<string[]>([]); // Changed initial value
-<<<<<<< HEAD
   const [selectedDesignation, setSelectedDesignation] = useState<string>('');
-=======
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
   const [emailError, setEmailError] = useState<string>('');
   const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
 
@@ -352,7 +349,6 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     }
   };
 
-<<<<<<< HEAD
   const handleStatsPeopleToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
       alert('Please select a user first');
@@ -395,11 +391,6 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       setStatsLoading(false);
     }
   };
-
-
-
-=======
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
   // Email validation function
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -448,10 +439,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     setShowInviteModal(false);
     setInviteEmail('');
     setSelectedInviteBrands([]);
-<<<<<<< HEAD
     setSelectedDesignation('');
-=======
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
     setEmailError('');
     setIsEmailValid(true);
   };
@@ -804,10 +792,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
                     disabled={
                       !inviteEmail.trim() || 
                       !isEmailValid ||
-<<<<<<< HEAD
                       !selectedDesignation.trim() ||
-=======
->>>>>>> 3dc4f4ea5d7c542adcfdb58b9dbff888e9c880b1
                       inviteLoading ||
                       currentUserInviteLevel === false ||
                       currentUserInviteLevel === 'false' ||
