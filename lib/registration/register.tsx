@@ -4,7 +4,6 @@ interface CompleteInviteRegistrationRequest {
   token: string;
   username: string;
   password: string;
-  designation: string;
 }
 
 interface CompleteInviteRegistrationResponse {
@@ -20,21 +19,18 @@ interface CompleteInviteRegistrationResponse {
 export async function completeInviteRegistration(
   token: string,
   username: string,
-  password: string,
-  designation: string
+  password: string
 ): Promise<CompleteInviteRegistrationResponse> {
   try {
     console.log('=== completeInviteRegistration Debug ===');
     console.log('Token:', token);
     console.log('Username:', username);
-    console.log('Designation:', designation);
     console.log('API_URL:', API_URL);
     
     // Ensure parameters are strings
     const tokenStr = String(token || '').trim();
     const usernameStr = String(username || '').trim();
     const passwordStr = String(password || '').trim();
-    const designationStr = String(designation || '').trim();
     
     if (!tokenStr) {
       throw new Error('Token is required');
@@ -48,16 +44,11 @@ export async function completeInviteRegistration(
       throw new Error('Password is required');
     }
     
-    if (!designationStr) {
-      throw new Error('Designation is required');
-    }
-    
     // Create URL with query parameters as FastAPI expects them
     const params = new URLSearchParams();
     params.append('token', tokenStr);
     params.append('username', usernameStr);
     params.append('password', passwordStr);
-    params.append('designation', designationStr);
     
     const url = `${API_URL}/api/v1/auth/complete-invite-registration?${params.toString()}`;
     console.log('Request URL with params:', url);

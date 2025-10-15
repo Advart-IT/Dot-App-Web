@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { fetchContent, upsertContent } from "@/lib/content/contentapi"; // Added upsertContent import
+import React, { useEffect, useState, useRef } from "react";
+import { fetchContent, upsertContent } from "@/lib/content/contentapi";
 import SmartDaySelector from "../custom-ui/dayselectcalendar";
 import SmartInput from "../custom-ui/input-box";
 import ContentView from "../socialmedia/contentview";
 import { Button } from "../custom-ui/button2";
+import SmartDropdown from "../custom-ui/dropdown2";
+import { useUser } from "@/hooks/usercontext";
 
 interface PostedViewProps {
     brandName: string;
@@ -13,35 +15,64 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
     const [contentList, setContentList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [selectedFormatType, setSelectedFormatType] = useState<string>("");
+    const { user } = useUser();
 
+    // Refs to store cached data and loading state
+    const cache = useRef<Record<string, any[]>>({}); // Cache for content lists per brand-format combination
+    const isLoadingRef = useRef(false); // To prevent concurrent API calls
+
+    // Set default format type to first sorted option when user data loads
     useEffect(() => {
-        if (!brandName) return;
+        if (user?.dropdowns?.format_type?.length && !selectedFormatType) {
+            const sortedFormatTypes = [...user.dropdowns.format_type].sort((a, b) => a.localeCompare(b));
+            setSelectedFormatType(sortedFormatTypes[0]);
+        }
+    }, [user, selectedFormatType]);
+
+    // Fetch data only when brandName or selectedFormatType changes
+    useEffect(() => {
+        if (!brandName || !selectedFormatType) return;
+
+        const cacheKey = `${brandName}_${selectedFormatType}`;
+        
+        // Check if data is already cached
+        if (cache.current[cacheKey]) {
+            setContentList(cache.current[cacheKey]);
+            return;
+        }
+
+        // Prevent concurrent API calls
+        if (isLoadingRef.current) return;
+        isLoadingRef.current = true;
+        setLoading(true);
 
         let offset = 0;
         const limit = 50;
         let hasMore = true;
         const allContent: any[] = [];
 
-        async function fetchAllContent() {
-            setLoading(true);
+        const fetchAllContent = async () => {
             try {
                 while (hasMore) {
-                    const response = await fetchContent({
+                    const requestPayload = {
                         brand_name: brandName,
                         status: "completed",
                         offset,
                         limit,
-                    });
+                        format_type: selectedFormatType,
+                    };
+
+                    const response = await fetchContent(requestPayload);
 
                     if (response?.data?.length) {
-                        // Filter to include only past dates (before today)
                         const today = new Date();
-                        today.setHours(0, 0, 0, 0); // Set to start of today
+                        today.setHours(0, 0, 0, 0);
 
                         const pastContent = response.data.filter((item: any) => {
                             if (!item.live_date) return false;
                             const itemDate = new Date(item.live_date);
-                            return itemDate <= today; // Changed to <= to include today's date
+                            return itemDate <= today;
                         });
 
                         allContent.push(...pastContent);
@@ -54,21 +85,24 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
                         hasMore = false;
                     }
                 }
+                
+                // Cache the fetched data
+                cache.current[cacheKey] = allContent;
                 setContentList(allContent);
             } finally {
                 setLoading(false);
+                isLoadingRef.current = false;
             }
-        }
+        };
 
         fetchAllContent();
-    }, [brandName]);
+    }, [brandName, selectedFormatType]); // Only re-run when brandName or selectedFormatType changes
 
     const handleMarkAsPosted = async (contentId: number) => {
         try {
-            // Actual API call using upsertContent
             const result = await upsertContent({
                 id: contentId,
-                status: "Posted" // Set status to Posted
+                status: "Posted"
             });
             console.log(`Content ${contentId} marked as posted:`, result);
 
@@ -76,6 +110,11 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             const updatedList = contentList.filter(item => item.id !== contentId);
             setContentList(updatedList);
 
+            // Update cache
+            const cacheKey = `${brandName}_${selectedFormatType}`;
+            if (cache.current[cacheKey]) {
+                cache.current[cacheKey] = updatedList;
+            }
         } catch (error) {
             console.error("Error marking content as posted:", error);
         }
@@ -83,27 +122,29 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
 
     const updateContentLiveDate = async (contentId: number, newDate: string) => {
         try {
-            // First, check if the new date is today or in the future
             if (newDate) {
                 const selectedDate = new Date(newDate);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                // If date is today or future, we'll remove the item from the list after updating
                 const isFutureDate = selectedDate > today;
 
-                // Actual API call using upsertContent
                 const result = await upsertContent({
                     id: contentId,
                     live_date: newDate
                 });
                 console.log(`Updated live date for content ${contentId} to ${newDate}:`, result);
 
-                // After successful API call, update UI if it's a future date
                 if (isFutureDate) {
                     console.log(`Removing content ID ${contentId} as its date was changed to ${newDate} (future date)`);
                     const filteredList = contentList.filter(item => item.id !== contentId);
                     setContentList(filteredList);
+
+                    // Update cache
+                    const cacheKey = `${brandName}_${selectedFormatType}`;
+                    if (cache.current[cacheKey]) {
+                        cache.current[cacheKey] = filteredList;
+                    }
                 }
             }
         } catch (error) {
@@ -119,41 +160,72 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
     const handleUpdateRow = (updatedRow: any) => {
         console.log("Updated row data from modal:", updatedRow);
 
-        // Check if the item was deleted
         if (updatedRow.is_delete === true) {
             console.log(`Row with ID ${updatedRow.id} removed as it was deleted`);
-            // Remove the row from the content list
             const filteredData = contentList.filter((row) => row.id !== updatedRow.id);
             setContentList(filteredData);
             setSelectedRow(null);
+
+            // Update cache
+            const cacheKey = `${brandName}_${selectedFormatType}`;
+            if (cache.current[cacheKey]) {
+                cache.current[cacheKey] = filteredData;
+            }
             return;
         }
 
-        // Check if the updated row's status changed
         if (typeof updatedRow.status === "string" && updatedRow.status !== "completed") {
             console.log(`Row with ID ${updatedRow.id} removed as its status changed to ${updatedRow.status}`);
             const filteredData = contentList.filter((row) => row.id !== updatedRow.id);
             setContentList(filteredData);
             setSelectedRow(null);
+
+            // Update cache
+            const cacheKey = `${brandName}_${selectedFormatType}`;
+            if (cache.current[cacheKey]) {
+                cache.current[cacheKey] = filteredData;
+            }
             return;
         }
 
-        // Update the selected row
         setSelectedRow((prevRow: any) => ({
             ...prevRow,
             ...updatedRow,
         }));
 
-        // Update the content list to reflect changes
         const updatedData = contentList.map((row) =>
             row.id === updatedRow.id ? { ...row, ...updatedRow } : row
         );
         setContentList(updatedData);
+
+        // Update cache
+        const cacheKey = `${brandName}_${selectedFormatType}`;
+        if (cache.current[cacheKey]) {
+            cache.current[cacheKey] = updatedData;
+        }
     };
+
+    const formatTypeOptions = [
+        ...(user?.dropdowns?.format_type?.map(format => ({
+            label: format,
+            value: format
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [])
+    ];
 
     return (
         <div className="w-full h-full text-14">
-            <h2 className="text-lg font-semibold mb-4">Completed Content</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Completed Content</h2>
+                <div className="w-48">
+                    <SmartDropdown
+                        options={formatTypeOptions}
+                        value={selectedFormatType}
+                        onChange={(value) => {
+                            setSelectedFormatType(value as string);
+                        }}
+                    />
+                </div>
+            </div>
 
             {loading ? (
                 <div className="flex justify-center items-center h-40 text-gray-600">
@@ -168,6 +240,15 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
                                     <SmartInput
                                         label="Content Name"
                                         value={content.content_name || ""}
+                                        onChange={() => { }}
+                                        readOnly
+                                    />
+                                </div>
+
+                                <div className="flex-[2]">
+                                    <SmartInput
+                                        label="Task Name"
+                                        value={content.task_name || ""}
                                         onChange={() => { }}
                                         readOnly
                                     />

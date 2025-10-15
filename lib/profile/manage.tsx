@@ -2,6 +2,7 @@ import { API_URL } from './apiurl';
 
 interface InviteUserRequest {
   department: string;
+  designation: string;
   email: string;
 }
 
@@ -10,10 +11,14 @@ interface ToggleUserStatusRequest {
   is_active: boolean;
 }
 
-interface UpdatePermissionsRequest {
-  filter_type: 'admin' | 'invite_level';
+export interface UpdatePermissionsRequest {
+  filter_type: 'admin' | 'invite_level' | 'stats';
   admin?: boolean;
   invite_level?: 'own_brand' | 'any_brand';
+  stats?: {
+    people?: boolean;
+    content?: string[];
+  };
 }
 
 interface UserPermissions {
@@ -46,19 +51,22 @@ interface ToggleUserStatusResponse {
   previous_status: boolean;
 }
 // Invite user to join the platform
-export async function inviteUser(email: string, department: string): Promise<InviteUserResponse> {
+export async function inviteUser(email: string, department: string, designation: string): Promise<InviteUserResponse> {
   try {
     console.log('=== inviteUser Debug ===');
     console.log('Email:', email, typeof email);
     console.log('Department:', department, typeof department);
+    console.log('Designation:', designation, typeof designation);
     console.log('API_URL:', API_URL);
     
     // Ensure parameters are strings
     const emailStr = String(email || '').trim();
     const departmentStr = String(department || '').trim();
+    const designationStr = String(designation || '').trim();
     
     console.log('Email string:', emailStr);
     console.log('Department string:', departmentStr);
+    console.log('Designation string:', designationStr);
     
     if (!emailStr) {
       throw new Error('Email is required');
@@ -68,9 +76,14 @@ export async function inviteUser(email: string, department: string): Promise<Inv
       throw new Error('Department is required');
     }
     
+    if (!designationStr) {
+      throw new Error('Designation is required');
+    }
+    
     // Create URL with query parameters as FastAPI expects them
     const params = new URLSearchParams();
     params.append('department', departmentStr);
+    params.append('designation', designationStr);
     params.append('email', emailStr);
     
     const url = `${API_URL}/api/v1/auth/invite-user?${params.toString()}`;
@@ -311,6 +324,69 @@ export async function createNewBrand(brandName: string): Promise<any> {
       throw error;
     } else {
       throw new Error('An unknown error occurred while creating brand');
+    }
+  }
+}
+
+// Create new designation using the same API endpoint with column="designation"
+export async function createNewDesignation(designationName: string): Promise<any> {
+  try {
+    console.log('=== createNewDesignation Debug ===');
+    console.log('Designation Name:', designationName, typeof designationName);
+    console.log('API_URL:', API_URL);
+    
+    // Ensure parameter is string
+    const designationNameStr = String(designationName || '').trim();
+    
+    console.log('Designation Name string:', designationNameStr);
+    
+    if (!designationNameStr) {
+      throw new Error('Designation name is required');
+    }
+    
+    const requestBody = {
+      column: "Designation",
+      value: designationNameStr,
+      is_active: true
+    };
+    
+    console.log('Request body:', requestBody);
+    
+    const response = await fetch(`${API_URL}/api/v1/Content/dropdown`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(requestBody),
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+
+    if (!response.ok) {
+      let errorMessage = `Failed to create designation: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        console.error('Error response data:', errorData);
+        errorMessage = errorData.detail || errorMessage;
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+        errorMessage = `Failed to create designation: ${response.status} ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+    console.log('Success response:', result);
+    return result;
+  } catch (error) {
+    console.error('Error creating designation:', error);
+    
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred while creating designation');
     }
   }
 }

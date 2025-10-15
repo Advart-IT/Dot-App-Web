@@ -19,7 +19,7 @@ export async function fetchGA4Metrics(params: GA4MetricsParams): Promise<any> {
       show_new_vs_returning: typeof params.show_new_vs_returning === 'boolean' ? params.show_new_vs_returning : false,
     };
     const response = await fetch(
-      `${API_URL}/api/google_analytics/overall/ga4-metrics`,
+      `${API_URL}/api/google_analytics/collection/ga4-metrics`,
       {
         method: "POST",
         credentials: "include",
