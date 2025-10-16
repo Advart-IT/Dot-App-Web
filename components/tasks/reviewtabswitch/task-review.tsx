@@ -96,7 +96,15 @@ const TaskReview: React.FC<TaskReviewProps> = ({ task, setTask }) => {
 
             if (response) {
                 console.log("✅ Task successfully sent for approval.");
-                setIsModalOpen(false); // Close the modal on success
+                
+                setTask((prevTask: any) => ({
+                    ...prevTask,
+                    status: response.status, 
+                    assigned_to: response.assigned_to, 
+                    ...(response.updated_fields && response.updated_fields)
+                }));
+                setIsModalOpen(false);
+
             } else {
                 console.error("❌ Failed to send task for approval.");
             }

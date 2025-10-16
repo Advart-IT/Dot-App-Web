@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import SmartDropdown from '@/components/custom-ui/dropdown2';
 import SmartDropdowithadd from '@/components/custom-ui/dropdown-with-add';
 import { Button } from '@/components/custom-ui/button2';
-import { inviteUser, toggleUserStatus, updateUserPermissions, createNewBrand } from '@/lib/profile/manage';
+import { inviteUser, toggleUserStatus, updateUserPermissions, createNewBrand, createNewDesignation } from '@/lib/profile/manage';
 import { fetchUserPermissions } from '@/lib/profile/admin';
 import type { UserData } from './AdminSection';
 
@@ -16,6 +16,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const [selectedInviteLevel, setSelectedInviteLevel] = useState<string>('false');
   const [manageActivityEnabled, setManageActivityEnabled] = useState<boolean>(true);
   const [adminAccessEnabled, setAdminAccessEnabled] = useState<boolean>(false);
+  
+  // Stats permissions states
+  const [statsPeopleEnabled, setStatsPeopleEnabled] = useState<boolean>(false);
+  const [selectedStatsContent, setSelectedStatsContent] = useState<string[]>([]);
+  const [statsLoading, setStatsLoading] = useState<boolean>(false);
+  
+  // Profile permission state
+  const [profilePermissionEnabled, setProfilePermissionEnabled] = useState<boolean>(false);
   
   // Loading states
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,10 +43,19 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     { label: 'Any Brand', value: 'any_brand' }
   ];
 
+  // Stats content options (hardcoded values)
+  const statsContentOptions = [
+    { label: 'Social Media', value: 'Social_media' },
+    { label: 'Ads', value: 'Ads' }
+  ];
+
   // Modal states
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [inviteEmail, setInviteEmail] = useState<string>('');
   const [selectedInviteBrands, setSelectedInviteBrands] = useState<string[]>([]); // Changed initial value
+  const [selectedDesignation, setSelectedDesignation] = useState<string>('');
+  const [emailError, setEmailError] = useState<string>('');
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
 
   // Create user options from userData.people
   const userOptions = userData.people?.map(person => ({
@@ -48,12 +65,20 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   // Create invite brand options from actual brand names including advart
   const inviteBrandOptions = [
-    { label: 'Advart', value: 'Advart' },
+    { label: 'Advart', value: 'advart' },
     ...(userData.dropdowns?.brand_name?.map(brand => ({
       label: brand.charAt(0).toUpperCase() + brand.slice(1),
       value: brand
     })) || [])
   ];
+
+  // Create designation options from userData.dropdowns.designation
+  const designationOptions = userData.dropdowns?.designation?.map((designation: any) => {
+    return ({
+      label: designation,
+      value: designation
+    });
+  }) || [];
 
   const handleUserChange = (val: string | string[]) => {
     const username = val as string;
@@ -93,6 +118,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
         
         // Load selected user's permissions if a user is selected
         if (selectedUserId) {
+          // Fetch all permissions first
           const permissions = await fetchUserPermissions(selectedUserId, 'all');
           setUserPermissions(permissions.permissions);
           
@@ -100,11 +126,23 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           setAdminAccessEnabled(permissions.permissions?.admin || false);
           setSelectedInviteLevel(permissions.permissions?.invite_level || 'false');
           setManageActivityEnabled(true); // Assuming active if user is loaded
+          
+          // Update stats permissions from the fetched data
+          console.log('Loaded user permissions:', permissions.permissions);
+          console.log('Stats section:', permissions.permissions?.Stats);
+          setStatsPeopleEnabled(permissions.permissions?.Stats?.people || false);
+          setSelectedStatsContent(permissions.permissions?.Stats?.content || []);
+          
+          // Update profile permission from the fetched data
+          setProfilePermissionEnabled(permissions.permissions?.profile || false);
         } else {
           // Reset to initial values when no user is selected
           setAdminAccessEnabled(false);
           setSelectedInviteLevel('false');
           setManageActivityEnabled(true);
+          setStatsPeopleEnabled(false);
+          setSelectedStatsContent([]);
+          setProfilePermissionEnabled(false);
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
@@ -143,6 +181,32 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     }
   };
 
+  const handleAddNewDesignation = async (newDesignationName: string) => {
+    if (!newDesignationName.trim()) {
+      alert('Please enter a designation name');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('Creating new designation:', newDesignationName.trim());
+      
+      // Call API to create new designation
+      await createNewDesignation(newDesignationName.trim());
+      
+      alert('Designation created successfully!');
+      
+      // Optionally, you might want to refresh the page or update the dropdown options
+      // For now, we'll just show success message
+      
+    } catch (error) {
+      console.error('Failed to create designation:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create designation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSendInvite = async () => {
     if (!inviteEmail.trim()) {
       alert('Please enter an email address');
@@ -158,6 +222,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     // For any_brand: check if brand selection is required
     if (currentUserInviteLevel === 'any_brand' && selectedInviteBrands.length === 0) {
       alert('Please select a brand');
+      return;
+    }
+    
+    // Check if designation is selected
+    if (!selectedDesignation.trim()) {
+      alert('Please select a designation');
       return;
     }
     
@@ -178,17 +248,19 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       console.log('=== handleSendInvite Debug ===');
       console.log('Current user invite level:', currentUserInviteLevel);
       console.log('Selected brand value:', selectedInviteBrands[0]);
+      console.log('Selected designation:', selectedDesignation);
       console.log('Department to send:', departmentToSend);
       console.log('Email to send:', inviteEmail.trim());
       
-      // Call API with email and department
-      await inviteUser(inviteEmail.trim(), departmentToSend);
+      // Call API with email, department, and designation
+      await inviteUser(inviteEmail.trim(), departmentToSend, selectedDesignation.trim());
       
       alert('Invitation sent successfully!');
       
       // Reset and close modal
       setInviteEmail('');
       setSelectedInviteBrands([]);
+      setSelectedDesignation('');
       setShowInviteModal(false);
     } catch (error) {
       console.error('Failed to send invite:', error);
@@ -284,10 +356,131 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     }
   };
 
+  const handleStatsPeopleToggle = async (enabled: boolean) => {
+    if (!selectedUserId) {
+      alert('Please select a user first');
+      return;
+    }
+
+    const confirmMessage = enabled 
+      ? 'Are you sure you want to grant people stats permission to this user?' 
+      : 'Are you sure you want to revoke people stats permission from this user?';
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      setStatsLoading(true);
+      console.log('=== handleStatsPeopleToggle Debug ===');
+      console.log('Selected User ID:', selectedUserId);
+      console.log('People Enabled:', enabled);
+      console.log('Selected Stats Content:', selectedStatsContent);
+      
+      const updateData = {
+        filter_type: 'stats',
+        stats: {
+          people: enabled,
+          content: selectedStatsContent
+        }
+      };
+      console.log('Sending update data:', updateData);
+      
+      const response = await updateUserPermissions(selectedUserId, updateData as any);
+      console.log('Update response:', response);
+      
+      setStatsPeopleEnabled(enabled);
+      alert(`People stats permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+    } catch (error) {
+      console.error('Failed to update people stats permission:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update people stats permission');
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  const handleProfilePermissionToggle = async (enabled: boolean) => {
+    if (!selectedUserId) {
+      alert('Please select a user first');
+      return;
+    }
+
+    const confirmMessage = enabled 
+      ? 'Are you sure you want to grant profile permission to this user?' 
+      : 'Are you sure you want to revoke profile permission from this user?';
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await updateUserPermissions(selectedUserId, {
+        filter_type: 'profile' as any,
+        profile: enabled
+      } as any);
+      
+      setProfilePermissionEnabled(enabled);
+      alert(`Profile permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+    } catch (error) {
+      console.error('Failed to update profile permission:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update profile permission');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Handle email input change with validation
+  const handleEmailChange = (email: string) => {
+    setInviteEmail(email);
+    
+    if (email.trim() === '') {
+      setEmailError('');
+      setIsEmailValid(true);
+      return;
+    }
+    
+    if (!validateEmail(email.trim())) {
+      setEmailError('Please enter a valid email address');
+      setIsEmailValid(false);
+    } else {
+      setEmailError('');
+      setIsEmailValid(true);
+    }
+  };
+
+  // Handle form submission (Enter key or button click)
+  const handleFormSubmit = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
+    if (!inviteEmail.trim()) {
+      setEmailError('Email address is required');
+      setIsEmailValid(false);
+      return;
+    }
+    
+    if (!isEmailValid) {
+      return;
+    }
+    
+    handleSendInvite();
+  };
+
   const handleCloseModal = () => {
     setShowInviteModal(false);
     setInviteEmail('');
     setSelectedInviteBrands([]);
+    setSelectedDesignation('');
+    setEmailError('');
+    setIsEmailValid(true);
   };
 
   // Check current user's admin status
@@ -415,6 +608,120 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           </div>
         )}
 
+        {/* Stats People Permission Toggle - Only show for admin users */}
+        {currentUserIsAdmin && (
+          <div className="flex justify-between items-center p-4 bg-gray-100 rounded-md">
+            <span className="text-sm font-medium text-gray-700">Stats People Permission</span>
+            <div className="flex items-center gap-4">
+              <span className={`text-xs font-medium ${
+                statsPeopleEnabled ? 'text-green-600' : 'text-red-500'
+              }`}>
+                {statsPeopleEnabled ? 'Enabled' : 'Disabled'}
+              </span>
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={statsPeopleEnabled}
+                  onChange={(e) => handleStatsPeopleToggle(e.target.checked)}
+                  disabled={statsLoading || !selectedUserId}
+                />
+                <div className={`relative inline-block w-12 h-6 rounded-full transition-colors ${
+                  statsPeopleEnabled ? 'bg-gray-800' : 'bg-gray-300'
+                }`}>
+                  <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                    statsPeopleEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
+{/* Stats Content Permission - Only show for admin users */}
+{currentUserIsAdmin && (
+  <div className=" flex justify-between items-center flex-end p-4 bg-gray-100 rounded-md">
+    <div className="flex items-center space-x-4">
+      <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Stats Content Permission</span>
+    </div>
+      <div >
+        <SmartDropdown
+          options={statsContentOptions}
+          value={selectedStatsContent}
+          onChange={async (val) => {
+            const values = Array.isArray(val) ? val : [val].filter(Boolean);
+            setSelectedStatsContent(values as string[]);
+            
+            // Auto-update when dropdown changes
+            if (selectedUserId) {
+              try {
+                setStatsLoading(true);
+                console.log('=== Auto-updating Stats Content ===');
+                console.log('Selected User ID:', selectedUserId);
+                console.log('New Content Values:', values);
+                console.log('Current People Permission:', statsPeopleEnabled);
+                
+                const updateData = {
+                  filter_type: 'stats',
+                  stats: {
+                    people: statsPeopleEnabled,
+                    content: values as string[]
+                  }
+                };
+                console.log('Auto-update ', updateData);
+                
+                const response = await updateUserPermissions(selectedUserId, updateData as any);
+                console.log('Auto-update response:', response);
+              } catch (error) {
+                console.error('Failed to auto-update stats content:', error);
+                // Revert on error
+                setSelectedStatsContent(selectedStatsContent);
+                alert(error instanceof Error ? error.message : 'Failed to update stats content');
+              } finally {
+                setStatsLoading(false);
+              }
+            }
+          }}
+          placeholder="Select Stats Content"
+          className="w-[250px]"
+          disabled={statsLoading || !selectedUserId}
+          multiSelector={true}
+          enableSearch={false}
+        />
+      </div>
+  </div>
+)}
+
+        {/* Profile Permission Toggle - Only show for admin users */}
+        {currentUserIsAdmin && (
+          <div className="flex justify-between items-center p-4 bg-gray-100 rounded-md">
+            <span className="text-sm font-medium text-gray-700">Profile Permission</span>
+            <div className="flex items-center gap-4">
+              <span className={`text-xs font-medium ${
+                profilePermissionEnabled ? 'text-green-600' : 'text-red-500'
+              }`}>
+                {profilePermissionEnabled ? 'Enabled' : 'Disabled'}
+              </span>
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={profilePermissionEnabled}
+                  onChange={(e) => handleProfilePermissionToggle(e.target.checked)}
+                  disabled={loading || !selectedUserId}
+                />
+                <div className={`relative inline-block w-12 h-6 rounded-full transition-colors ${
+                  profilePermissionEnabled ? 'bg-gray-800' : 'bg-gray-300'
+                }`}>
+                  <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                    profilePermissionEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
         {/* Message for users with no permissions */}
         {!currentUserIsAdmin && !hasInvitePermissions && (
           <div className="p-6 text-center">
@@ -475,8 +782,8 @@ export default function ManageSection({ userData }: ManageSectionProps) {
                   />
                 </div>
               )}
-              
-              {/* Show department info for own_brand users */}
+
+               {/* Show department info for own_brand users */}
               {currentUserInviteLevel === 'own_brand' && (
                 <div className="mb-4 p-3 bg-gray-50 rounded-md">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -486,36 +793,86 @@ export default function ManageSection({ userData }: ManageSectionProps) {
                     Invites will be sent for: <span className="font-medium">{currentUserData?.depatment || 'Advart'}</span>
                   </p>
                 </div>
+              )}  
+
+              {/* Designation Selection - Show for all users with invite permissions */}
+              {hasInvitePermissions && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Designation
+                  </label>
+                  <SmartDropdowithadd
+                    options={designationOptions}
+                    value={selectedDesignation}
+                    onChange={(val) => {
+                      const selectedValue = Array.isArray(val) ? val[0] : val;
+                      setSelectedDesignation(selectedValue as string || '');
+                    }}
+                    placeholder="Select designation"
+                    className="w-full"
+                    multiSelector={false}
+                    enableAddNew={true}
+                    enableSearch={true}
+                    addNewLabel="+ Add New Designation"
+                    addNewPlaceholder="Enter new designation name"
+                    onAddNew={handleAddNewDesignation}
+                  />
+                </div>
               )}
+              
 
               {/* Email Input */}
-              <div className="mb-6">
+              <form onSubmit={handleFormSubmit} className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Recipient Email
                 </label>
                 <div className="flex gap-3">
-                  <input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="Enter email address"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <div className="flex-1">
+                    <input
+                      type="email"
+                      value={inviteEmail}
+                      onChange={(e) => handleEmailChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleFormSubmit();
+                        }
+                      }}
+                      placeholder="Enter email address"
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 transition-colors ${
+                        emailError
+                          ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                      }`}
+                      autoComplete="email"
+                      required
+                    />
+                    {emailError && (
+                      <p className="mt-1 text-xs text-red-600 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        {emailError}
+                      </p>
+                    )}
+                  </div>
                   <button
-                    onClick={handleSendInvite}
+                    type="submit"
                     disabled={
                       !inviteEmail.trim() || 
+                      !isEmailValid ||
+                      !selectedDesignation.trim() ||
                       inviteLoading ||
                       currentUserInviteLevel === false ||
                       currentUserInviteLevel === 'false' ||
                       (currentUserInviteLevel === 'any_brand' && selectedInviteBrands.length === 0)
                     }
-                    className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {inviteLoading ? 'Sending...' : 'Send Invite'}
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

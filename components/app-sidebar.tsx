@@ -5,7 +5,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useUser } from "@/hooks/usercontext"
-import { LogOut, Home, CheckSquare, Menu, X, PanelRight, PanelLeft, Edit, ChartLine, Settings } from "lucide-react"
+import { LogOut, Home, CheckSquare, Menu, X, PanelRight, PanelLeft, Edit, ChartLine, Settings,SquareActivity, UserRound, Clapperboard  } from "lucide-react"
 
 interface NavItem {
     title: string
@@ -50,6 +50,21 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
             url: "/data",
             icon: ChartLine,
         },
+        // {
+        //     title: "Shoot",
+        //     url: "/shoot",
+        //     icon: Clapperboard,
+        // },
+        ...(user?.permissions?.profile ? [{
+            title: "Profile",
+            url: "/user",
+            icon: UserRound,
+        }] : []),
+        ...(user?.permissions?.Stats && (user.permissions.Stats.people || (user.permissions.Stats.content && user.permissions.Stats.content.length > 0)) ? [{
+            title: "Stats",
+            url: "/stats",
+            icon: SquareActivity ,
+        }] : []),
     ]
 
     const items = navItems || defaultNavItems

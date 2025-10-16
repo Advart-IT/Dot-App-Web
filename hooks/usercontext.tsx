@@ -25,6 +25,11 @@ interface User {
     brand_admin?: boolean;
     reportrix_admin?: boolean;
     invite_level?: 'own_brand' | 'any_brand';
+    profile?: boolean;
+    Stats?: {
+      people?: boolean;
+      content?: string[];
+    };
   };
   people: Array<{
     employee_id: number;
@@ -39,6 +44,8 @@ interface User {
     marketing_funnel: string[];
     status: string[];
     ads_type: string[];
+    tags: string[];
+    contact?: string[];
   };
 }
 

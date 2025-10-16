@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { fetchTasks, startTaskTimer } from "@/lib/tasks/task";
+import { fetchTasks, startTaskTimer, fetchMonthlyTargetOverview } from "@/lib/tasks/task";
 import TaskCreate from "@/components/tasks/task-create";
 import { useUser } from "@/hooks/usercontext";
 import SmartDropdown from "@/components/custom-ui/dropdown";
@@ -33,6 +33,15 @@ interface TasksResponse {
   has_more: boolean;
 }
 
+interface MonthlyTargetResponse {
+  month_name: string;
+  total_target_count?: number;
+  total_completed?: number;
+  total_pending?: number;
+  total_in_review?: number;
+  overall_completion_percentage?: number;
+}
+
 export default function DashboardPage() {
   const [upcomingTasks, setUpcomingTasks] = useState<Task[]>([]);
   const [delayedTasks, setDelayedTasks] = useState<Task[]>([]);
@@ -43,6 +52,32 @@ export default function DashboardPage() {
   const lastParamsRefUpcomingDelayed = useRef<string | null>(null);
   const lastParamsRefOngoing = useRef<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("assigned_to");
+  
+  // Target overview states
+  const [targetData, setTargetData] = useState<MonthlyTargetResponse | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  });
+  const [targetLoading, setTargetLoading] = useState<boolean>(false);
+
+  const fetchTargetOverview = async () => {
+    try {
+      setTargetLoading(true);
+      const [year, month] = selectedDate.split('-').map(Number);
+      const data = await fetchMonthlyTargetOverview({
+        month: month,
+        year: year
+      });
+      setTargetData(data);
+    } catch (error) {
+      console.error("Failed to fetch target overview:", error);
+    } finally {
+      setTargetLoading(false);
+    }
+  };
 
   const fetchAllTasks = async (type: string) => {
     console.log(`[fetchAllTasks] Called with type: ${type}`);
@@ -164,6 +199,15 @@ export default function DashboardPage() {
     fetchAllTasks("upcoming_delayed");
     fetchAllTasks("ongoing");
   }, [selectedFilter]);
+
+  useEffect(() => {
+    fetchTargetOverview();
+  }, [selectedDate]);
+
+  // Initial load of target data
+  useEffect(() => {
+    fetchTargetOverview();
+  }, []);
 
   const renderProgress = (value: string | undefined) => {
     const [done, total] = value?.split("/").map(Number) || [0, 0];
@@ -289,25 +333,35 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div>
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-800 inline-block mr-4">
-          My Dashboard
-        </h1>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center">
+          {/* Title */}
+          <h1 className="text-2xl font-bold text-gray-800 mr-4">
+            My Dashboard
+          </h1>
 
-        {/* Dropdown */}
-        <div className="inline-block w-[200px]">
-          <SmartDropdown
-            options={FILTERS_TEMPLATE.map((filter) => ({
-              label: filter.label,
-              value: filter.value,
-            }))}
-            value={selectedFilter}
-            onChange={(value: string | null) => setSelectedFilter(value || "assigned_to")}
-            placeholder="Select Filter"
-            className="w-[200px]"
-          />
+          {/* Dropdown */}
+          <div className="w-[200px]">
+            <SmartDropdown
+              options={FILTERS_TEMPLATE.map((filter) => ({
+                label: filter.label,
+                value: filter.value,
+              }))}
+              value={selectedFilter}
+              onChange={(value: string | null) => setSelectedFilter(value || "assigned_to")}
+              placeholder="Select Filter"
+              className="w-[200px]"
+            />
+          </div>
         </div>
+
+        {/* New Task Button */}
+        <button
+          className="px-5 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition shadow-sm"
+          onClick={() => setShowCreateTask(true)}
+        >
+          + New Task
+        </button>
       </div>
 
 
@@ -347,10 +401,69 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Create Task + Stats Section */}
+        {/* Target Overview + Stats Section */}
         <div className="grid grid-cols-1 gap-6">
-          {/* Create Task Card */}
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow p-5 text-white">
+          {/* Target Overview Card */}
+          <div className="bg-white rounded-xl shadow p-5 border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Target Overview
+              </h2>
+              
+              {/* Month/Year Date Picker */}
+              <div>
+                <input
+                  type="month"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {targetLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 gap-3">
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <div className="text-blue-600 font-medium text-sm">Target</div>
+                  <div className="text-xl font-bold">{targetData?.total_target_count || 0}</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="text-green-600 font-medium text-sm">Completed</div>
+                  <div className="text-xl font-bold">{targetData?.total_completed || 0}</div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-3">
+                  <div className="text-yellow-600 font-medium text-sm">Pending</div>
+                  <div className="text-xl font-bold">{targetData?.total_pending || 0}</div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-3">
+                  <div className="text-purple-600 font-medium text-sm">In Review</div>
+                  <div className="text-xl font-bold">{targetData?.total_in_review || 0}</div>
+                </div>
+              </div>
+            )}
+
+            {/* {targetData?.overall_completion_percentage !== null && targetData?.overall_completion_percentage !== undefined && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">Overall Completion</span>
+                  <span className="font-medium">{targetData.overall_completion_percentage}%</span>
+                </div>
+                <div className="mt-2 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(targetData.overall_completion_percentage, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            )} */}
+          </div>
+
+          {/* Commented out Create Task Card */}
+          {/* <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow p-5 text-white">
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-xl font-semibold mb-2">Create New Task</h2>
@@ -363,13 +476,8 @@ export default function DashboardPage() {
                   + New Task
                 </button>
               </div>
-              {/* <div className="text-white">
-                <svg className="w-16 h-16 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div> */}
             </div>
-          </div>
+          </div> */}
 
           {/* Stats Overview Card */}
           <div className="bg-white rounded-xl shadow p-5 border border-gray-100">
