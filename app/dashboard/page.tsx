@@ -440,14 +440,14 @@ export default function DashboardPage() {
                   <div className="text-yellow-600 font-medium text-sm">Pending</div>
                   <div className="text-xl font-bold">{targetData?.total_pending || 0}</div>
                 </div>
-                <div className="bg-purple-50 rounded-lg p-3">
-                  <div className="text-purple-600 font-medium text-sm">In Review</div>
-                  <div className="text-xl font-bold">{targetData?.total_in_review || 0}</div>
-                </div>
-                <div className="bg-orange-50 rounded-lg p-3">
-                  <div className="text-orange-600 font-medium text-sm">In Progress</div>
-                  <div className="text-xl font-bold">{targetData?.total_in_progress || 0}</div>
-                </div>
+                  <div className="bg-purple-50 rounded-lg p-3">
+                    <div className="text-purple-600 font-medium text-sm">In Review</div>
+                    <div className="text-xl font-bold">{targetData?.total_in_review || 0}</div>
+                  </div>
+                  {/* <div className="bg-orange-50 rounded-lg p-3">
+                    <div className="text-orange-600 font-medium text-sm">In Progress</div>
+                    <div className="text-xl font-bold">{targetData?.total_in_progress || 0}</div>
+                  </div> */}
               </div>
             )}
 
