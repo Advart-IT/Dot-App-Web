@@ -123,6 +123,13 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
         // Synchronize selectedBrand, selectedFormat, and selectedStatus with editableData
         if (key === "brand_name") {
             setSelectedBrand(value as string); // Update selectedBrand
+            // Clear category when brand changes since categories are brand-specific
+            if (editableData.category) {
+                setEditableData((prev) => ({
+                    ...prev,
+                    category: ""
+                }));
+            }
         } else if (key === "format_type") {
             setSelectedFormat(value as string); // Update selectedFormat
         } else if (key === "status") {
@@ -399,6 +406,17 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
         return filtered;
     }, [selectedBrand]);
 
+    // Add memoized value for brand-specific category options
+    const categoryOptions = useMemo(() => {
+        if (!selectedBrand || !user?.dropdowns?.category) return [];
+
+        // Get the brand name in proper case (capitalize first letter)
+        const brandName = selectedBrand.charAt(0).toUpperCase() + selectedBrand.slice(1).toLowerCase();
+        
+        // Return the categories for the selected brand
+        return user.dropdowns.category[brandName] || [];
+    }, [selectedBrand, user?.dropdowns?.category]);
+
 
     // Add this function before the return statement
     const handleDelete = async () => {
@@ -443,7 +461,7 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
     const thirdRowKeys = useMemo(() => {
         if (localMode === "create") return [];
 
-        const availableThirdRowFields = ["marketing_funnel", "top_pointers", "post_type", "ads_type"];
+        const availableThirdRowFields = ["marketing_funnel", "top_pointers", "post_type", "ads_type", "category"];
         const columnAccessors = columns.map(col => col.accessor);
 
         return availableThirdRowFields.filter(key => columnAccessors.includes(key));
@@ -672,7 +690,29 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
                             {thirdRowKeys.map((key) => {
                                 const dropdownColumn = dropdownColumns.find((col) => col.accessor === key);
 
-                                // Render all keys as dropdowns in edit mode
+                                // Special handling for category field
+                                if (key === "category") {
+                                    return (
+                                        <div
+                                            key={key}
+                                            className={`flex flex-col ${isEditableMemo ? "" : "opacity-70 cursor-not-allowed pointer-events-none"}`}
+                                        >
+                                            <Dropdown
+                                                value={String(editableData[key] || "")}
+                                                options={categoryOptions.map((option: string) => ({
+                                                    label: option,
+                                                    value: option,
+                                                }))}
+                                                onChange={(value: string) => handleInputChange(key, value)}
+                                                label="Category"
+                                                onChangeComplete={(value: string) => handleInputChangeComplete(key, value)}
+                                                required={true}
+                                            />
+                                        </div>
+                                    );
+                                }
+
+                                // Render all other keys as dropdowns in edit mode
                                 return (
                                     <div
                                         key={key}

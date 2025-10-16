@@ -22,9 +22,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const [selectedStatsContent, setSelectedStatsContent] = useState<string[]>([]);
   const [statsLoading, setStatsLoading] = useState<boolean>(false);
   
+<<<<<<< HEAD
   // Profile permission state
   const [profilePermissionEnabled, setProfilePermissionEnabled] = useState<boolean>(false);
   
+=======
+>>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
   // Loading states
   const [loading, setLoading] = useState<boolean>(false);
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);
@@ -132,9 +135,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           console.log('Stats section:', permissions.permissions?.Stats);
           setStatsPeopleEnabled(permissions.permissions?.Stats?.people || false);
           setSelectedStatsContent(permissions.permissions?.Stats?.content || []);
+<<<<<<< HEAD
           
           // Update profile permission from the fetched data
           setProfilePermissionEnabled(permissions.permissions?.profile || false);
+=======
+>>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
         } else {
           // Reset to initial values when no user is selected
           setAdminAccessEnabled(false);
@@ -142,7 +148,10 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           setManageActivityEnabled(true);
           setStatsPeopleEnabled(false);
           setSelectedStatsContent([]);
+<<<<<<< HEAD
           setProfilePermissionEnabled(false);
+=======
+>>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
@@ -398,6 +407,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       setStatsLoading(false);
     }
   };
+<<<<<<< HEAD
 
   const handleProfilePermissionToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
@@ -430,6 +440,8 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     }
   };
 
+=======
+>>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
   // Email validation function
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -692,6 +704,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   </div>
 )}
 
+<<<<<<< HEAD
         {/* Profile Permission Toggle - Only show for admin users */}
         {currentUserIsAdmin && (
           <div className="flex justify-between items-center p-4 bg-gray-100 rounded-md">
@@ -722,6 +735,8 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           </div>
         )}
 
+=======
+>>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
         {/* Message for users with no permissions */}
         {!currentUserIsAdmin && !hasInvitePermissions && (
           <div className="p-6 text-center">
