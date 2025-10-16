@@ -25,10 +25,7 @@ interface User {
     brand_admin?: boolean;
     reportrix_admin?: boolean;
     invite_level?: 'own_brand' | 'any_brand';
-<<<<<<< HEAD
     profile?: boolean;
-=======
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
     Stats?: {
       people?: boolean;
       content?: string[];
@@ -47,15 +44,12 @@ interface User {
     marketing_funnel: string[];
     status: string[];
     ads_type: string[];
-<<<<<<< HEAD
     tags: string[];
     contact?: string[];
-=======
     designation: string[];
     category: {
       [brandName: string]: string[];
     };
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
   };
 }
 

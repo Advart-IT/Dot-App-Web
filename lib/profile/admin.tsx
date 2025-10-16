@@ -11,10 +11,7 @@ export interface UserPermissionsResponse {
     brand_admin?: boolean;
     invite_level?: string;
     reportrix_admin?: boolean;
-<<<<<<< HEAD
     profile?: boolean;
-=======
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
     Stats?: {
       people?: boolean;
       content?: string[];

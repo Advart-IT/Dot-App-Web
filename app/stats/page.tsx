@@ -23,10 +23,7 @@ export default function StatsPage() {
         // Set initial tab to the first available tab
         return availableTabs.length > 0 ? availableTabs[0] : '';
     });
-<<<<<<< HEAD
 
-=======
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
     const [selectedDate, setSelectedDate] = useState<string>(() => {
         const now = new Date();
         const year = now.getFullYear();
@@ -84,10 +81,7 @@ export default function StatsPage() {
             </div>
         );
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
     return (
         <div className="min-h-screen flex flex-col bg-themeBase-l1">
             {/* Top Bar */}

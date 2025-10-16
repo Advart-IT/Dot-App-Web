@@ -37,12 +37,9 @@ interface MonthlyTargetResponse {
   month_name: string;
   total_target_count?: number;
   total_completed?: number;
-<<<<<<< HEAD
   total_pending?: number;
   total_in_review?: number;
-=======
   total_in_progress?: number;
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
   overall_completion_percentage?: number;
 }
 
@@ -430,7 +427,6 @@ export default function DashboardPage() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             ) : (
-<<<<<<< HEAD
               <div className="grid grid-cols-4 gap-3">
                 <div className="bg-blue-50 rounded-lg p-3">
                   <div className="text-blue-600 font-medium text-sm">Target</div>
@@ -447,20 +443,10 @@ export default function DashboardPage() {
                 <div className="bg-purple-50 rounded-lg p-3">
                   <div className="text-purple-600 font-medium text-sm">In Review</div>
                   <div className="text-xl font-bold">{targetData?.total_in_review || 0}</div>
-=======
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <div className="text-blue-600 font-medium">Target Count</div>
-                  <div className="text-2xl font-bold">{targetData?.total_target_count || 0}</div>
                 </div>
-                <div className="bg-green-50 rounded-lg p-4">
-                  <div className="text-green-600 font-medium">Completed</div>
-                  <div className="text-2xl font-bold">{targetData?.total_completed || 0}</div>
-                </div>
-                <div className="bg-orange-50 rounded-lg p-4">
-                  <div className="text-orange-600 font-medium">In Progress</div>
-                  <div className="text-2xl font-bold">{targetData?.total_in_progress || 0}</div>
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
+                <div className="bg-orange-50 rounded-lg p-3">
+                  <div className="text-orange-600 font-medium text-sm">In Progress</div>
+                  <div className="text-xl font-bold">{targetData?.total_in_progress || 0}</div>
                 </div>
               </div>
             )}

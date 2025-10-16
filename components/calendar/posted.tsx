@@ -18,23 +18,6 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
     const [selectedFormatType, setSelectedFormatType] = useState<string>("");
     const { user } = useUser();
 
-<<<<<<< HEAD
-    // Refs to store cached data and loading state
-    const cache = useRef<Record<string, any[]>>({}); // Cache for content lists per brand-format combination
-    const isLoadingRef = useRef(false); // To prevent concurrent API calls
-
-=======
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
-    // Set default format type to first sorted option when user data loads
-    useEffect(() => {
-        if (user?.dropdowns?.format_type?.length && !selectedFormatType) {
-            const sortedFormatTypes = [...user.dropdowns.format_type].sort((a, b) => a.localeCompare(b));
-            setSelectedFormatType(sortedFormatTypes[0]);
-        }
-    }, [user, selectedFormatType]);
-
-<<<<<<< HEAD
-=======
     // Refs to store cached data and loading state
     const cache = useRef<Record<string, any[]>>({}); // Cache for content lists per brand-format combination
     const isLoadingRef = useRef(false); // To prevent concurrent API calls
@@ -46,8 +29,6 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             setSelectedFormatType(sortedFormatTypes[0]);
         }
     }, [user, selectedFormatType]);
-
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
     // Fetch data only when brandName or selectedFormatType changes
     useEffect(() => {
         if (!brandName || !selectedFormatType) return;
@@ -80,11 +61,7 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
                         limit,
                         format_type: selectedFormatType,
                     };
-<<<<<<< HEAD
 
-=======
-                    
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
                     const response = await fetchContent(requestPayload);
 
                     if (response?.data?.length) {
@@ -227,10 +204,7 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         }
     };
 
-<<<<<<< HEAD
-=======
     // Prepare format type options from user data (sorted alphabetically)
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
     const formatTypeOptions = [
         ...(user?.dropdowns?.format_type?.map(format => ({
             label: format,

@@ -9,12 +9,9 @@ export type UserTaskData = {
   month_name: string;
   total_target_count: number | null;
   total_completed: number;
-<<<<<<< HEAD
   total_pending: number;
   total_in_review: number;
-=======
   total_in_progress: number;
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
   overall_completion_percentage: number | null;
 };
 
@@ -24,12 +21,9 @@ export type UserTaskRow = {
   designation: string;
   total_target_count: number | null;
   total_completed: number;
-<<<<<<< HEAD
   total_pending: number;
   total_in_review: number;
-=======
   total_in_progress: number;
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
 };
 
 // Define the content data structure
@@ -58,11 +52,7 @@ export const isUserTaskData = (data: any[]): boolean => {
   if (!Array.isArray(data) || data.length === 0) return false;
   
   const sample = data[0];
-<<<<<<< HEAD
-  const requiredFields = ['username', 'designation', 'total_target_count', 'total_completed', 'total_pending', 'total_in_review'];
-=======
-  const requiredFields = ['username', 'designation', 'total_target_count', 'total_completed', 'total_in_progress'];
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
+  const requiredFields = ['username', 'designation', 'total_target_count', 'total_completed', 'total_pending', 'total_in_review', 'total_in_progress'];
   
   return requiredFields.every(field => field in sample);
 };
@@ -100,12 +90,9 @@ export const mapToUserTaskRows = (users: UserTaskData[]): UserTaskRow[] => {
     designation: user.designation,
     total_target_count: user.total_target_count,
     total_completed: user.total_completed,
-<<<<<<< HEAD
     total_pending: user.total_pending,
     total_in_review: user.total_in_review,
-=======
     total_in_progress: user.total_in_progress,
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
   }));
 };
 
@@ -164,7 +151,6 @@ export const generateUserTaskColumnDefs = (): ColDef<UserTaskRow>[] => {
       minWidth: 100,
     },
     {
-<<<<<<< HEAD
       headerName: "Pending",
       field: "total_pending",
       filter: "agNumberColumnFilter",
@@ -175,10 +161,14 @@ export const generateUserTaskColumnDefs = (): ColDef<UserTaskRow>[] => {
     {
       headerName: "In Review",
       field: "total_in_review",
-=======
+      filter: "agNumberColumnFilter",
+      sortable: true,
+      resizable: true,
+      minWidth: 110,
+    },
+    {
       headerName: "In Progress",
       field: "total_in_progress",
->>>>>>> 815faf2ad354129c9dcd7dab3200503e064b52ad
       filter: "agNumberColumnFilter",
       sortable: true,
       resizable: true,

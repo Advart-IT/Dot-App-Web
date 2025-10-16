@@ -133,7 +133,8 @@ export default function UserComponent({
   // Bank details form state
   const [bankDetails, setBankDetails] = useState({
     accountNumber: '',
-    ifscCode: ''
+    ifscCode: '',
+    upi: ''
   });
 
   // Address form state - array to handle multiple addresses
@@ -226,7 +227,8 @@ export default function UserComponent({
           const bankData = selectedProfile.details.bankDetails as any;
           setBankDetails({
             accountNumber: bankData.accountNumber || bankData.account_number || '',
-            ifscCode: bankData.ifscCode || bankData.ifsc_code || bankData.IFSC || ''
+            ifscCode: bankData.ifscCode || bankData.ifsc_code || bankData.IFSC || '',
+            upi: bankData.upi || bankData.UPI || ''
           });
         } else if (typeof selectedProfile.details.bankDetails === 'string') {
           // Try to parse JSON string, fallback to empty if not parseable
@@ -234,13 +236,15 @@ export default function UserComponent({
             const bankData = JSON.parse(selectedProfile.details.bankDetails);
             setBankDetails({
               accountNumber: bankData.accountNumber || bankData.account_number || '',
-              ifscCode: bankData.ifscCode || bankData.ifsc_code || bankData.IFSC || ''
+              ifscCode: bankData.ifscCode || bankData.ifsc_code || bankData.IFSC || '',
+              upi: bankData.upi || bankData.UPI || ''
             });
           } catch {
             // If not JSON, reset to empty
             setBankDetails({
               accountNumber: '',
-              ifscCode: ''
+              ifscCode: '',
+              upi: ''
             });
           }
         }
@@ -248,7 +252,8 @@ export default function UserComponent({
         // Reset to empty bank details
         setBankDetails({
           accountNumber: '',
-          ifscCode: ''
+          ifscCode: '',
+          upi: ''
         });
       }
 
@@ -317,7 +322,7 @@ export default function UserComponent({
       setContacts([{ type: 'Email', value: '' }]);
       setAddresses([{ type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }]);
       setSelectedTags([]);
-      setBankDetails({ accountNumber: '', ifscCode: '' });
+      setBankDetails({ accountNumber: '', ifscCode: '', upi: '' });
     }
   }, [isCreating, selectedProfile]);
 
@@ -488,7 +493,8 @@ export default function UserComponent({
         details: {
           bankDetails: {
             accountNumber: bankDetails.accountNumber,
-            ifscCode: bankDetails.ifscCode
+            ifscCode: bankDetails.ifscCode,
+            upi: bankDetails.upi
           }
         }
       };
@@ -599,7 +605,8 @@ export default function UserComponent({
           ...currentProfile.details, // Use ref to get latest details if needed
           bankDetails: {
             accountNumber: bankDetails.accountNumber,
-            ifscCode: bankDetails.ifscCode
+            ifscCode: bankDetails.ifscCode,
+            upi: bankDetails.upi
           }
         }
       };
@@ -680,7 +687,8 @@ export default function UserComponent({
           ...currentProfile.details,
           bankDetails: {
             accountNumber: newBankDetails.accountNumber,
-            ifscCode: newBankDetails.ifscCode
+            ifscCode: newBankDetails.ifscCode,
+            upi: newBankDetails.upi
           }
         }
       };
@@ -1017,6 +1025,14 @@ export default function UserComponent({
                 onChangeComplete={handleAutoSaveComplete} // Save when IFSC code changes
                 placeholder="IFSC Code"
                 label="IFSC Code"
+                className="mb-2"
+              />
+              <SmartInputBox
+                value={bankDetails.upi}
+                onChange={(value) => handleBankDetailsChange('upi', value)}
+                onChangeComplete={handleAutoSaveComplete} // Save when UPI changes
+                placeholder="UPI ID (e.g., name@paytm)"
+                label="UPI ID"
                 className="mb-2"
               />
             </div>
