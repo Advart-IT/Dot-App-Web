@@ -94,9 +94,9 @@ export default function UserPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-themeBase-l1">
-      {/* Top Bar - Similar to stats page */}
-      <div className="bg-themeBase border-b border-themeBase-l2 px-x20 py-x10 flex items-center justify-between">
+    <div className="h-screen flex flex-col bg-themeBase-l1 overflow-hidden">
+      {/* Top Bar - Fixed */}
+      <div className="bg-themeBase border-b border-themeBase-l2 px-x20 py-x10 flex items-center justify-between flex-shrink-0">
         {/* Left Section: Title */}
         <div className="flex items-center">
           <h1 className="text-xl font-semibold text-gray-900">User Profiles</h1>
@@ -116,29 +116,29 @@ export default function UserPage() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 min-h-0 flex p-x20">
+      <div className="flex-1 flex p-x20 overflow-hidden">
         {/* Left Panel - Profiles List */}
-        <div className="w-1/3 bg-white border-r border-gray-200 rounded-l-lg">
-          <div className="p-4 border-b border-gray-200">
+        <div className="w-1/3 bg-white border-r border-gray-200 rounded-l-lg flex flex-col">
+          <div className="p-4 border-b border-gray-200 flex-shrink-0">
             <h2 className="text-[16px] font-medium text-gray-900">All Profiles ({profiles.length})</h2>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 border-l-4 border-red-400">
+            <div className="p-4 bg-red-50 border-l-4 border-red-400 flex-shrink-0">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
           {/* Loading State */}
           {loading && profiles.length === 0 && (
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-8 flex-shrink-0">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           )}
 
           {/* Profiles List */}
-          <div className="overflow-y-auto max-h-96">
+          <div className="flex-1 overflow-y-auto">
             {profiles.length === 0 && !loading ? (
               <div className="p-4 text-center text-gray-500">
                 No profiles found
@@ -191,7 +191,7 @@ export default function UserPage() {
         </div>
 
         {/* Right Panel - Profile Details */}
-        <div className="flex-1 bg-white rounded-r-lg relative">
+        <div className="flex-1 bg-white rounded-r-lg relative overflow-hidden">
           {/* Loading Overlay for Right Section */}
           {loading && (selectedProfile || isCreating) && (
             <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-r-lg">
@@ -202,17 +202,19 @@ export default function UserPage() {
             </div>
           )}
           
-          <UserComponent
-            selectedProfile={selectedProfile}
-            onProfileUpdate={handleProfileUpdate}
-            onError={handleError}
-            isCreating={isCreating}
-            onProfileCreated={async () => {
-              await loadProfiles();
-              setIsCreating(false);
-            }}
-            onProfileDeleted={handleProfileDeleted}
-          />
+          <div className="h-full overflow-y-auto">
+            <UserComponent
+              selectedProfile={selectedProfile}
+              onProfileUpdate={handleProfileUpdate}
+              onError={handleError}
+              isCreating={isCreating}
+              onProfileCreated={async () => {
+                await loadProfiles();
+                setIsCreating(false);
+              }}
+              onProfileDeleted={handleProfileDeleted}
+            />
+          </div>
         </div>
       </div>
     </div>
