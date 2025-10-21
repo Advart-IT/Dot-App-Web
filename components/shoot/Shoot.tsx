@@ -530,16 +530,14 @@ export default function ShootModal({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
               <SimpleDropdown
-                options={reportrixBrands.map(b => ({ label: b, value: b }))}
+                options={[{ label: 'beelittle', value: 'beelittle' }, { label: 'zing', value: 'zing' }, { label: 'prathiksham', value: 'prathiksham' }, { label: 'adoreaboo', value: 'adoreaboo' }]}
                 value={formData.brand}
                 onChange={(value) => {
                   const newValue = Array.isArray(value) ? value[0] : value;
                   handleInputChange('brand', newValue);
                 }}
                 placeholder="Select Brand"
-                className={`w-full ${
-                  fieldErrors.brand ? 'border-red-500' : ''
-                }`}
+                className={`w-full ${fieldErrors.brand ? 'border-red-500' : ''}`}
               />
               {fieldErrors.brand && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.brand}</p>

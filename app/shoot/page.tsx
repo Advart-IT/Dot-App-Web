@@ -155,14 +155,7 @@ export default function ShootPage() {
     }
   };
 
-  // Add this check at the top
-  if (reportrixBrands.length === 0) {
-    return (
-      <div className="p-4 text-center text-red-500">
-        <p>You don't have access to any brands. Please contact your admin.</p>
-      </div>
-    );
-  }
+  // Remove brand access check so all users can access the shoot page
 
   // Get current start and end date for table and target summary
   const { startDate, endDate } = getMonthDateRange(selectedMonth, selectedYear);
