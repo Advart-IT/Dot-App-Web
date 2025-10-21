@@ -39,10 +39,7 @@ interface MonthlyTargetResponse {
   total_completed?: number;
   total_pending?: number;
   total_in_review?: number;
-<<<<<<< HEAD
-=======
   total_in_progress?: number;
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
   overall_completion_percentage?: number;
 }
 
@@ -443,21 +440,10 @@ export default function DashboardPage() {
                   <div className="text-yellow-600 font-medium text-sm">Pending</div>
                   <div className="text-xl font-bold">{targetData?.total_pending || 0}</div>
                 </div>
-<<<<<<< HEAD
                 <div className="bg-purple-50 rounded-lg p-3">
                   <div className="text-purple-600 font-medium text-sm">In Review</div>
                   <div className="text-xl font-bold">{targetData?.total_in_review || 0}</div>
                 </div>
-=======
-                  <div className="bg-purple-50 rounded-lg p-3">
-                    <div className="text-purple-600 font-medium text-sm">In Review</div>
-                    <div className="text-xl font-bold">{targetData?.total_in_review || 0}</div>
-                  </div>
-                  {/* <div className="bg-orange-50 rounded-lg p-3">
-                    <div className="text-orange-600 font-medium text-sm">In Progress</div>
-                    <div className="text-xl font-bold">{targetData?.total_in_progress || 0}</div>
-                  </div> */}
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
               </div>
             )}
 

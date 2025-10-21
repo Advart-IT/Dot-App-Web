@@ -60,34 +60,21 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
             url: "/data",
             icon: ChartLine,
         },
-<<<<<<< HEAD
-        ...((permissions as any).shoot ? [{
-            title: "Shoot",
-            url: "/shoot",
-            icon: Clapperboard,
-        }] : []),
-        ...((permissions as any).profile ? [{
-=======
-        // {
-        //     title: "Shoot",
-        //     url: "/shoot",
-        //     icon: Clapperboard,
-        // },
-        ...(user?.permissions?.profile ? [{
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
-            title: "Profile",
-            url: "/user",
-            icon: UserRound,
-        }] : []),
-<<<<<<< HEAD
-        ...((permissions as any).Stats && ((permissions as any).Stats.people || ((permissions as any).Stats.content && (permissions as any).Stats.content.length > 0)) ? [{
-=======
-        ...(user?.permissions?.Stats && (user.permissions.Stats.people || (user.permissions.Stats.content && user.permissions.Stats.content.length > 0)) ? [{
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
-            title: "Stats",
-            url: "/stats",
-            icon: SquareActivity ,
-        }] : []),
+    ...((permissions as any).shoot ? [{
+        title: "Shoot",
+        url: "/shoot",
+        icon: Clapperboard,
+    }] : []),
+    ...((permissions as any).profile ? [{
+        title: "Profile",
+        url: "/user",
+        icon: UserRound,
+    }] : []),
+    ...((permissions as any).Stats && ((permissions as any).Stats.people || ((permissions as any).Stats.content && (permissions as any).Stats.content.length > 0)) ? [{
+        title: "Stats",
+        url: "/stats",
+        icon: SquareActivity ,
+    }] : []),
     ]
 
     const items = navItems || defaultNavItems

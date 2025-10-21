@@ -29,10 +29,7 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             setSelectedFormatType(sortedFormatTypes[0]);
         }
     }, [user, selectedFormatType]);
-<<<<<<< HEAD
 
-=======
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
     // Fetch data only when brandName or selectedFormatType changes
     useEffect(() => {
         if (!brandName || !selectedFormatType) return;
@@ -71,13 +68,11 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
                     if (response?.data?.length) {
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
-
                         const pastContent = response.data.filter((item: any) => {
                             if (!item.live_date) return false;
                             const itemDate = new Date(item.live_date);
                             return itemDate <= today;
                         });
-
                         allContent.push(...pastContent);
                     }
 
@@ -103,23 +98,20 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
 
     const handleMarkAsPosted = async (contentId: number) => {
         try {
-            const result = await upsertContent({
-                id: contentId,
-                status: "Posted"
-            });
-            console.log(`Content ${contentId} marked as posted:`, result);
-
-            // Update the UI to reflect the change
-            const updatedList = contentList.filter(item => item.id !== contentId);
-            setContentList(updatedList);
-
-            // Update cache
-            const cacheKey = `${brandName}_${selectedFormatType}`;
-            if (cache.current[cacheKey]) {
-                cache.current[cacheKey] = updatedList;
+            const result = await upsertContent({ id: contentId });
+            if (result?.data?.length) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const pastContent = result.data.filter((item: any) => {
+                    if (!item.live_date) return false;
+                    const itemDate = new Date(item.live_date);
+                    return itemDate <= today;
+                });
+                // If you need to update a list, define it or use setContentList
+                // setContentList(prev => [...prev, ...pastContent]);
             }
         } catch (error) {
-            console.error("Error marking content as posted:", error);
+            console.error(error);
         }
     };
 
@@ -166,7 +158,6 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         if (updatedRow.is_delete === true) {
             console.log(`Row with ID ${updatedRow.id} removed as it was deleted`);
             const filteredData = contentList.filter((row) => row.id !== updatedRow.id);
-            setContentList(filteredData);
             setSelectedRow(null);
 
             // Update cache
@@ -174,6 +165,7 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             if (cache.current[cacheKey]) {
                 cache.current[cacheKey] = filteredData;
             }
+            setContentList(filteredData);
             return;
         }
 
@@ -188,7 +180,6 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             if (cache.current[cacheKey]) {
                 cache.current[cacheKey] = filteredData;
             }
-            return;
         }
 
         setSelectedRow((prevRow: any) => ({
@@ -208,10 +199,6 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         }
     };
 
-<<<<<<< HEAD
-=======
-    // Prepare format type options from user data (sorted alphabetically)
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
     const formatTypeOptions = [
         ...(user?.dropdowns?.format_type?.map(format => ({
             label: format,

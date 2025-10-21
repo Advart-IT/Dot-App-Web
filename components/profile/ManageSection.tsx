@@ -22,14 +22,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const [selectedStatsContent, setSelectedStatsContent] = useState<string[]>([]);
   const [statsLoading, setStatsLoading] = useState<boolean>(false);
   
-<<<<<<< HEAD
   // Profile and Shoot permission states
   const [profilePermissionEnabled, setProfilePermissionEnabled] = useState<boolean>(false);
   const [shootPermissionEnabled, setShootPermissionEnabled] = useState<boolean>(false);
-=======
-  // Profile permission state
-  const [profilePermissionEnabled, setProfilePermissionEnabled] = useState<boolean>(false);
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
   
   // Loading states
   const [loading, setLoading] = useState<boolean>(false);
@@ -139,14 +134,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           setStatsPeopleEnabled(permissions.permissions?.Stats?.people || false);
           setSelectedStatsContent(permissions.permissions?.Stats?.content || []);
           
-<<<<<<< HEAD
           // Update profile and shoot permissions from the fetched data
           setProfilePermissionEnabled(permissions.permissions?.profile || false);
           setShootPermissionEnabled(permissions.permissions?.shoot || false);
-=======
-          // Update profile permission from the fetched data
-          setProfilePermissionEnabled(permissions.permissions?.profile || false);
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
         } else {
           // Reset to initial values when no user is selected
           setAdminAccessEnabled(false);
@@ -155,10 +145,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           setStatsPeopleEnabled(false);
           setSelectedStatsContent([]);
           setProfilePermissionEnabled(false);
-<<<<<<< HEAD
           setShootPermissionEnabled(false);
-=======
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
@@ -436,11 +423,7 @@ export default function ManageSection({ userData }: ManageSectionProps) {
         profile: enabled
       } as any);
       
-<<<<<<< HEAD
   setProfilePermissionEnabled(enabled);
-=======
-      setProfilePermissionEnabled(enabled);
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
       alert(`Profile permission ${enabled ? 'granted' : 'revoked'} successfully!`);
     } catch (error) {
       console.error('Failed to update profile permission:', error);
@@ -450,7 +433,6 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     }
   };
 
-<<<<<<< HEAD
   const handleShootPermissionToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
       alert('Please select a user first');
@@ -479,9 +461,6 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       setLoading(false);
     }
   };
-
-=======
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
   // Email validation function
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -774,7 +753,6 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           </div>
         )}
 
-<<<<<<< HEAD
         {/* Shoot Permission Toggle - Only show for admin users */}
         {currentUserIsAdmin && (
           <div className="flex justify-between items-center p-4 bg-gray-100 rounded-md">
@@ -804,9 +782,6 @@ export default function ManageSection({ userData }: ManageSectionProps) {
             </div>
           </div>
         )}
-
-=======
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
         {/* Message for users with no permissions */}
         {!currentUserIsAdmin && !hasInvitePermissions && (
           <div className="p-6 text-center">

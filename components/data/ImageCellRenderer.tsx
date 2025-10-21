@@ -39,7 +39,7 @@ function getImageUrl(itemId: number, brandName: string, size: 'ldpi' | 'mdpi' = 
 }
 
 // Calculate Days_to_Sellout if not present, using the same logic as columnutils
-// ...existing code...
+
 
 // Calculate Days_to_Sellout using the same logic as columnutils.ts
 function getDaysToSellout(item: any): number | undefined {
@@ -71,7 +71,7 @@ function getColorLabel(item: any, selloutThreshold = 120): "green" | "red" | "gr
   return "green";
 }
 
-// ...existing code...
+
 const COLOR_MAP: Record<string, string> = {
   green: "#089606",
   red: "#c40318",
