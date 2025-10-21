@@ -2,8 +2,7 @@ const API_URL = process.env.API_URL ||  "https://tasks.advartit.in" ; // Fallbac
 
 export async function signupUser(
   username: string,
-  password: string,
-  designation: string
+  password: string
 ): Promise<any> {
   try {
     const response = await fetch(`${API_URL}/api/v1/auth/signup`, {
@@ -16,7 +15,6 @@ export async function signupUser(
       body: JSON.stringify({
         username,
         password,
-        designation,
       }),
     });
 

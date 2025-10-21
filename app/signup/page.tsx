@@ -22,7 +22,6 @@ import { Loader2 } from "lucide-react";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
-  const [designation, setDesignation] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -75,14 +74,14 @@ export default function SignupPage() {
     try {
       if (isInviteSignup) {
         // Handle invite-based registration
-        await completeInviteRegistration(inviteToken, username, password, designation);
+        await completeInviteRegistration(inviteToken, username, password);
         toast({
           title: "Registration Completed!",
           description: "Your account has been successfully created from the invitation.",
         });
       } else {
         // Handle regular signup
-        await signupUser(username, password, designation);
+        await signupUser(username, password);
         toast({
           title: "Account Created!",
           description: "Your account has been successfully created.",
@@ -121,16 +120,6 @@ export default function SignupPage() {
                   <SmartInputBox
                     value={username}
                     onChange={setUsername}
-                    required
-                    inputClassName="w-full p-2 text-md text-gray-900 border border-gray-300 rounded-md text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="designation">Designation</Label>
-                  <SmartInputBox
-                    value={designation}
-                    onChange={setDesignation}
                     required
                     inputClassName="w-full p-2 text-md text-gray-900 border border-gray-300 rounded-md text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   />

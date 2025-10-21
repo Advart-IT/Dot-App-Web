@@ -308,3 +308,41 @@ export async function fetchChatHistory(taskId: number, userId: number, page: num
     throw error;
   }
 }
+
+// Monthly Target Overview Types
+interface MonthlyTargetRequest {
+  month: number; // Month number (1-12)
+  year?: number; // Year (optional, defaults to current year)
+}
+
+interface MonthlyTargetResponse {
+  month_name: string;
+  total_target_count?: number;
+  total_completed?: number;
+  total_in_progress?: number;
+  overall_completion_percentage?: number;
+}
+
+// Fetch monthly target overview
+export async function fetchMonthlyTargetOverview(payload: MonthlyTargetRequest): Promise<MonthlyTargetResponse> {
+  try {
+    const response = await fetch(`${API_URL}/api/v1/dashboard/target/monthly-overview`, {
+      method: "POST",
+      credentials: "include", // Include cookies for authentication
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload), // Convert payload to JSON string
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch monthly target overview: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result; // Return the response from the API
+  } catch (error) {
+    console.error("❌ Error fetching monthly target overview:", error); // Log the error
+    throw new Error("An error occurred while fetching monthly target overview");
+  }
+}
