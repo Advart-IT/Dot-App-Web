@@ -750,7 +750,11 @@ export default function UserComponent({
           <div className="flex items-center space-x-4">
             <Button
               onClick={handleOpenTagsModal}
+<<<<<<< HEAD
               variant="secondary"
+=======
+              variant="outline"
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
               size="m"
               className="whitespace-nowrap"
             >
@@ -794,14 +798,25 @@ export default function UserComponent({
       <div className="space-y-4">
         {/* Name Section */}
         <div>
+<<<<<<< HEAD
           <h3 className="text-[14px] font-medium text-gray-900 mb-2">Name</h3>
           <div className="border border-gray-200 rounded-lg p-2 bg-gray-50">
+=======
+          <h3 className="text-[14px] font-medium text-gray-900 mb-4">Name</h3>
+          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
             <SmartInputBox
               value={editForm.name}
               onChange={(value) => handleFormChange('name', value)}
               onChangeComplete={handleAutoSaveComplete} // Save when name input completes
               placeholder="Enter profile name"
+<<<<<<< HEAD
               required={true}
+=======
+              label="Full Name"
+              required={true}
+              className="mb-2"
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
             />
           </div>
         </div>
@@ -809,6 +824,7 @@ export default function UserComponent({
         {/* Contact Section */}
         <div>
           <h3 className="text-[14px] font-medium text-gray-900 mb-4">Contact</h3>
+<<<<<<< HEAD
           <div className="space-y-4">
             {contacts.map((contact, index) => (
               <div key={`contact-${index}`} className="border border-gray-200 rounded-lg p-2 bg-gray-50">
@@ -870,6 +886,67 @@ export default function UserComponent({
                       </Button>
                     )}
                   </div>
+=======
+
+          <div className="space-y-6">
+            {contacts.map((contact, index) => (
+              <div key={`contact-${index}`} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center justify-between mb-4">
+                  <SmartDropdown
+                    options={contactTypes}
+                    value={contact.type}
+                    onChange={(value) => {
+                      const newValue = Array.isArray(value) ? value[0] : value;
+                      handleContactChange(index, 'type', newValue);
+                    }}
+                    onChangeComplete={(value) => {
+                      const newValue = Array.isArray(value) ? value[0] : value;
+                      const newContacts = [...contacts];
+                      newContacts[index] = { ...newContacts[index], type: newValue };
+                      setContacts(newContacts);
+                      // Save when contact type changes
+                      setTimeout(() => handleAutoSaveWithState(newContacts, addresses, selectedTags, editForm, bankDetails), 100);
+                    }}
+                    placeholder="Select contact type"
+                    enableAddNew={true}
+                    addNewLabel="+ Add Contact Type"
+                    addNewPlaceholder="Enter new contact type"
+                    onAddNew={handleAddNewContact}
+                    className="w-48"
+                  />
+                  {contacts.length > 1 && (
+                    <Button
+                      onClick={() => {
+                        console.log(`Removing contact at index ${index}`);
+                        removeContact(index);
+                      }}
+                      variant="danger"
+                      size="s"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <SmartInputBox
+                    value={contact.value}
+                    onChange={(value) => handleContactChange(index, 'value', value)}
+                    onChangeComplete={handleAutoSaveComplete} // Save when contact value changes
+                    placeholder={
+                      contact.type === 'Email' ? 'Enter email address' :
+                      contact.type === 'phone_no' ? 'Enter phone number' :
+                      contact.type === 'LinkedIn' ? 'Enter LinkedIn URL' :
+                      'Enter contact value'
+                    }
+                    label={
+                      contact.type === 'Email' ? 'Email Address' :
+                      contact.type === 'phone_no' ? 'Phone Number' :
+                      contact.type === 'LinkedIn' ? 'LinkedIn Profile' :
+                      'Contact Value'
+                    }
+                    className="mb-2"
+                  />
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
                 </div>
               </div>
             ))}
@@ -927,7 +1004,11 @@ export default function UserComponent({
                     </Button>
                   )}
                 </div>
+<<<<<<< HEAD
                 <div className="grid grid-cols-2 gap-2">
+=======
+                <div className="grid grid-cols-2 gap-4">
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
                   <SmartInputBox
                     value={address.doorNo}
                     onChange={(value) => handleAddressChange(index, 'doorNo', value)}
@@ -1010,7 +1091,11 @@ export default function UserComponent({
         <div>
           <h3 className="text-[14px] font-medium text-gray-900 mb-4">Bank Details</h3>
           <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+<<<<<<< HEAD
             <div className="grid grid-cols-2 gap-2">
+=======
+            <div className="grid grid-cols-2 gap-4">
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
               <SmartInputBox
                 value={bankDetails.accountNumber}
                 onChange={(value) => handleBankDetailsChange('accountNumber', value)}

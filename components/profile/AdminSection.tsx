@@ -403,9 +403,9 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       setDataPermissions(initialDataPermissions);
 
       // Initialize admin permissions from current user's permissions
-      const currentUserBrandAdmin = initialUserData.permissions?.brand_admin || false;
-      const currentUserReportrixAdmin = initialUserData.permissions?.reportrix_admin || false;
-      const currentUserGeneralAdmin = initialUserData.permissions?.admin || false;
+      const currentUserBrandAdmin = initialUserData.permissions.brand_admin || false;
+      const currentUserReportrixAdmin = initialUserData.permissions.reportrix_admin || false;
+      const currentUserGeneralAdmin = initialUserData.permissions.admin || false;
       
       setBrandAdmin(currentUserBrandAdmin);
       setReportrixAdmin(currentUserReportrixAdmin);

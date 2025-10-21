@@ -23,16 +23,6 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const { user, logout } = useUser()
-    // Extend permissions type for type safety
-    type PermissionsFull = {
-        shoot?: boolean;
-        profile?: boolean;
-        Stats?: {
-            people?: boolean;
-            content?: string[];
-        };
-    } & typeof user extends { permissions: infer P } ? P : {};
-    const permissions = user?.permissions ?? {};
     const handleLogout = () => {
         logout()
     }
@@ -60,30 +50,17 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
             url: "/data",
             icon: ChartLine,
         },
-<<<<<<< HEAD
-        ...((permissions as any).shoot ? [{
-            title: "Shoot",
-            url: "/shoot",
-            icon: Clapperboard,
-        }] : []),
-        ...((permissions as any).profile ? [{
-=======
         // {
         //     title: "Shoot",
         //     url: "/shoot",
         //     icon: Clapperboard,
         // },
         ...(user?.permissions?.profile ? [{
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
             title: "Profile",
             url: "/user",
             icon: UserRound,
         }] : []),
-<<<<<<< HEAD
-        ...((permissions as any).Stats && ((permissions as any).Stats.people || ((permissions as any).Stats.content && (permissions as any).Stats.content.length > 0)) ? [{
-=======
         ...(user?.permissions?.Stats && (user.permissions.Stats.people || (user.permissions.Stats.content && user.permissions.Stats.content.length > 0)) ? [{
->>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
             title: "Stats",
             url: "/stats",
             icon: SquareActivity ,
@@ -247,6 +224,7 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
                 transition-colors duration-200
                 ${isActive ? "text-gray-900 font-medium" : "text-gray-500 hover:text-gray-900"}
               `}
+                                        onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         <item.icon className="h-5 w-5 mr-3" />
                                         <span className="text-sm">{item.title}</span>
@@ -262,6 +240,7 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
                         <Link
                             href="/profile"
                             className="flex items-center w-full py-1.5 px-2 text-gray-500 hover:text-gray-700 transition-colors rounded-md"
+                            onClick={() => setIsMobileMenuOpen(false)}
                         >
                             <Settings className="h-5 w-5 mr-3" />
                             <span className="text-sm">Settings</span>

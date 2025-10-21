@@ -12,7 +12,10 @@ export interface UserPermissionsResponse {
     invite_level?: string;
     reportrix_admin?: boolean;
     profile?: boolean;
+<<<<<<< HEAD
     shoot?: boolean;
+=======
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
     Stats?: {
       people?: boolean;
       content?: string[];

@@ -29,7 +29,10 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             setSelectedFormatType(sortedFormatTypes[0]);
         }
     }, [user, selectedFormatType]);
+<<<<<<< HEAD
 
+=======
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
     // Fetch data only when brandName or selectedFormatType changes
     useEffect(() => {
         if (!brandName || !selectedFormatType) return;
@@ -205,6 +208,10 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
         }
     };
 
+<<<<<<< HEAD
+=======
+    // Prepare format type options from user data (sorted alphabetically)
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
     const formatTypeOptions = [
         ...(user?.dropdowns?.format_type?.map(format => ({
             label: format,

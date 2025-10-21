@@ -1,4 +1,4 @@
-const API_URL = process.env.API_URL || "https://tasks.advartit.in" || "https://locahost:3000"; // Fallback to localhost if not defined
+const API_URL = process.env.API_URL || "https://tasks.advartit.in" ; // Fallback to localhost if not defined
 
 // Function to update task details
 interface TaskUpdatePayload {

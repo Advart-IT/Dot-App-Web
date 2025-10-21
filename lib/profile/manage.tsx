@@ -12,11 +12,18 @@ interface ToggleUserStatusRequest {
 }
 
 export interface UpdatePermissionsRequest {
+<<<<<<< HEAD
   filter_type: 'admin' | 'invite_level' | 'stats' | 'profile' | 'shoot';
   admin?: boolean;
   invite_level?: 'own_brand' | 'any_brand';
   profile?: boolean;
   shoot?: boolean;
+=======
+  filter_type: 'admin' | 'invite_level' | 'stats' | 'profile';
+  admin?: boolean;
+  invite_level?: 'own_brand' | 'any_brand';
+  profile?: boolean;
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
   stats?: {
     people?: boolean;
     content?: string[];

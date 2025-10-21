@@ -19,12 +19,18 @@ import UserComponent from '@/components/user/User';
 export default function UserPage() {
   const { user } = useUser();
   const [profiles, setProfiles] = useState<ProfileListItem[]>([]);
+<<<<<<< HEAD
   const [filteredProfiles, setFilteredProfiles] = useState<ProfileListItem[]>([]);
+=======
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
   const [selectedProfile, setSelectedProfile] = useState<ProfileDetailResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState<boolean>(false);
+<<<<<<< HEAD
   const [searchTerm, setSearchTerm] = useState<string>('');
+=======
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
 
   // Load profiles on component mount
   useEffect(() => {
@@ -33,6 +39,7 @@ export default function UserPage() {
     }
   }, [user]);
 
+<<<<<<< HEAD
   // Filter profiles based on search term
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -57,13 +64,18 @@ export default function UserPage() {
     }
   }, [searchTerm, profiles]);
 
+=======
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
   const loadProfiles = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await getProfilesList();
       setProfiles(response.profiles);
+<<<<<<< HEAD
       setFilteredProfiles(response.profiles); // Initialize filtered profiles
+=======
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
     } catch (error) {
       console.error('Failed to load profiles:', error);
       setError(error instanceof Error ? error.message : 'Failed to load profiles');
@@ -146,6 +158,7 @@ export default function UserPage() {
       <div className="flex-1 flex p-x20 overflow-hidden">
         {/* Left Panel - Profiles List */}
         <div className="w-1/3 bg-white border-r border-gray-200 rounded-l-lg flex flex-col">
+<<<<<<< HEAD
           <div className="p-4 border-b border-gray-200 flex-shrink-0 flex-row">
             <h2 className="text-[16px] font-medium text-gray-900">All Profiles ({profiles.length})</h2>
             {/* Search Bar */}
@@ -158,6 +171,10 @@ export default function UserPage() {
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+=======
+          <div className="p-4 border-b border-gray-200 flex-shrink-0">
+            <h2 className="text-[16px] font-medium text-gray-900">All Profiles ({profiles.length})</h2>
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
           </div>
 
           {/* Error Message */}
@@ -176,12 +193,21 @@ export default function UserPage() {
 
           {/* Profiles List */}
           <div className="flex-1 overflow-y-auto">
+<<<<<<< HEAD
             {filteredProfiles.length === 0 && !loading ? (
               <div className="p-4 text-center text-gray-500">
                 {searchTerm ? 'No profiles match your search' : 'No profiles found'}
               </div>
             ) : (
               filteredProfiles.map((profile) => (
+=======
+            {profiles.length === 0 && !loading ? (
+              <div className="p-4 text-center text-gray-500">
+                No profiles found
+              </div>
+            ) : (
+              profiles.map((profile) => (
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
                 <div
                   key={profile.s_no}
                   className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
@@ -256,4 +282,8 @@ export default function UserPage() {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}   
+>>>>>>> d1f1957aff3147d004b00f2c960ea84cc38f4cb7
