@@ -5,6 +5,7 @@ import {
   createProfile,
   deleteProfile,
   addNewContactType,
+  addNewAdditionalDetailType,
   type ProfileDetailResponse,
   type UpdateProfileRequest,
   type CreateProfileRequest
@@ -70,11 +71,10 @@ const addressTypes = [
 ];
 
 // Default contact types - these will be augmented with user context data
-const defaultContactTypes = [
-  { label: "Email", value: "Email" },
-  { label: "Phone", value: "phone_no" },
-  { label: "LinkedIn", value: "LinkedIn" }
-];
+const defaultContactTypes: { label: string; value: string }[] = [];
+
+// Default additional details types
+const defaultAdditionalDetailsTypes: { label: string; value: string }[] = [];
 
 interface ContactForm {
   type: string;
@@ -91,6 +91,11 @@ interface AddressForm {
   pincode: string;
 }
 
+interface AdditionalDetailForm {
+  type: string;
+  value: string;
+}
+
 export default function UserComponent({
   selectedProfile,
   onProfileUpdate,
@@ -100,10 +105,14 @@ export default function UserComponent({
   onProfileDeleted
 }: UserComponentProps) {
   const { user } = useUser();
-  const [saving, setSaving] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false); // For explicit actions
+  const [backgroundSaving, setBackgroundSaving] = useState<boolean>(false); // For silent auto-save
 
   // Local state for dynamically added contact types
   const [localContactTypes, setLocalContactTypes] = useState<string[]>([]);
+
+  // Local state for dynamically added additional details types
+  const [localAdditionalDetailsTypes, setLocalAdditionalDetailsTypes] = useState<string[]>([]);
 
   // Tags modal state
   const [isTagsModalOpen, setIsTagsModalOpen] = useState<boolean>(false);
@@ -123,6 +132,14 @@ export default function UserComponent({
   const [contacts, setContacts] = useState<ContactForm[]>([
     {
       type: 'Email',
+      value: ''
+    }
+  ]);
+
+  // Additional details form state - array to handle multiple additional details
+  const [additionalDetails, setAdditionalDetails] = useState<AdditionalDetailForm[]>([
+    {
+      type: '',
       value: ''
     }
   ]);
@@ -170,55 +187,97 @@ export default function UserComponent({
         name: selectedProfile.name || ''
       });
 
-      // Parse contacts from selectedProfile
+      // Parse contacts from selectedProfile (pair type and value for each contact)
       if (selectedProfile.contact) {
-        if (typeof selectedProfile.contact === 'object' && selectedProfile.contact !== null) {
-          const contactData = selectedProfile.contact as any;
-          const parsedContacts: ContactForm[] = [];
+        let parsedContacts: ContactForm[] = [];
+        if (Array.isArray(selectedProfile.contact)) {
+          // If array is in [{type: 'Email', value: '...'}, ...] format, use directly
+          if (selectedProfile.contact.every((c: any) => 'type' in c && 'value' in c)) {
+            parsedContacts = selectedProfile.contact as ContactForm[];
+          } else {
+            // If array is alternating {type: 'type', value: 'Email'}, {type: 'value', value: 'email@...'}
+            for (let i = 0; i < selectedProfile.contact.length; i += 2) {
+              const typeObj = selectedProfile.contact[i];
+              const valueObj = selectedProfile.contact[i + 1];
+              if (typeObj && valueObj && typeObj.type && valueObj.value) {
+                parsedContacts.push({ type: typeObj.value, value: valueObj.value });
+              }
+            }
+          }
+        } else if (typeof selectedProfile.contact === 'object' && selectedProfile.contact !== null) {
+          Object.entries(selectedProfile.contact).forEach(([type, value]) => {
+            if (typeof value === 'string' && value.trim()) {
+              parsedContacts.push({ type, value });
+            }
+          });
+        } else if (typeof selectedProfile.contact === 'string') {
+          try {
+            const contactData = JSON.parse(selectedProfile.contact);
+            if (Array.isArray(contactData)) {
+              if (contactData.every((c: any) => 'type' in c && 'value' in c)) {
+                parsedContacts = contactData as ContactForm[];
+              } else {
+                for (let i = 0; i < contactData.length; i += 2) {
+                  const typeObj = contactData[i];
+                  const valueObj = contactData[i + 1];
+                  if (typeObj && valueObj && typeObj.type && valueObj.value) {
+                    parsedContacts.push({ type: typeObj.value, value: valueObj.value });
+                  }
+                }
+              }
+            } else if (typeof contactData === 'object' && contactData !== null) {
+              Object.entries(contactData).forEach(([type, value]) => {
+                if (typeof value === 'string' && value.trim()) {
+                  parsedContacts.push({ type, value });
+                }
+              });
+            }
+          } catch {
+            parsedContacts = [{ type: 'Email', value: selectedProfile.contact }];
+          }
+        }
+        setContacts(parsedContacts.length > 0 ? parsedContacts : [{ type: 'Email', value: '' }]);
+      } else {
+        setContacts([{ type: 'Email', value: '' }]);
+      }
 
-          Object.keys(contactData).forEach(key => {
-            const contactValue = contactData[key];
-            if (contactValue && typeof contactValue === 'string') {
-              parsedContacts.push({
+      // Parse additional details from selectedProfile
+      if (selectedProfile.details?.additionalDetails) {
+        if (typeof selectedProfile.details.additionalDetails === 'object') {
+          const additionalDetailsData = selectedProfile.details.additionalDetails as any;
+          const parsedAdditionalDetails: AdditionalDetailForm[] = [];
+          Object.keys(additionalDetailsData).forEach(key => {
+            const detailValue = additionalDetailsData[key];
+            if (detailValue && typeof detailValue === 'string') {
+              parsedAdditionalDetails.push({
                 type: key,
-                value: contactValue
+                value: detailValue
               });
             }
           });
-
-          setContacts(parsedContacts.length > 0 ? parsedContacts : [
-            { type: 'Email', value: '' }
-          ]);
-        } else if (typeof selectedProfile.contact === 'string') {
-          // If it's a string, try to parse as JSON, otherwise treat as single email
+          setAdditionalDetails(parsedAdditionalDetails.length > 0 ? parsedAdditionalDetails : [{ type: '', value: '' }]);
+        } else if (typeof selectedProfile.details.additionalDetails === 'string') {
           try {
-            const contactData = JSON.parse(selectedProfile.contact);
-            const parsedContacts: ContactForm[] = [];
-
-            Object.keys(contactData).forEach(key => {
-              const contactValue = contactData[key];
-              if (contactValue && typeof contactValue === 'string') {
-                parsedContacts.push({
+            const additionalDetailsData = JSON.parse(selectedProfile.details.additionalDetails);
+            const parsedAdditionalDetails: AdditionalDetailForm[] = [];
+            Object.keys(additionalDetailsData).forEach(key => {
+              const detailValue = additionalDetailsData[key];
+              if (detailValue && typeof detailValue === 'string') {
+                parsedAdditionalDetails.push({
                   type: key,
-                  value: contactValue
+                  value: detailValue
                 });
               }
             });
-
-            setContacts(parsedContacts.length > 0 ? parsedContacts : [
-              { type: 'Email', value: '' }
-            ]);
+            setAdditionalDetails(parsedAdditionalDetails.length > 0 ? parsedAdditionalDetails : [{ type: '', value: '' }]);
           } catch {
-            // If parsing fails, treat as single email value
-            setContacts([
-              { type: 'Email', value: selectedProfile.contact }
-            ]);
+            setAdditionalDetails([{ type: '', value: '' }]);
           }
         } else {
-          setContacts([{ type: 'Email', value: '' }]);
+          setAdditionalDetails([{ type: '', value: '' }]);
         }
       } else {
-        setContacts([{ type: 'Email', value: '' }]);
+        setAdditionalDetails([{ type: '', value: '' }]);
       }
 
       // Parse bank details from selectedProfile
@@ -257,42 +316,72 @@ export default function UserComponent({
         });
       }
 
-      // Parse addresses from selectedProfile
+      // Parse addresses from selectedProfile (array of flat objects)
       if (selectedProfile.address) {
-        if (typeof selectedProfile.address === 'object' && selectedProfile.address !== null) {
-          const addressData = selectedProfile.address as any;
-          const parsedAddresses: AddressForm[] = [];
-
-          // Convert object format to array format
-          Object.keys(addressData).forEach(key => {
-            const addr = addressData[key];
-            if (typeof addr === 'object' && addr !== null) {
+        let parsedAddresses: AddressForm[] = [];
+        if (Array.isArray(selectedProfile.address)) {
+          // Each address is a flat object with all fields
+          parsedAddresses = selectedProfile.address.map((addr: any) => ({
+            type: addr.type || 'home',
+            doorNo: addr.doorNo || '',
+            street: addr.street || '',
+            mainStreet: addr.mainStreet || '',
+            city: addr.city || '',
+            state: addr.state || '',
+            pincode: addr.pincode || ''
+          }));
+        } else if (typeof selectedProfile.address === 'object' && selectedProfile.address !== null) {
+          // If it's a dict, treat keys as types
+          Object.entries(selectedProfile.address).forEach(([type, fields]) => {
+            if (typeof fields === 'object' && fields !== null) {
+              const addrFields = fields as Partial<AddressForm>;
               parsedAddresses.push({
-                type: key,
-                doorNo: addr.doorNo || addr.door_no || '',
-                street: addr.street || '',
-                mainStreet: addr.mainStreet || addr.main_street || '',
-                city: addr.city || '',
-                state: addr.state || '',
-                pincode: addr.pincode || addr.zip || ''
+                type,
+                doorNo: addrFields.doorNo || '',
+                street: addrFields.street || '',
+                mainStreet: addrFields.mainStreet || '',
+                city: addrFields.city || '',
+                state: addrFields.state || '',
+                pincode: addrFields.pincode || ''
               });
             }
           });
-
-          setAddresses(parsedAddresses.length > 0 ? parsedAddresses : [
-            { type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }
-          ]);
-        } else {
-          // Reset to default single address
-          setAddresses([
-            { type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }
-          ]);
+        } else if (typeof selectedProfile.address === 'string') {
+          try {
+            const addressData = JSON.parse(selectedProfile.address);
+            if (Array.isArray(addressData)) {
+              parsedAddresses = addressData.map((addr: any) => ({
+                type: addr.type || 'home',
+                doorNo: addr.doorNo || '',
+                street: addr.street || '',
+                mainStreet: addr.mainStreet || '',
+                city: addr.city || '',
+                state: addr.state || '',
+                pincode: addr.pincode || ''
+              }));
+            } else if (typeof addressData === 'object' && addressData !== null) {
+              Object.entries(addressData).forEach(([type, fields]) => {
+                if (typeof fields === 'object' && fields !== null) {
+                  const addrFields = fields as Partial<AddressForm>;
+                  parsedAddresses.push({
+                    type,
+                    doorNo: addrFields.doorNo || '',
+                    street: addrFields.street || '',
+                    mainStreet: addrFields.mainStreet || '',
+                    city: addrFields.city || '',
+                    state: addrFields.state || '',
+                    pincode: addrFields.pincode || ''
+                  });
+                }
+              });
+            }
+          } catch {
+            parsedAddresses = [{ type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }];
+          }
         }
+        setAddresses(parsedAddresses.length > 0 ? parsedAddresses : [{ type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }]);
       } else {
-        // Reset to default single address
-        setAddresses([
-          { type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }
-        ]);
+        setAddresses([{ type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }]);
       }
 
       // Parse tags from selectedProfile - tags are stored in the root 'tag' field
@@ -320,6 +409,7 @@ export default function UserComponent({
     if (isCreating && !selectedProfile) {
       setEditForm({ name: '' });
       setContacts([{ type: 'Email', value: '' }]);
+  setAdditionalDetails([{ type: '', value: '' }]);
       setAddresses([{ type: 'home', doorNo: '', street: '', mainStreet: '', city: '', state: '', pincode: '' }]);
       setSelectedTags([]);
       setBankDetails({ accountNumber: '', ifscCode: '', upi: '' });
@@ -334,33 +424,109 @@ export default function UserComponent({
   };
 
   // Contact management functions
+  // Debounced auto-save for contact value changes
+  const contactDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const CONTACT_DEBOUNCE_DELAY = 600;
   const handleContactChange = (index: number, field: keyof ContactForm, value: string) => {
     setContacts(prev => {
       const newContacts = [...prev];
       newContacts[index] = { ...newContacts[index], [field]: value };
       return newContacts;
     });
+    // Only debounce for value changes, not type
+    if (field === 'value') {
+      if (contactDebounceTimeoutRef.current) {
+        clearTimeout(contactDebounceTimeoutRef.current);
+      }
+      contactDebounceTimeoutRef.current = setTimeout(() => {
+        if (!isCreating) {
+          handleAutoSaveWithState(
+            contacts,
+            addresses,
+            selectedTags,
+            editForm,
+            bankDetails,
+            additionalDetails
+          );
+        }
+      }, CONTACT_DEBOUNCE_DELAY);
+    }
   };
+
+  // Additional details management functions
+    // Debounced auto-save for additional details
+    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const DEBOUNCE_DELAY = 600;
+
+    const handleAdditionalDetailChange = (index: number, field: keyof AdditionalDetailForm, value: string) => {
+      setAdditionalDetails(prev => {
+        const newDetails = [...prev];
+        newDetails[index] = { ...newDetails[index], [field]: value };
+        return newDetails;
+      });
+      // Only debounce for value changes, not type
+      if (field === 'value') {
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current);
+        }
+        debounceTimeoutRef.current = setTimeout(() => {
+          if (!isCreating) {
+            handleAutoSaveWithState(
+              contacts,
+              addresses,
+              selectedTags,
+              editForm,
+              bankDetails,
+              additionalDetails
+            );
+          }
+        }, DEBOUNCE_DELAY);
+      }
+    };
 
   // Tags management function
   const handleTagsChange = (value: string | string[]) => {
     const tags = Array.isArray(value) ? value : [value];
+    // Only trigger auto-save if tags actually changed
+    const tagsChanged = JSON.stringify(tags) !== JSON.stringify(selectedTags);
     setSelectedTags(tags);
     console.log('Tags changed:', tags);
-    // Only auto-save if not in create mode
-    if (!isCreating) {
-      setTimeout(() => handleAutoSaveWithState(contacts, addresses, tags, editForm, bankDetails), 100);
+    // Only auto-save if not in create mode and tags changed
+    if (!isCreating && tagsChanged) {
+      setTimeout(() => {
+        // Background auto-save for tags only
+        handleBackgroundAutoSaveTags(tags);
+      }, 100);
     }
   };
 
+  // Background auto-save for tags only (does not set 'saving')
+  const handleBackgroundAutoSaveTags = useCallback(async (tags: string[]) => {
+    const currentProfile = selectedProfileRef.current;
+    if (!currentProfile || isCreating) {
+      return;
+    }
+    try {
+      setBackgroundSaving(true);
+      await updateProfile(currentProfile.profile_id, { tag: tags });
+      setSelectedTags(tags);
+    } catch (error) {
+      console.error('Failed to auto-save tags:', error);
+      onError(error instanceof Error ? error.message : 'Failed to save tags');
+    } finally {
+      setBackgroundSaving(false);
+    }
+  }, [onError, isCreating]);
+
   const addNewContact = () => {
-    const newContacts = [...contacts, {
-      type: 'Email',
-      value: ''
-    }];
-    setContacts(newContacts);
-    console.log('Added new contact, new contacts array:', newContacts);
-    // Don't auto-save when adding empty contact - wait for user to enter data
+    // Only allow adding if the last contact is filled
+    const lastContact = contacts[contacts.length - 1];
+    if (lastContact && lastContact.type && lastContact.value.trim()) {
+      const newContacts = [...contacts, { type: '', value: '' }];
+      setContacts(newContacts);
+      console.log('Added new contact, new contacts array:', newContacts);
+      // Don't auto-save when adding empty contact - wait for user to enter data
+    }
   };
 
   const removeContact = (index: number) => {
@@ -368,8 +534,35 @@ export default function UserComponent({
       const newContacts = contacts.filter((_, i) => i !== index);
       setContacts(newContacts);
       console.log(`Removed contact at index ${index}, new contacts array:`, newContacts);
-      // Auto-save immediately when removing contact (this should update the server)
-      setTimeout(() => handleAutoSaveWithState(newContacts, addresses, selectedTags, editForm, bankDetails), 100);
+      // Auto-save immediately when removing contact, but skip parent refresh for smooth UI
+      setTimeout(() => handleAutoSaveWithState(newContacts, addresses, selectedTags, editForm, bankDetails, additionalDetails, true), 100);
+    }
+  };
+
+  const addNewAdditionalDetail = () => {
+    // Only allow adding if the last additional detail is filled
+    const lastDetail = additionalDetails[additionalDetails.length - 1];
+    if (lastDetail && lastDetail.type && lastDetail.value.trim()) {
+      const newDetails = [...additionalDetails, { type: '', value: '' }];
+      setAdditionalDetails(newDetails);
+      console.log('Added new additional detail, new details array:', newDetails);
+      // Don't auto-save when adding empty detail - wait for user to enter data
+    }
+  };
+
+  const removeAdditionalDetail = (index: number) => {
+    if (additionalDetails.length > 1) {
+      const newDetails = additionalDetails.filter((_, i) => i !== index);
+      setAdditionalDetails(newDetails);
+      console.log(`Removed additional detail at index ${index}, new details array:`, newDetails);
+      // Auto-save immediately when removing detail, but skip parent refresh for smooth UI
+      setTimeout(() => handleAutoSaveWithState(contacts, addresses, selectedTags, editForm, bankDetails, newDetails, true), 100);
+    } else {
+      // Only one row: reset its fields to empty
+      const newDetails = [{ type: '', value: '' }];
+      setAdditionalDetails(newDetails);
+      console.log('Reset last additional detail row to empty');
+      setTimeout(() => handleAutoSaveWithState(contacts, addresses, selectedTags, editForm, bankDetails, newDetails, true), 100);
     }
   };
 
@@ -383,18 +576,26 @@ export default function UserComponent({
   };
 
   const addNewAddress = () => {
-    const newAddresses = [...addresses, {
-      type: 'home',
-      doorNo: '',
-      street: '',
-      mainStreet: '',
-      city: '',
-      state: '',
-      pincode: ''
-    }];
-    setAddresses(newAddresses);
-    console.log('Added new address, new addresses array:', newAddresses);
-    // Don't auto-save when adding empty address - wait for user to enter data
+    // Only allow adding if the last address is filled
+    const lastAddress = addresses[addresses.length - 1];
+    if (
+      lastAddress &&
+      lastAddress.type &&
+      (lastAddress.doorNo || lastAddress.street || lastAddress.mainStreet || lastAddress.city || lastAddress.state || lastAddress.pincode)
+    ) {
+      const newAddresses = [...addresses, {
+        type: '',
+        doorNo: '',
+        street: '',
+        mainStreet: '',
+        city: '',
+        state: '',
+        pincode: ''
+      }];
+      setAddresses(newAddresses);
+      console.log('Added new address, new addresses array:', newAddresses);
+      // Don't auto-save when adding empty address - wait for user to enter data
+    }
   };
 
   const removeAddress = (index: number) => {
@@ -403,7 +604,7 @@ export default function UserComponent({
       setAddresses(newAddresses);
       console.log(`Removed address at index ${index}, new addresses array:`, newAddresses);
       // Auto-save immediately when removing address (this should update the server)
-      setTimeout(() => handleAutoSaveWithState(contacts, newAddresses, selectedTags, editForm, bankDetails), 100);
+      setTimeout(() => handleAutoSaveWithState(contacts, newAddresses, selectedTags, editForm, bankDetails, additionalDetails), 100);
     }
   };
 
@@ -429,20 +630,32 @@ export default function UserComponent({
   const handleAddNewContact = useCallback(async (newContactType: string) => {
     try {
       console.log('Adding new contact type:', newContactType);
-      
       // Use the library API function
       const result = await addNewContactType(newContactType);
       console.log('New contact type added successfully:', result);
-      
-      // Add the new contact type to local state immediately
+      // Add the new contact type to local state immediately (only for contact types)
       setLocalContactTypes(prev => [...prev, newContactType]);
-      
       // Show success message
       alert(`Contact type "${newContactType}" added successfully!`);
-      
     } catch (error) {
       console.error('Error adding new contact type:', error);
       onError(error instanceof Error ? error.message : 'Failed to add new contact type');
+    }
+  }, [onError]);
+
+  // Function to add new additional detail type using the content/dropdown API
+  const handleAddNewAdditionalDetail = useCallback(async (newDetailType: string) => {
+    try {
+      console.log('Adding new additional detail type:', newDetailType);
+      // Call backend API to persist additional detail type
+      const result = await addNewAdditionalDetailType(newDetailType);
+      console.log('New additional detail type added successfully:', result);
+      // Add the new additional detail type to local state
+      setLocalAdditionalDetailsTypes(prev => [...prev, newDetailType]);
+      alert(`Additional detail type "${newDetailType}" added successfully!`);
+    } catch (error) {
+      console.error('Error adding new additional detail type:', error);
+      onError(error instanceof Error ? error.message : 'Failed to add new additional detail type');
     }
   }, [onError]);
 
@@ -457,45 +670,57 @@ export default function UserComponent({
       console.log('Starting profile creation with current state:', {
         contacts: contacts.length,
         addresses: addresses.length,
-        selectedTags: selectedTags.length
+        selectedTags: selectedTags.length,
+        additionalDetails: additionalDetails.length
       });
 
-      // Convert contacts array to object format for API
-      const contactObject: { [key: string]: any } = {};
-      contacts.forEach((contact, index) => {
-        if (contact.type && contact.value.trim()) {
-          contactObject[contact.type] = contact.value.trim();
-          console.log(`Contact ${index}: ${contact.type} = ${contact.value}`);
+
+      // Convert contacts array to array format for API (allow duplicates)
+      const contactArray: ContactForm[] = contacts
+        .filter(contact => contact.type && contact.value.trim())
+        .map(contact => ({ type: contact.type, value: contact.value.trim() }));
+      contactArray.forEach((contact, index) => {
+        console.log(`Contact ${index}: ${contact.type} = ${contact.value}`);
+      });
+
+      // Convert addresses array to array format for API (allow duplicates)
+      const addressArray: AddressForm[] = addresses
+        .filter(addr => addr.type && (addr.doorNo || addr.street || addr.mainStreet || addr.city || addr.state || addr.pincode))
+        .map(addr => ({
+          type: addr.type,
+          doorNo: addr.doorNo,
+          street: addr.street,
+          mainStreet: addr.mainStreet,
+          city: addr.city,
+          state: addr.state,
+          pincode: addr.pincode
+        }));
+      addressArray.forEach((addr, index) => {
+        console.log(`Address ${index}: ${addr.type}`, addr);
+      });
+
+      // Convert additional details array to object format for API
+      const additionalDetailsObject: { [key: string]: any } = {};
+      additionalDetails.forEach((detail, index) => {
+        if (detail.type && detail.value.trim()) {
+          additionalDetailsObject[detail.type] = detail.value.trim();
+          console.log(`Additional Detail ${index}: ${detail.type} = ${detail.value}`);
         }
       });
 
-      // Convert addresses array to object format for API
-      const addressObject: { [key: string]: any } = {};
-      addresses.forEach((addr, index) => {
-        if (addr.type && (addr.doorNo || addr.street || addr.mainStreet || addr.city || addr.state || addr.pincode)) {
-          addressObject[addr.type] = {
-            doorNo: addr.doorNo,
-            street: addr.street,
-            mainStreet: addr.mainStreet,
-            city: addr.city,
-            state: addr.state,
-            pincode: addr.pincode
-          };
-          console.log(`Address ${index}: ${addr.type}`, addr);
-        }
-      });
 
       const createData: CreateProfileRequest = {
         name: editForm.name,
-        contact: contactObject,
-        address: addressObject,
+        contact: contactArray,
+        address: addressArray,
         tag: selectedTags,
         details: {
           bankDetails: {
             accountNumber: bankDetails.accountNumber,
             ifscCode: bankDetails.ifscCode,
             upi: bankDetails.upi
-          }
+          },
+          additionalDetails: additionalDetailsObject
         }
       };
 
@@ -513,7 +738,7 @@ export default function UserComponent({
     } finally {
       setSaving(false);
     }
-  }, [contacts, addresses, selectedTags, editForm, bankDetails, onProfileCreated, onError, saving]);
+  }, [contacts, addresses, selectedTags, editForm, bankDetails, additionalDetails, onProfileCreated, onError, saving]);
 
   const handleDeleteProfile = useCallback(async () => {
     const currentProfile = selectedProfileRef.current;
@@ -559,75 +784,79 @@ export default function UserComponent({
     }
 
     try {
-      setSaving(true);
-      console.log('Starting auto-save with current state:', {
-        contacts: contacts.length,
-        addresses: addresses.length,
-        selectedTags: selectedTags.length,
-        skipRefresh
-      });
-
-      // Convert contacts array to object format for API
-      const contactObject: { [key: string]: any } = {};
-      contacts.forEach((contact, index) => {
-        if (contact.type && contact.value.trim()) {
-          contactObject[contact.type] = contact.value.trim();
-          console.log(`Contact ${index}: ${contact.type} = ${contact.value}`);
+      setBackgroundSaving(true);
+      // Build update payload with only changed fields
+      const updateData: UpdateProfileRequest = {};
+      // Compare and add only changed fields
+      if (editForm.name !== currentProfile.name) {
+        updateData.name = editForm.name;
+      }
+      // Contacts
+      const contactArray: ContactForm[] = contacts
+        .filter(contact => contact.type && contact.value.trim())
+        .map(contact => ({ type: contact.type, value: contact.value.trim() }));
+      if (JSON.stringify(contactArray) !== JSON.stringify(currentProfile.contact)) {
+        updateData.contact = contactArray;
+      }
+      // Addresses
+      const addressArray: AddressForm[] = addresses
+        .filter(addr => addr.type && (addr.doorNo || addr.street || addr.mainStreet || addr.city || addr.state || addr.pincode))
+        .map(addr => ({
+          type: addr.type,
+          doorNo: addr.doorNo,
+          street: addr.street,
+          mainStreet: addr.mainStreet,
+          city: addr.city,
+          state: addr.state,
+          pincode: addr.pincode
+        }));
+      if (JSON.stringify(addressArray) !== JSON.stringify(currentProfile.address)) {
+        updateData.address = addressArray;
+      }
+      // Tags
+      if (JSON.stringify(selectedTags) !== JSON.stringify(currentProfile.tag)) {
+        updateData.tag = selectedTags;
+      }
+      // Bank details
+      const bankDetailsChanged = (
+        bankDetails.accountNumber !== (currentProfile.details?.bankDetails?.accountNumber || '') ||
+        bankDetails.ifscCode !== (currentProfile.details?.bankDetails?.ifscCode || '') ||
+        bankDetails.upi !== (currentProfile.details?.bankDetails?.upi || '')
+      );
+      // Additional details
+      const additionalDetailsObject: { [key: string]: any } = {};
+      additionalDetails.forEach((detail, index) => {
+        if (detail.type && detail.value.trim()) {
+          additionalDetailsObject[detail.type] = detail.value.trim();
         }
       });
-
-      // Convert addresses array to object format for API
-      const addressObject: { [key: string]: any } = {};
-      addresses.forEach((addr, index) => {
-        if (addr.type && (addr.doorNo || addr.street || addr.mainStreet || addr.city || addr.state || addr.pincode)) {
-          addressObject[addr.type] = {
-            doorNo: addr.doorNo,
-            street: addr.street,
-            mainStreet: addr.mainStreet,
-            city: addr.city,
-            state: addr.state,
-            pincode: addr.pincode
-          };
-          console.log(`Address ${index}: ${addr.type}`, addr);
-        }
-      });
-
-      const updateData: UpdateProfileRequest = {
-        name: editForm.name,
-        // Send structured contact object
-        contact: contactObject,
-        // Send structured address object
-        address: addressObject,
-        // Send tags to the root 'tag' field as per API structure
-        tag: selectedTags,
-        // Add structured bank details to details section
-        details: {
-          ...currentProfile.details, // Use ref to get latest details if needed
+      const additionalDetailsChanged = JSON.stringify(additionalDetailsObject) !== JSON.stringify(currentProfile.details?.additionalDetails || {});
+      if (bankDetailsChanged || additionalDetailsChanged) {
+        updateData.details = {
           bankDetails: {
             accountNumber: bankDetails.accountNumber,
             ifscCode: bankDetails.ifscCode,
             upi: bankDetails.upi
-          }
-        }
-      };
-
+          },
+          additionalDetails: additionalDetailsObject
+        };
+      }
+      // Only send update if something changed
+      if (Object.keys(updateData).length === 0) {
+        setBackgroundSaving(false);
+        return;
+      }
       console.log('Auto-saving data:', updateData);
       await updateProfile(currentProfile.profile_id, updateData);
       console.log('Auto-save successful');
-
-      // Only refresh from server if skipRefresh is false
-      if (!skipRefresh) {
-        // Call the parent's update function to reload data
-        // This will trigger the useEffect to reset state from the server
-        await onProfileUpdate(currentProfile.profile_id);
-      }
+      // Do not refetch profile data after auto-save to keep UI smooth
     } catch (error) {
       console.error('Failed to auto-save profile:', error);
       onError(error instanceof Error ? error.message : 'Failed to save profile');
     } finally {
-      setSaving(false);
+      setBackgroundSaving(false);
     }
-  }, [contacts, addresses, selectedTags, editForm, bankDetails, onProfileUpdate, onError, saving, isCreating]);
+  }, [contacts, addresses, selectedTags, editForm, bankDetails, additionalDetails, onError, saving, isCreating]);
 
   // Wrapper for onChangeComplete callbacks that ignores the value parameter
   const handleAutoSaveComplete = useCallback(() => {
@@ -637,7 +866,7 @@ export default function UserComponent({
   }, [handleAutoSave, isCreating]);
 
   // Special auto-save function that accepts updated state directly
-  const handleAutoSaveWithState = useCallback(async (newContacts: ContactForm[], newAddresses: AddressForm[], newTags: string[], newEditForm: any, newBankDetails: any, skipRefresh: boolean = false) => {
+  const handleAutoSaveWithState = useCallback(async (newContacts: ContactForm[], newAddresses: AddressForm[], newTags: string[], newEditForm: any, newBankDetails: any, newAdditionalDetails: AdditionalDetailForm[], skipRefresh: boolean = false) => {
     const currentProfile = selectedProfileRef.current;
     if (!currentProfile || saving) {
       console.log('Auto-save with state skipped:', { currentProfile: !!currentProfile, saving });
@@ -650,38 +879,47 @@ export default function UserComponent({
         contacts: newContacts.length,
         addresses: newAddresses.length,
         selectedTags: newTags.length,
+        additionalDetails: newAdditionalDetails.length,
         skipRefresh
       });
 
-      // Convert contacts array to object format for API
-      const contactObject: { [key: string]: any } = {};
-      newContacts.forEach((contact, index) => {
-        if (contact.type && contact.value.trim()) {
-          contactObject[contact.type] = contact.value.trim();
-          console.log(`Contact ${index}: ${contact.type} = ${contact.value}`);
-        }
+      // Convert contacts array to array format for API (allow duplicates)
+      const contactArray: ContactForm[] = newContacts
+        .filter(contact => contact.type && contact.value.trim())
+        .map(contact => ({ type: contact.type, value: contact.value.trim() }));
+      contactArray.forEach((contact, index) => {
+        console.log(`Contact ${index}: ${contact.type} = ${contact.value}`);
       });
 
-      // Convert addresses array to object format for API
-      const addressObject: { [key: string]: any } = {};
-      newAddresses.forEach((addr, index) => {
-        if (addr.type && (addr.doorNo || addr.street || addr.mainStreet || addr.city || addr.state || addr.pincode)) {
-          addressObject[addr.type] = {
-            doorNo: addr.doorNo,
-            street: addr.street,
-            mainStreet: addr.mainStreet,
-            city: addr.city,
-            state: addr.state,
-            pincode: addr.pincode
-          };
-          console.log(`Address ${index}: ${addr.type}`, addr);
+      // Convert addresses array to array format for API (allow duplicates)
+      const addressArray: AddressForm[] = newAddresses
+        .filter(addr => addr.type && (addr.doorNo || addr.street || addr.mainStreet || addr.city || addr.state || addr.pincode))
+        .map(addr => ({
+          type: addr.type,
+          doorNo: addr.doorNo,
+          street: addr.street,
+          mainStreet: addr.mainStreet,
+          city: addr.city,
+          state: addr.state,
+          pincode: addr.pincode
+        }));
+      addressArray.forEach((addr, index) => {
+        console.log(`Address ${index}: ${addr.type}`, addr);
+      });
+
+      // Convert additional details array to object format for API
+      const additionalDetailsObject: { [key: string]: any } = {};
+      newAdditionalDetails.forEach((detail, index) => {
+        if (detail.type && detail.value.trim()) {
+          additionalDetailsObject[detail.type] = detail.value.trim();
+          console.log(`Additional Detail ${index}: ${detail.type} = ${detail.value}`);
         }
       });
 
       const updateData: UpdateProfileRequest = {
         name: newEditForm.name,
-        contact: contactObject,
-        address: addressObject,
+        contact: contactArray,
+        address: addressArray,
         tag: newTags,
         details: {
           ...currentProfile.details,
@@ -689,33 +927,37 @@ export default function UserComponent({
             accountNumber: newBankDetails.accountNumber,
             ifscCode: newBankDetails.ifscCode,
             upi: newBankDetails.upi
-          }
+          },
+          additionalDetails: additionalDetailsObject
         }
       };
 
       console.log('Auto-saving data with provided state:', updateData);
       await updateProfile(currentProfile.profile_id, updateData);
       console.log('Auto-save with state successful');
-
-      // Only refresh from server if skipRefresh is false
-      if (!skipRefresh) {
-        await onProfileUpdate(currentProfile.profile_id);
-      }
+      // Do not refetch profile data after auto-save; keep all changes local
     } catch (error) {
       console.error('Failed to auto-save profile with state:', error);
       onError(error instanceof Error ? error.message : 'Failed to save profile');
     } finally {
       setSaving(false);
     }
-  }, [onProfileUpdate, onError, saving]);
+  }, [onError, saving]);
 
   // Prepare contact type options from user context, local additions, and fallback to default types
   const contactTypes = useMemo(() => {
     const userContacts = user?.dropdowns?.contact || [];
-    const defaultContacts = defaultContactTypes.map(ct => ct.value);
-    const allContacts = [...new Set([...userContacts, ...localContactTypes, ...defaultContacts])]; // Merge and remove duplicates
+    const allContacts = [...new Set([...userContacts, ...localContactTypes])]; // Only user context and local additions
     return allContacts.map((item: string) => ({ label: item, value: item }));
   }, [user?.dropdowns?.contact, localContactTypes]);
+
+  // Prepare additional details type options from user context, local additions, and fallback to default types
+  const additionalDetailsTypes = useMemo(() => {
+    const userAdditionalDetails = user?.dropdowns?.additional_details || [];
+    const defaultDetails = defaultAdditionalDetailsTypes.map(dt => dt.value);
+    const allDetails = [...new Set([...userAdditionalDetails, ...localAdditionalDetailsTypes, ...defaultDetails])]; // Merge and remove duplicates
+    return allDetails.map((item: string) => ({ label: item, value: item }));
+  }, [user?.dropdowns?.additional_details, localAdditionalDetailsTypes]);
 
   if (!selectedProfile && !isCreating) {
     return (
@@ -742,9 +984,12 @@ export default function UserComponent({
             <h2 className="text-[20px] font-bold text-gray-900">
               {isCreating ? 'Create New Profile' : 'Profile Details'}
             </h2>
-            {saving && <p className="text-sm text-blue-600 mt-1">
-              {isCreating ? 'Creating...' : 'Saving...'}
-            </p>}
+            {/* Only show saving indicator for explicit actions, not background auto-saves (like tags) */}
+            {saving && !backgroundSaving && (
+              <p className="text-sm text-blue-600 mt-1">
+                {isCreating ? 'Creating...' : 'Saving...'}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center space-x-4">
@@ -821,14 +1066,7 @@ export default function UserComponent({
                         const newValue = Array.isArray(value) ? value[0] : value;
                         handleContactChange(index, 'type', newValue);
                       }}
-                      onChangeComplete={(value) => {
-                        const newValue = Array.isArray(value) ? value[0] : value;
-                        const newContacts = [...contacts];
-                        newContacts[index] = { ...newContacts[index], type: newValue };
-                        setContacts(newContacts);
-                        // Save when contact type changes
-                        setTimeout(() => handleAutoSaveWithState(newContacts, addresses, selectedTags, editForm, bankDetails), 100);
-                      }}
+                        // Do not auto-save on dropdown change; only update state
                       placeholder="Select contact type"
                       enableAddNew={true}
                       addNewLabel="+ Add Contact Type"
@@ -841,7 +1079,11 @@ export default function UserComponent({
                     <SmartInputBox
                       value={contact.value}
                       onChange={(value) => handleContactChange(index, 'value', value)}
-                      onChangeComplete={handleAutoSaveComplete} // Save when contact value changes
+                      onChangeComplete={() => {
+                        if (!isCreating) {
+                          handleAutoSaveWithState(contacts, addresses, selectedTags, editForm, bankDetails, additionalDetails);
+                        }
+                      }}
                       placeholder={
                         contact.type === 'Email' ? 'Enter email address' :
                         contact.type === 'phone_no' ? 'Enter phone number' :
@@ -849,7 +1091,8 @@ export default function UserComponent({
                         'Enter contact value'
                       }
                       label=""
-                      className="w-full" // Ensure it takes full width of its container
+                      className="w-full"
+                      disabled={!contact.type}
                     />
                   </div>
                   <div className="col-span-1 flex items-end">
@@ -881,6 +1124,10 @@ export default function UserComponent({
                 variant="outline"
                 size="s"
                 className="w-full max-w-xs"
+                disabled={(() => {
+                  const lastContact = contacts[contacts.length - 1];
+                  return !(lastContact && lastContact.type && lastContact.value.trim());
+                })()}
               >
                 + Add Contact
               </Button>
@@ -909,7 +1156,7 @@ export default function UserComponent({
                       newAddresses[index] = { ...newAddresses[index], type: newValue };
                       setAddresses(newAddresses);
                       // Save when address type changes
-                      setTimeout(() => handleAutoSaveWithState(contacts, newAddresses, selectedTags, editForm, bankDetails), 100);
+                      setTimeout(() => handleAutoSaveWithState(contacts, newAddresses, selectedTags, editForm, bankDetails, additionalDetails), 100);
                     }}
                     placeholder="Select address type"
                     className="w-48"
@@ -973,7 +1220,7 @@ export default function UserComponent({
                       newAddresses[index] = { ...newAddresses[index], state: newValue };
                       setAddresses(newAddresses);
                       // Save when state changes
-                      setTimeout(() => handleAutoSaveWithState(contacts, newAddresses, selectedTags, editForm, bankDetails), 100);
+                      setTimeout(() => handleAutoSaveWithState(contacts, newAddresses, selectedTags, editForm, bankDetails, additionalDetails), 100);
                     }}
                     placeholder="Select State"
                     label="State"
@@ -999,6 +1246,10 @@ export default function UserComponent({
                 variant="outline"
                 size="s"
                 className="w-full max-w-xs"
+                disabled={(() => {
+                  const lastAddress = addresses[addresses.length - 1];
+                  return !(lastAddress && lastAddress.type && (lastAddress.doorNo || lastAddress.street || lastAddress.mainStreet || lastAddress.city || lastAddress.state || lastAddress.pincode));
+                })()}
               >
                 + Add Address
               </Button>
@@ -1039,6 +1290,109 @@ export default function UserComponent({
           </div>
         </div>
 
+        {/* Additional Details Section */}
+        <div>
+          <h3 className="text-[14px] font-medium text-gray-900 mb-4">Additional Details</h3>
+          <div className="space-y-4">
+            {additionalDetails.map((detail, index) => {
+              // Get all selected types except for the current row
+              const selectedTypes = additionalDetails
+                .map((d, i) => i !== index ? d.type : null)
+                .filter(t => !!t);
+              // Filter options to exclude already-selected types except for current row's type
+              const filteredOptions = additionalDetailsTypes.filter(opt => {
+                return !selectedTypes.includes(opt.value) || opt.value === detail.type;
+              });
+              return (
+                <div key={`detail-${index}`} className="border border-gray-200 rounded-lg p-2 bg-gray-50">
+                  <div className="grid grid-cols-12 gap-4 ">
+                    <div className="col-span-3">
+                      <SmartDropdown
+                        options={filteredOptions}
+                        value={detail.type}
+                        onChange={(value) => {
+                          const newValue = Array.isArray(value) ? value[0] : value;
+                          setAdditionalDetails(prev => {
+                            const updated = [...prev];
+                            updated[index] = { ...updated[index], type: newValue };
+                            return updated;
+                          });
+                          if (!isCreating) {
+                            setTimeout(() => {
+                              handleAutoSaveWithState(
+                                contacts,
+                                addresses,
+                                selectedTags,
+                                editForm,
+                                bankDetails,
+                                additionalDetails,
+                                true
+                              );
+                            }, 0);
+                          }
+                        }}
+                        placeholder="Select detail type"
+                        enableAddNew={true}
+                        addNewLabel="+ Add Detail Type"
+                        addNewPlaceholder="Enter new detail type"
+                        onAddNew={handleAddNewAdditionalDetail}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="col-span-8 pt-0.5">
+                      <SmartInputBox
+                        value={detail.value}
+                        onChange={(value) => handleAdditionalDetailChange(index, 'value', value)}
+                        placeholder={
+                          detail.type === 'PAN' ? 'Enter PAN number' :
+                          detail.type === 'Aadhar' ? 'Enter Aadhar number' :
+                          detail.type === 'GST' ? 'Enter GST number' :
+                          'Enter detail value'
+                        }
+                        label=""
+                        className="w-full"
+                        disabled={!detail.type}
+                      />
+                    </div>
+                    <div className="col-span-1 flex items-end">
+                      <Button
+                        onClick={() => {
+                          console.log(`Removing additional detail at index ${index}`);
+                          removeAdditionalDetail(index);
+                        }}
+                        variant="outline"
+                        size="s"
+                        className="w-full h-9"
+                      >
+                        {/* Trash/Dustbin Icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Add Details Button at the bottom */}
+            <div className="flex justify-center">
+              <Button
+                onClick={addNewAdditionalDetail}
+                variant="outline"
+                size="s"
+                className="w-full max-w-xs"
+                disabled={(() => {
+                  const lastDetail = additionalDetails[additionalDetails.length - 1];
+                  return !(lastDetail && lastDetail.type && lastDetail.value.trim());
+                })()}
+              >
+                + Add Details
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Delete Profile Section - Only show when editing existing profile */}
         {!isCreating && selectedProfile && (
           <div className="flex justify-center pt-8">
@@ -1060,7 +1414,12 @@ export default function UserComponent({
         isOpen={isTagsModalOpen}
         onClose={handleCloseTagsModal}
         selectedTags={selectedTags}
-        onTagsChange={handleTagsChange}
+        onTagsChange={(tags) => {
+          setSelectedTags(tags);
+          if (!isCreating) {
+            handleBackgroundAutoSaveTags(tags);
+          }
+        }}
         onError={onError}
       />
     </div>

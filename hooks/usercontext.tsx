@@ -46,6 +46,7 @@ interface User {
     ads_type: string[];
     tags: string[];
     contact?: string[];
+    additional_details?: string[];
   designation?: string[];
   category?: any;
   photographers?: string[];
