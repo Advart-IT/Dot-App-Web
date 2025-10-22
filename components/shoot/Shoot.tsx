@@ -13,6 +13,7 @@ interface ShootModalProps {
   isOpen: boolean;
   onClose: () => void;
   onError: (error: string) => void;
+  onRequestDelete?: (shoot: ShootResponse) => void;
   editData?: ShootResponse | null; // Add edit data prop
   reportrixBrands?: string[]; // Add reportrix brands array
 }
@@ -26,6 +27,7 @@ export default function ShootModal({
   isOpen,
   onClose,
   onError,
+  onRequestDelete,
   editData = null,
   reportrixBrands = []
 }: ShootModalProps) {
@@ -34,6 +36,7 @@ export default function ShootModal({
   const [profiles, setProfiles] = useState<ProfileListItem[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState<boolean>(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -777,17 +780,43 @@ export default function ShootModal({
             variant="outline"
             size="m"
             disabled={saving}
+            style={{ order: 1 }}
           >
             Cancel
           </Button>
+          {editData && (
+            <Button
+              onClick={() => setShowDeleteModal(true)}
+              variant="danger"
+              size="m"
+              disabled={saving}
+              style={{ order: 2, marginRight: 'auto' }}
+            >
+              Delete
+            </Button>
+          )}
           <Button
             onClick={handleSubmit}
             variant="primary"
             size="m"
             disabled={saving}
+            style={{ order: 3 }}
           >
             {saving ? 'Saving...' : editData ? 'Update Shoot' : 'Save Shoot'}
           </Button>
+          {/* Delete confirmation modal */}
+          {showDeleteModal && editData && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+              <div className="bg-white rounded-lg shadow-xl p-6 min-w-[320px]">
+                <h3 className="text-lg font-semibold mb-4">Delete Shoot Confirmation</h3>
+                <p className="mb-6">Are you sure you want to delete this shoot for <b>{editData.brand}</b> on {editData.date}?</p>
+                <div className="flex justify-end gap-3">
+                  <Button variant="outline" size="m" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+                  <Button variant="danger" size="m" onClick={() => { setShowDeleteModal(false); onRequestDelete?.(editData); }}>Delete</Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

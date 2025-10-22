@@ -7,8 +7,10 @@ import { useUser } from '@/hooks/usercontext';
 import ShootModal from '@/components/shoot/Shoot';
 import ShootTable from '@/components/shoot/ShootTable';
 import { printShoots, ShootResponse, ShootPrintResponse, deleteShoot } from '@/lib/shoot/shoot-api';
+import AppModal from '@/components/custom-ui/AppModal';
 
 export default function ShootPage() {
+  // Remove old delete modal state
   const { user } = useUser();
   const reportrixBrands: string[] = user?.permissions?.reportrix ? Object.keys(user.permissions.reportrix) : [];
   const [selectedMonth, setSelectedMonth] = useState<string>('');
@@ -120,9 +122,9 @@ export default function ShootPage() {
   };
 
   const handleEditShoot = (shoot: ShootResponse) => {
-    setEditingShoot(shoot);
-    setShowModal(true);
-    setError(null);
+  setEditingShoot(shoot);
+  setShowModal(true);
+  setError(null);
   };
 
   const handleCloseModal = () => {
@@ -138,21 +140,12 @@ export default function ShootPage() {
     setError(errorMessage);
   };
 
-  const handleDeleteShoot = async (shoot: ShootResponse) => {
-    if (!confirm(`Are you sure you want to delete this shoot for ${shoot.brand} on ${shoot.date}?`)) {
-      return;
-    }
+  const handleDeleteShoot = (shoot: ShootResponse) => {
+  // No longer needed, handled in modal
+  };
 
-    try {
-      await deleteShoot(shoot.id);
-      // Refresh data after successful deletion
-      if (selectedMonth && selectedYear) {
-        fetchShootsData();
-      }
-    } catch (err) {
-      console.error('Error deleting shoot:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete shoot');
-    }
+  const confirmDeleteShoot = async () => {
+    // No longer needed, handled in modal
   };
 
   // Remove brand access check so all users can access the shoot page
@@ -236,15 +229,28 @@ export default function ShootPage() {
           </div>
         </div>
       </div>
-
-      {/* Shoot Modal */}
-      <ShootModal
-        isOpen={showModal}
-        onClose={handleCloseModal}
-        onError={handleError}
-        editData={editingShoot}
-        reportrixBrands={reportrixBrands}
-      />
+    {/* Shoot Modal */}
+    <ShootModal
+      isOpen={showModal}
+      onClose={handleCloseModal}
+      onError={handleError}
+      editData={editingShoot}
+      reportrixBrands={reportrixBrands}
+      onRequestDelete={async (shoot) => {
+        try {
+          await deleteShoot(shoot.id);
+          setShowModal(false);
+          setEditingShoot(null);
+          if (selectedMonth && selectedYear) {
+            fetchShootsData();
+          }
+        } catch (err) {
+          console.error('Error deleting shoot:', err);
+          setError(err instanceof Error ? err.message : 'Failed to delete shoot');
+        }
+      }}
+    />
+    {/* Custom Delete Confirmation Modal removed, handled in ShootModal */}
     </div>
   );
 }

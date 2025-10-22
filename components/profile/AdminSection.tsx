@@ -1,4 +1,4 @@
-// components/AdminSection.tsx
+import AppModal from '@/components/custom-ui/AppModal';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchUserPermissions, UserPermissionsResponse, updateGranularPermissions } from '@/lib/profile/admin'; // Import admin API
 import UserProfile from './UserProfile'; // Import the UserProfile component
@@ -45,6 +45,11 @@ interface AdminSectionProps {
 }
 
 export default function AdminSection({ userData: initialUserData }: AdminSectionProps) {
+  // Modal for info/confirm
+  const [modal, setModal] = useState<{ open: boolean; message: string; onConfirm?: (() => void) | null; type: 'info' | 'confirm' }>({ open: false, message: '', onConfirm: null, type: 'info' });
+  const showInfoModal = (message: string) => setModal({ open: true, message, onConfirm: null, type: 'info' });
+  const showConfirmModal = (message: string, onConfirm: () => void) => setModal({ open: true, message, onConfirm, type: 'confirm' });
+
   const [userData, setUserData] = useState<UserData | null>(initialUserData || null);
   const [selectedUserData, setSelectedUserData] = useState<UserPermissionsResponse | null>(null);
   const [loading, setLoading] = useState(!initialUserData);
@@ -58,7 +63,6 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
   const [dataPermissions, setDataPermissions] = useState<Record<string, Record<string, boolean>>>({});
   const [brandAdmin, setBrandAdmin] = useState<boolean>(false);
   const [reportrixAdmin, setReportrixAdmin] = useState<boolean>(false);
-  
   // Track original state to detect unsaved changes
   const [originalPermissions, setOriginalPermissions] = useState<Record<string, Record<string, Record<string, boolean>>>>({});
   const [originalDataPermissions, setOriginalDataPermissions] = useState<Record<string, Record<string, boolean>>>({});
@@ -149,65 +153,52 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
 
     try {
       setPermissionsLoading(true);
-      
       if (activeSection === 'Content') {
-        // Convert permissions state to backend format - only include brands with permissions
+        // ...existing code...
         const brandsData: Record<string, Record<string, string[]>> = {};
         Object.keys(permissions).forEach(brand => {
           const brandFormats: Record<string, string[]> = {};
           let brandHasPermissions = false;
-          
           Object.keys(permissions[brand]).forEach(formatType => {
             const roles: string[] = [];
             if (permissions[brand][formatType].Creator) roles.push('creator');
             if (permissions[brand][formatType].Viewer) roles.push('viewer');
             if (permissions[brand][formatType].Reviewer) roles.push('reviewer');
-            
-            // Only include format types that have at least one permission
             if (roles.length > 0) {
               brandFormats[formatType] = roles;
               brandHasPermissions = true;
             }
           });
-          
-          // Only include brands that have at least one permission
           if (brandHasPermissions) {
             brandsData[brand] = brandFormats;
           }
         });
-
         await updateGranularPermissions(selectedUserId, {
           filter_type: 'content',
           brands: brandsData,
           brand_admin: brandAdmin
         });
       } else if (activeSection === 'Data') {
-        // Convert data permissions to backend format - only include brands with permissions
+        // ...existing code...
         const reportrixData: Record<string, string[]> = {};
         Object.keys(dataPermissions).forEach(brand => {
           const permissionsArray: string[] = [];
           if (dataPermissions[brand].Product) permissionsArray.push('Product');
           if (dataPermissions[brand].SEO) permissionsArray.push('Seo');
-          
-          // Only include brands that have at least one permission
           if (permissionsArray.length > 0) {
             reportrixData[brand] = permissionsArray;
           }
         });
-
         await updateGranularPermissions(selectedUserId, {
           filter_type: 'data',
           reportrix: reportrixData,
           reportrix_admin: reportrixAdmin
         });
       }
-
-      // Refresh permissions after update
+      // ...existing code...
       const filterType = activeSection.toLowerCase();
       const updatedPermissions = await fetchUserPermissions(selectedUserId, filterType);
       setSelectedUserData(updatedPermissions);
-      
-      // Update original state to reflect saved changes
       if (activeSection === 'Content') {
         setOriginalPermissions({ ...permissions });
         setOriginalBrandAdmin(brandAdmin);
@@ -215,12 +206,11 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
         setOriginalDataPermissions({ ...dataPermissions });
         setOriginalReportrixAdmin(reportrixAdmin);
       }
-      
-      alert('Permissions updated successfully!');
+      showInfoModal('Permissions updated successfully!');
     } catch (error) {
       console.error('Error updating permissions:', error);
-      alert('Failed to update permissions. Please try again.');
-      throw error; // Re-throw for handleSectionChange to catch
+      showInfoModal('Failed to update permissions. Please try again.');
+      throw error;
     } finally {
       setPermissionsLoading(false);
     }
@@ -230,61 +220,43 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
   const handleSectionChange = useCallback((newSection: string) => {
     // If switching away from Content or Data sections and there are unsaved changes
     if ((activeSection === 'Content' || activeSection === 'Data') && hasUnsavedChanges()) {
-      const confirmed = window.confirm(
-        'You have unsaved changes. Do you want to update the permissions before switching tabs?\n\nClick "OK" to update and continue, or "Cancel" to discard changes and continue.'
-      );
-      
-      if (confirmed) {
-        // User wants to save changes first
-        handleUpdatePermissions().then(() => {
-          setActiveSection(newSection);
-        }).catch(() => {
-          // If update fails, ask if they still want to continue
-          const forceSwitch = window.confirm('Failed to update permissions. Do you still want to switch tabs and lose your changes?');
-          if (forceSwitch) {
+      showConfirmModal(
+        'You have unsaved changes. Do you want to update the permissions before switching tabs?\n\nClick "Confirm" to update and continue, or "Cancel" to discard changes and continue.',
+        () => {
+          handleUpdatePermissions().then(() => {
             setActiveSection(newSection);
-          }
-        });
-      } else {
-        // User wants to discard changes
-        setActiveSection(newSection);
-      }
+          }).catch(() => {
+            showConfirmModal('Failed to update permissions. Do you still want to switch tabs and lose your changes?', () => setActiveSection(newSection));
+          });
+        }
+      );
     } else {
-      // No unsaved changes, switch normally
       setActiveSection(newSection);
     }
   }, [activeSection, hasUnsavedChanges, handleUpdatePermissions]);
 
   const handleRevokeContentPermissions = useCallback(async () => {
     if (!selectedUserId || permissionsLoading) return;
-
-    // Show confirmation dialog
-    const confirmed = window.confirm('Are you sure you want to revoke ALL content permissions for this user? This action cannot be undone.');
-    if (!confirmed) return;
-
+    await new Promise<void>((resolve) => {
+      showConfirmModal('Are you sure you want to revoke ALL content permissions for this user? This action cannot be undone.', resolve);
+    });
     try {
       setPermissionsLoading(true);
-      
-      // Send empty brands object to revoke all content permissions
+      // ...existing code...
       const emptyBrandsData: Record<string, Record<string, string[]>> = {};
-      
-      // Initialize empty structure for all brands and formats
       if (userData) {
         userData.dropdowns.brand_name.forEach((brand: string) => {
           emptyBrandsData[brand] = {};
           userData.dropdowns.format_type.forEach((formatType: string) => {
-            emptyBrandsData[brand][formatType] = []; // Empty array = no permissions
+            emptyBrandsData[brand][formatType] = [];
           });
         });
       }
-
       await updateGranularPermissions(selectedUserId, {
         filter_type: 'content',
         brands: emptyBrandsData,
-        brand_admin: false // Revoke admin status as well
+        brand_admin: false
       });
-
-      // Reset local state to reflect revoked permissions
       const resetPermissions: Record<string, Record<string, Record<string, boolean>>> = {};
       if (userData) {
         userData.dropdowns.brand_name.forEach((brand: string) => {
@@ -300,11 +272,10 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       }
       setPermissions(resetPermissions);
       setBrandAdmin(false);
-      
-      alert('All content permissions revoked successfully!');
+      showInfoModal('All content permissions revoked successfully!');
     } catch (error) {
       console.error('Error revoking content permissions:', error);
-      alert('Failed to revoke content permissions. Please try again.');
+      showInfoModal('Failed to revoke content permissions. Please try again.');
     } finally {
       setPermissionsLoading(false);
     }
@@ -312,31 +283,23 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
 
   const handleRevokeDataPermissions = useCallback(async () => {
     if (!selectedUserId || permissionsLoading) return;
-
-    // Show confirmation dialog
-    const confirmed = window.confirm('Are you sure you want to revoke ALL data permissions for this user? This action cannot be undone.');
-    if (!confirmed) return;
-
+    await new Promise<void>((resolve) => {
+      showConfirmModal('Are you sure you want to revoke ALL data permissions for this user? This action cannot be undone.', resolve);
+    });
     try {
       setPermissionsLoading(true);
-      
-      // Send empty reportrix object to revoke all data permissions
+      // ...existing code...
       const emptyReportrixData: Record<string, string[]> = {};
-      
-      // Initialize empty structure for all brands
       if (userData) {
         userData.dropdowns.brand_name.forEach((brand: string) => {
-          emptyReportrixData[brand] = []; // Empty array = no permissions
+          emptyReportrixData[brand] = [];
         });
       }
-
       await updateGranularPermissions(selectedUserId, {
         filter_type: 'data',
         reportrix: emptyReportrixData,
-        reportrix_admin: false // Revoke admin status as well
+        reportrix_admin: false
       });
-
-      // Reset local state to reflect revoked permissions
       const resetDataPermissions: Record<string, Record<string, boolean>> = {};
       if (userData) {
         userData.dropdowns.brand_name.forEach((brand: string) => {
@@ -348,11 +311,10 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       }
       setDataPermissions(resetDataPermissions);
       setReportrixAdmin(false);
-      
-      alert('All data permissions revoked successfully!');
+      showInfoModal('All data permissions revoked successfully!');
     } catch (error) {
       console.error('Error revoking data permissions:', error);
-      alert('Failed to revoke data permissions. Please try again.');
+      showInfoModal('Failed to revoke data permissions. Please try again.');
     } finally {
       setPermissionsLoading(false);
     }
@@ -922,17 +884,56 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
   };
 
   return (
-    <div className="flex h-screen bg-white rounded-md border border-gray-200 overflow-hidden">
-      <Sidebar 
-        userData={userData} 
-        activeSection={activeSection} 
-        setActiveSection={handleSectionChange}
-        brandAdmin={brandAdmin}
-        reportrixAdmin={reportrixAdmin}
-      />
-      <div className="flex-1 overflow-y-auto">
-        {renderContent()}
+    <>
+      <div className="flex h-screen bg-white rounded-md border border-gray-200 overflow-hidden">
+        <Sidebar 
+          userData={userData} 
+          activeSection={activeSection} 
+          setActiveSection={handleSectionChange}
+          brandAdmin={brandAdmin}
+          reportrixAdmin={reportrixAdmin}
+        />
+        <div className="flex-1 overflow-y-auto">
+          {renderContent()}
+        </div>
       </div>
-    </div>
+      {/* Modal for info/confirm */}
+      <AppModal
+        open={modal.open}
+        onClose={() => setModal({ ...modal, open: false })}
+      >
+  <div className="px-4 py-4 min-w-[220px] max-w-[300px]">
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            {modal.type === 'confirm' ? 'Confirm Action' : 'Info'}
+          </h3>
+          <p className="text-base text-gray-700 mb-5 whitespace-pre-line">{modal.message}</p>
+          <div className="flex justify-end gap-3">
+            {modal.type === 'confirm' ? (
+              <>
+                <button
+                  className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-base"
+                  onClick={() => { setModal({ ...modal, open: false }); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-semibold text-base shadow"
+                  onClick={() => { setModal({ ...modal, open: false }); modal.onConfirm && modal.onConfirm(); }}
+                >
+                  Confirm
+                </button>
+              </>
+            ) : (
+              <button
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-semibold text-base shadow"
+                onClick={() => setModal({ ...modal, open: false })}
+              >
+                OK
+              </button>
+            )}
+          </div>
+        </div>
+      </AppModal>
+    </>
   );
 }

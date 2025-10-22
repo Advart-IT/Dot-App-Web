@@ -179,99 +179,46 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
       <table className="w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] sticky left-0 bg-gray-50 z-10"> {/* Sticky left for first column if needed, bg matches header */}
-              Date
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
-              Brand
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
-              Photographer
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
-              Model
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
-              Products Covered
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-              Total Hours
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
-              Total Charges
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
-              Media Assets
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-              Actions
-            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] sticky left-0 bg-gray-50 z-10">Date</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">Brand</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">Photographer</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">Model</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">Products Covered</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">Total Hours</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">Total Charges</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">Media Assets</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {shoots.map((shoot) => {
             const shootChargesTotal = calculateShootChargesTotal(shoot.shoot_charges);
-
             return (
-              <tr key={shoot.id} className="hover:bg-gray-50">
+              <tr
+                key={shoot.id}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => onEdit?.(shoot)}
+                tabIndex={0}
+                aria-label={`View shoot for ${shoot.brand} on ${formatDate(shoot.date)}`}
+              >
                 {/* Date */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatDate(shoot.date)}
-                </td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(shoot.date)}</td>
                 {/* Brand */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {shoot.brand || 'N/A'}
-                </td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.brand || 'N/A'}</td>
                 {/* Photographer */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {shoot.photographer_name || 'N/A'}
-                </td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.photographer_name || 'N/A'}</td>
                 {/* Model */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {shoot.model_name || 'N/A'}
-                </td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.model_name || 'N/A'}</td>
                 {/* Products Covered */}
                 <td className="px-4 py-4 text-sm text-gray-900">
-                  <div className="max-w-[200px] truncate" title={shoot.products_covered || 'N/A'}>
-                    {shoot.products_covered || 'N/A'}
-                  </div>
+                  <div className="max-w-[200px] truncate" title={shoot.products_covered || 'N/A'}>{shoot.products_covered || 'N/A'}</div>
                 </td>
                 {/* Total Hours */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {shoot.total_hrs ? `${shoot.total_hrs} hrs` : 'N/A'}
-                </td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.total_hrs ? `${shoot.total_hrs} hrs` : 'N/A'}</td>
                 {/* Total Charges */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {shoot.total_shoot_charges ? formatCurrency(shoot.total_shoot_charges) : formatCurrency(shootChargesTotal)}
-                </td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{shoot.total_shoot_charges ? formatCurrency(shoot.total_shoot_charges) : formatCurrency(shootChargesTotal)}</td>
                 {/* Media Assets */}
                 <td className="px-4 py-4 text-sm text-gray-900">
-                  <div className="max-w-[150px] truncate" title={shoot.media_assest || 'N/A'}>
-                    {shoot.media_assest || 'N/A'}
-                  </div>
-                </td>
-                {/* Actions */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit?.(shoot)}
-                      className="flex items-center gap-1 px-2 py-1"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <button
-                      type="button"
-                      onClick={() => onDelete?.(shoot)}
-                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors border border-red-300 hover:border-red-500"
-                      title="Delete shoot"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
+                  <div className="max-w-[150px] truncate" title={shoot.media_assest || 'N/A'}>{shoot.media_assest || 'N/A'}</div>
                 </td>
               </tr>
             );
