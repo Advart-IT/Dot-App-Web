@@ -9,6 +9,7 @@ type AppModalProps = {
 const AppModal: React.FC<AppModalProps> = ({ open, onClose, children }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (open) {
       // Blur previous active element
@@ -23,11 +24,12 @@ const AppModal: React.FC<AppModalProps> = ({ open, onClose, children }) => {
         }
       }, 0);
     }
+
     function handleKeyDown(e: KeyboardEvent) {
       if (!open) return;
       if (e.key === 'Tab') {
         const focusable = modalRef.current?.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])'
         );
         if (!focusable || focusable.length === 0) return;
         const first = focusable[0] as HTMLElement;
@@ -42,10 +44,13 @@ const AppModal: React.FC<AppModalProps> = ({ open, onClose, children }) => {
         }
       }
     }
+
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open]);
+
   if (!open) return null;
+
   return (
     <div
       ref={overlayRef}
@@ -59,10 +64,17 @@ const AppModal: React.FC<AppModalProps> = ({ open, onClose, children }) => {
       <div
         ref={modalRef}
         tabIndex={-1}
-        style={{ background: '#fff', padding: 24, borderRadius: 8, minWidth: 300, outline: 'none' }}
+        style={{
+          background: '#fff', padding: '24px', borderRadius: '8px', minWidth: '300px', outline: 'none',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)', // Added shadow for depth
+          maxWidth: '90%', // Responsive design
+        }}
       >
-        <button onClick={onClose} style={{ float: 'right', fontSize: 20, fontWeight: 'bold', border: 'none', background: 'transparent', cursor: 'pointer' }} aria-label="Close">×</button>
-        {children}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '16px' }}>
+          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', color: '#333' }}>Modal Title</h3>
+          <button onClick={onClose} style={{ fontSize: '20px', fontWeight: 'bold', border: 'none', background: 'transparent', cursor: 'pointer', color: '#888' }} aria-label="Close">×</button>
+        </div>
+        <div style={{ color: '#555', lineHeight: '1.5' }}>{children}</div> {/* Improved text color and line height */}
       </div>
     </div>
   );

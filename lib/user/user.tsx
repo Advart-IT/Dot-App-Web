@@ -1,3 +1,46 @@
+export async function addNewAdditionalDetailType(newAdditionalDetailType: string): Promise<AddDropdownItemResponse> {
+  try {
+    console.log('=== addNewAdditionalDetailType Debug ===');
+    console.log('New additional detail type:', newAdditionalDetailType);
+    console.log('API_URL:', API_URL);
+    const response = await fetch(`${API_URL}/api/v1/Content/dropdown`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        column: "additional_details",
+        value: newAdditionalDetailType,
+        is_active: true
+      }),
+    });
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+    if (!response.ok) {
+      let errorMessage = `Failed to add new additional detail type: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        console.error('Error response data:', errorData);
+        errorMessage = errorData.detail || errorMessage;
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+        errorMessage = `Failed to add new additional detail type: ${response.status} ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+    const result = await response.json();
+    console.log('Add additional detail type success response:', result);
+    return result;
+  } catch (error) {
+    console.error('Error adding new additional detail type:', error);
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred while adding new additional detail type');
+    }
+  }
+}
 import { API_URL } from '../profile/apiurl';
 
 // Interface definitions matching the FastAPI models
@@ -79,7 +122,7 @@ export async function createProfile(data: CreateProfileRequest): Promise<CreateP
     console.log('=== createProfile Debug ===');
     console.log('Request data:', data);
     console.log('API_URL:', API_URL);
-    
+
     const response = await fetch(`${API_URL}/api/v1/profile/profile/create`, {
       method: 'POST',
       headers: {
@@ -110,7 +153,7 @@ export async function createProfile(data: CreateProfileRequest): Promise<CreateP
     return result;
   } catch (error) {
     console.error('Error creating profile:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {
@@ -127,7 +170,7 @@ export async function getProfilesList(): Promise<ProfileListResponse> {
   try {
     console.log('=== getProfilesList Debug ===');
     console.log('API_URL:', API_URL);
-    
+
     const response = await fetch(`${API_URL}/api/v1/profile/profiles/list`, {
       method: 'POST',
       headers: {
@@ -157,7 +200,7 @@ export async function getProfilesList(): Promise<ProfileListResponse> {
     return result;
   } catch (error) {
     console.error('Error fetching profiles list:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {
@@ -175,7 +218,7 @@ export async function getProfileById(profileId: number): Promise<ProfileDetailRe
     console.log('=== getProfileById Debug ===');
     console.log('Profile ID:', profileId);
     console.log('API_URL:', API_URL);
-    
+
     const response = await fetch(`${API_URL}/api/v1/profile/profile/${profileId}`, {
       method: 'POST',
       headers: {
@@ -205,7 +248,7 @@ export async function getProfileById(profileId: number): Promise<ProfileDetailRe
     return result;
   } catch (error) {
     console.error('Error fetching profile:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {
@@ -224,7 +267,7 @@ export async function updateProfile(profileId: number, data: UpdateProfileReques
     console.log('Profile ID:', profileId);
     console.log('Update data:', data);
     console.log('API_URL:', API_URL);
-    
+
     const response = await fetch(`${API_URL}/api/v1/profile/profile/update/${profileId}`, {
       method: 'POST',
       headers: {
@@ -255,7 +298,7 @@ export async function updateProfile(profileId: number, data: UpdateProfileReques
     return result;
   } catch (error) {
     console.error('Error updating profile:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {
@@ -272,11 +315,11 @@ export async function deleteProfile(profileId: number): Promise<UpdateProfileRes
   try {
     console.log('=== deleteProfile Debug ===');
     console.log('Profile ID:', profileId);
-    
+
     return await updateProfile(profileId, { is_delete: true });
   } catch (error) {
     console.error('Error deleting profile:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {
@@ -294,7 +337,7 @@ export async function addNewTag(newTag: string): Promise<AddDropdownItemResponse
     console.log('=== addNewTag Debug ===');
     console.log('New tag:', newTag);
     console.log('API_URL:', API_URL);
-    
+
     const response = await fetch(`${API_URL}/api/v1/Content/dropdown`, {
       method: 'POST',
       headers: {
@@ -329,7 +372,7 @@ export async function addNewTag(newTag: string): Promise<AddDropdownItemResponse
     return result;
   } catch (error) {
     console.error('Error adding new tag:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {
@@ -347,7 +390,7 @@ export async function addNewContactType(newContactType: string): Promise<AddDrop
     console.log('=== addNewContactType Debug ===');
     console.log('New contact type:', newContactType);
     console.log('API_URL:', API_URL);
-    
+
     const response = await fetch(`${API_URL}/api/v1/Content/dropdown`, {
       method: 'POST',
       headers: {
@@ -382,7 +425,7 @@ export async function addNewContactType(newContactType: string): Promise<AddDrop
     return result;
   } catch (error) {
     console.error('Error adding new contact type:', error);
-    
+
     if (error instanceof Error) {
       throw error;
     } else {

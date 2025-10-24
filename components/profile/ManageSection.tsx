@@ -1,3 +1,4 @@
+import InfoPermissionModal from '../custom-ui/InfoPermissionModal';
 import { useState, useEffect } from 'react';
 import SmartDropdown from '@/components/custom-ui/dropdown2';
 import SmartDropdowithadd from '@/components/custom-ui/dropdown-with-add';
@@ -11,6 +12,11 @@ interface ManageSectionProps {
 }
 
 export default function ManageSection({ userData }: ManageSectionProps) {
+  // Modal state for info/confirm dialogs
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'info' | 'confirm'>('info');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => void) | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedInviteLevel, setSelectedInviteLevel] = useState<string>('false');
@@ -149,7 +155,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
-        alert('Failed to load user data');
+    setModalType('info');
+    setModalMessage('Failed to load user data');
+    setModalOpen(true);
       } finally {
         setLoading(false);
       }
@@ -160,7 +168,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleAddNewBrand = async (newBrandName: string) => {
     if (!newBrandName.trim()) {
-      alert('Please enter a brand name');
+      setModalType('info');
+      setModalMessage('Please enter a brand name');
+      setModalOpen(true);
       return;
     }
 
@@ -171,14 +181,18 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       // Call API to create new brand
       await createNewBrand(newBrandName.trim());
       
-      alert('Brand created successfully!');
+  setModalType('info');
+  setModalMessage('Brand created successfully!');
+  setModalOpen(true);
       
       // Optionally, you might want to refresh the page or update the dropdown options
       // For now, we'll just show success message
       
     } catch (error) {
       console.error('Failed to create brand:', error);
-      alert(error instanceof Error ? error.message : 'Failed to create brand');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to create brand');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -186,7 +200,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleAddNewDesignation = async (newDesignationName: string) => {
     if (!newDesignationName.trim()) {
-      alert('Please enter a designation name');
+      setModalType('info');
+      setModalMessage('Please enter a designation name');
+      setModalOpen(true);
       return;
     }
 
@@ -197,14 +213,18 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       // Call API to create new designation
       await createNewDesignation(newDesignationName.trim());
       
-      alert('Designation created successfully!');
+  setModalType('info');
+  setModalMessage('Designation created successfully!');
+  setModalOpen(true);
       
       // Optionally, you might want to refresh the page or update the dropdown options
       // For now, we'll just show success message
       
     } catch (error) {
       console.error('Failed to create designation:', error);
-      alert(error instanceof Error ? error.message : 'Failed to create designation');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to create designation');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -212,25 +232,33 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleSendInvite = async () => {
     if (!inviteEmail.trim()) {
-      alert('Please enter an email address');
+      setModalType('info');
+      setModalMessage('Please enter an email address');
+      setModalOpen(true);
       return;
     }
     
     // Check if user has invite permissions
     if (currentUserInviteLevel === false || currentUserInviteLevel === 'false') {
-      alert('You do not have permission to send invites');
+      setModalType('info');
+      setModalMessage('You do not have permission to send invites');
+      setModalOpen(true);
       return;
     }
     
     // For any_brand: check if brand selection is required
     if (currentUserInviteLevel === 'any_brand' && selectedInviteBrands.length === 0) {
-      alert('Please select a brand');
+      setModalType('info');
+      setModalMessage('Please select a brand');
+      setModalOpen(true);
       return;
     }
     
     // Check if designation is selected
     if (!selectedDesignation.trim()) {
-      alert('Please select a designation');
+      setModalType('info');
+      setModalMessage('Please select a designation');
+      setModalOpen(true);
       return;
     }
     
@@ -258,7 +286,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       // Call API with email, department, and designation
       await inviteUser(inviteEmail.trim(), departmentToSend, selectedDesignation.trim());
       
-      alert('Invitation sent successfully!');
+  setModalType('info');
+  setModalMessage('Invitation sent successfully!');
+  setModalOpen(true);
       
       // Reset and close modal
       setInviteEmail('');
@@ -267,7 +297,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       setShowInviteModal(false);
     } catch (error) {
       console.error('Failed to send invite:', error);
-      alert(error instanceof Error ? error.message : 'Failed to send invite');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to send invite');
+  setModalOpen(true);
     } finally {
       setInviteLoading(false);
     }
@@ -275,7 +307,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleAdminAccessToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
-      alert('Please select a user first');
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
       return;
     }
 
@@ -283,9 +317,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       ? 'Are you sure you want to grant admin access to this user?' 
       : 'Are you sure you want to revoke admin access from this user?';
     
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(confirmMessage);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
 
     try {
       setLoading(true);
@@ -295,10 +332,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       });
       
       setAdminAccessEnabled(enabled);
-      alert(`Admin access ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalType('info');
+  setModalMessage(`Admin access ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalOpen(true);
     } catch (error) {
       console.error('Failed to update admin access:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update admin access');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to update admin access');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -306,7 +347,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleManageActivityToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
-      alert('Please select a user first');
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
       return;
     }
 
@@ -314,19 +357,26 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       ? 'Are you sure you want to activate this user?' 
       : 'Are you sure you want to deactivate this user?';
     
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(confirmMessage);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
 
     try {
       setLoading(true);
       await toggleUserStatus(selectedUserId, enabled);
       
       setManageActivityEnabled(enabled);
-      alert(`User ${enabled ? 'activated' : 'deactivated'} successfully!`);
+  setModalType('info');
+  setModalMessage(`User ${enabled ? 'activated' : 'deactivated'} successfully!`);
+  setModalOpen(true);
     } catch (error) {
       console.error('Failed to update user status:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update user status');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to update user status');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -334,13 +384,18 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleInviteLevelUpdate = async (newLevel: string) => {
     if (!selectedUserId) {
-      alert('Please select a user first');
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to change invite level to ${newLevel}?`)) {
-      return;
-    }
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(`Are you sure you want to change invite level to ${newLevel}?`);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
 
     try {
       setLoading(true);
@@ -350,10 +405,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       });
       
       setSelectedInviteLevel(newLevel);
-      alert('Invite level updated successfully!');
+  setModalType('info');
+  setModalMessage('Invite level updated successfully!');
+  setModalOpen(true);
     } catch (error) {
       console.error('Failed to update invite level:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update invite level');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to update invite level');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -361,7 +420,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleStatsPeopleToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
-      alert('Please select a user first');
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
       return;
     }
 
@@ -369,9 +430,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       ? 'Are you sure you want to grant people stats permission to this user?' 
       : 'Are you sure you want to revoke people stats permission from this user?';
     
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(confirmMessage);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
 
     try {
       setStatsLoading(true);
@@ -393,10 +457,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       console.log('Update response:', response);
       
       setStatsPeopleEnabled(enabled);
-      alert(`People stats permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalType('info');
+  setModalMessage(`People stats permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalOpen(true);
     } catch (error) {
       console.error('Failed to update people stats permission:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update people stats permission');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to update people stats permission');
+  setModalOpen(true);
     } finally {
       setStatsLoading(false);
     }
@@ -404,7 +472,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleProfilePermissionToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
-      alert('Please select a user first');
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
       return;
     }
 
@@ -412,9 +482,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       ? 'Are you sure you want to grant profile permission to this user?' 
       : 'Are you sure you want to revoke profile permission from this user?';
     
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(confirmMessage);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
 
     try {
       setLoading(true);
@@ -424,10 +497,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       } as any);
       
   setProfilePermissionEnabled(enabled);
-      alert(`Profile permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalType('info');
+  setModalMessage(`Profile permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalOpen(true);
     } catch (error) {
       console.error('Failed to update profile permission:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update profile permission');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to update profile permission');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -435,16 +512,21 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   const handleShootPermissionToggle = async (enabled: boolean) => {
     if (!selectedUserId) {
-      alert('Please select a user first');
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
       return;
     }
 
     const confirmMessage = enabled 
       ? 'Are you sure you want to grant shoot permission to this user?' 
       : 'Are you sure you want to revoke shoot permission from this user?';
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(confirmMessage);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
 
     try {
       setLoading(true);
@@ -453,10 +535,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
         shoot: enabled
       });
       setShootPermissionEnabled(enabled);
-      alert(`Shoot permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalType('info');
+  setModalMessage(`Shoot permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+  setModalOpen(true);
     } catch (error) {
       console.error('Failed to update shoot permission:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update shoot permission');
+  setModalType('info');
+  setModalMessage(error instanceof Error ? error.message : 'Failed to update shoot permission');
+  setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -495,6 +581,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
     if (!inviteEmail.trim()) {
       setEmailError('Email address is required');
       setIsEmailValid(false);
+      setModalType('info');
+      setModalMessage('Email address is required');
+      setModalOpen(true);
       return;
     }
     
@@ -520,6 +609,19 @@ export default function ManageSection({ userData }: ManageSectionProps) {
 
   return (
     <div className="p-6 bg-white relative">
+      {/* Info/Permission Modal for alerts and confirmations */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: modalOpen ? 'auto' : 'none' }}>
+        <InfoPermissionModal
+          open={modalOpen}
+          type={modalType}
+          message={modalMessage}
+          onClose={() => {
+            setModalOpen(false);
+            setModalOnConfirm(undefined);
+          }}
+          onConfirm={modalOnConfirm}
+        />
+      </div>
       {loading && (
         <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
           <div className="text-center">

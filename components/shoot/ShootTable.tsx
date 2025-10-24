@@ -79,15 +79,16 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
     } else {
       setTargets(null);
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, shoots]);
 
   // Calculate total of shoot_charges object
   const calculateShootChargesTotal = (shootCharges: Record<string, any> | undefined): number => {
     if (!shootCharges) return 0;
-
     let total = 0;
     Object.values(shootCharges).forEach(value => {
-      if (typeof value === 'number') {
+      if (Array.isArray(value) && value.length > 0 && !isNaN(Number(value[0]))) {
+        total += Number(value[0]);
+      } else if (typeof value === 'number') {
         total += value;
       } else if (typeof value === 'string' && !isNaN(Number(value))) {
         total += Number(value);
@@ -215,7 +216,9 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
                 {/* Total Hours */}
                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.total_hrs ? `${shoot.total_hrs} hrs` : 'N/A'}</td>
                 {/* Total Charges */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{shoot.total_shoot_charges ? formatCurrency(shoot.total_shoot_charges) : formatCurrency(shootChargesTotal)}</td>
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {formatCurrency(calculateShootChargesTotal(shoot.shoot_charges))}
+                </td>
                 {/* Media Assets */}
                 <td className="px-4 py-4 text-sm text-gray-900">
                   <div className="max-w-[150px] truncate" title={shoot.media_assest || 'N/A'}>{shoot.media_assest || 'N/A'}</div>

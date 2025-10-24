@@ -18,6 +18,11 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
     const [selectedFormatType, setSelectedFormatType] = useState<string>("");
     const { user } = useUser();
 
+    // Debug: Log every render and contentList
+    useEffect(() => {
+        console.log('PostedView rendered. Current contentList:', contentList);
+    }, [contentList]);
+
     // Refs to store cached data and loading state
     const cache = useRef<Record<string, any[]>>({}); // Cache for content lists per brand-format combination
     const isLoadingRef = useRef(false); // To prevent concurrent API calls
@@ -98,20 +103,22 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
 
     const handleMarkAsPosted = async (contentId: number) => {
         try {
-            const result = await upsertContent({ id: contentId });
-            if (result?.data?.length) {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const pastContent = result.data.filter((item: any) => {
-                    if (!item.live_date) return false;
-                    const itemDate = new Date(item.live_date);
-                    return itemDate <= today;
-                });
-                // If you need to update a list, define it or use setContentList
-                // setContentList(prev => [...prev, ...pastContent]);
+            console.log('Mark as Posted clicked for contentId:', contentId);
+            console.log('Current contentList before API:', contentList);
+            const result = await upsertContent({ id: contentId, status: "posted" });
+            console.log('API response:', result);
+            // Remove the card from the UI immediately
+            const filteredList = contentList.filter(item => item.id !== contentId);
+            console.log('Filtered contentList after removal:', filteredList);
+            setContentList(filteredList);
+            // Update cache
+            const cacheKey = `${brandName}_${selectedFormatType}`;
+            if (cache.current[cacheKey]) {
+                cache.current[cacheKey] = filteredList;
             }
+            console.log('Cache after update:', cache.current);
         } catch (error) {
-            console.error(error);
+            console.error('Error in handleMarkAsPosted:', error);
         }
     };
 
@@ -228,7 +235,7 @@ const PostedView: React.FC<PostedViewProps> = ({ brandName }) => {
             ) : contentList.length > 0 ? (
                 <div className="space-y-4 overflow-y-auto">
                     {contentList.map((content, idx) => (
-                        <div key={idx} className="border rounded-md p-4">
+                        <div key={content.id} className="border rounded-md p-4">
                             <div className="flex items-end gap-4 w-full">
                                 <div className="flex-[3]">
                                     <SmartInput

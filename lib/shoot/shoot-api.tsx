@@ -53,8 +53,8 @@ export interface ShootCreate {
   shoot_charges?: Record<string, any>; // JSON object for shoot charges
   expenses?: Record<string, any>; // JSON object for expenses (e.g., {'travel': 500, 'food': 300})
   media_assest?: string; // Note: Python uses 'media_assest' (with typo)
+  product_link?: string[][]; // Product links as nested array
 }
-
 
 
 export interface ShootUpdate {
@@ -68,6 +68,7 @@ export interface ShootUpdate {
   shoot_charges?: Record<string, any>; // JSON object for shoot charges
   expenses?: Record<string, any>; // JSON object for expenses (e.g., {'travel': 500, 'food': 300})
   media_assest?: string; // Note: Python uses 'media_assest' (with typo)
+  product_link?: string[][]; // Product links as nested array
   is_delete?: boolean; // Set to true to delete the shoot (soft delete)
 }
 
@@ -101,6 +102,7 @@ export interface ShootResponse {
   expenses?: Record<string, any>;
   total_expenses?: number; // Calculated total from expenses JSON
   media_assest?: string; // Note: Python uses 'media_assest' (with typo)
+  product_link?: string[][]; // Product links as nested array
   created_by?: number;
   created_by_name?: string;
   created_at: string;

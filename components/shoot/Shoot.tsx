@@ -7,7 +7,12 @@ import SmartDropdown from '@/components/custom-ui/dropdown-with-add';
 import SimpleDropdown from '@/components/custom-ui/dropdown2';
 import { useUser } from '@/hooks/usercontext';
 import { getProfilesList, type ProfileListItem } from '@/lib/user/user';
-import { ShootResponse, createShoot, updateShoot } from '@/lib/shoot/shoot-api';
+import { ShootResponse as BaseShootResponse, createShoot, updateShoot } from '@/lib/shoot/shoot-api';
+
+// Extend ShootResponse to include product_link for frontend type safety
+interface ShootResponse extends BaseShootResponse {
+  product_link?: string[][];
+}
 
 interface ShootModalProps {
   isOpen: boolean;
@@ -21,6 +26,7 @@ interface ShootModalProps {
 interface ShootChargerForm {
   type: string;
   value: string;
+  paid: boolean; // Add paid status
 }
 
 export default function ShootModal({
@@ -37,6 +43,21 @@ export default function ShootModal({
   const [loadingProfiles, setLoadingProfiles] = useState<boolean>(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  // Product Links state (same as Influencer modal)
+  const [product_link, setproduct_link] = useState<string[][]>([[""]]);
+  // Ref to always hold the latest product_link value
+  const productLinkRef = useRef<string[][]>(product_link);
+  useEffect(() => {
+    productLinkRef.current = product_link;
+  }, [product_link]);
+
+  const getValidProductLinks = () => {
+    const links = productLinkRef.current;
+    if (!links || links.length === 0 || links.every(row => row.length === 0 || row.every(link => !link.trim()))) {
+      return [[""]];
+    }
+    return links;
+  };
 
   // Form state
   const [formData, setFormData] = useState({
@@ -64,7 +85,8 @@ export default function ShootModal({
   const [shootChargers, setShootChargers] = useState<ShootChargerForm[]>([
     {
       type: '',
-      value: ''
+      value: '',
+      paid: false
     }
   ]);
 
@@ -94,10 +116,14 @@ export default function ShootModal({
     }
   };
 
+  // Track last editData to only reset state when editData changes
+  const lastEditIdRef = useRef<number | null>(null);
+
   // Initialize form when modal opens
   useEffect(() => {
-    if (isOpen) {
-      // Clear field errors when modal opens
+    // Only reset state if editData changes (new shoot or different shoot)
+    if (editData?.id !== lastEditIdRef.current) {
+      lastEditIdRef.current = editData?.id ?? null;
       setFieldErrors({
         date: '',
         brand: '',
@@ -105,11 +131,9 @@ export default function ShootModal({
         model: '',
         productCovered: '',
         total_hrs: '',
-        media_assest: '' // Clear media asset error too
+        media_assest: ''
       });
-
       if (editData) {
-        // Populate form with edit data
         setFormData({
           date: editData.date,
           brand: editData.brand || '',
@@ -119,19 +143,29 @@ export default function ShootModal({
           total_hrs: editData.total_hrs || '',
           media_assest: editData.media_assest || ''
         });
-        
-        // Populate shoot charges
         if (editData.shoot_charges) {
-          const chargers = Object.entries(editData.shoot_charges).map(([type, value]) => ({
-            type,
-            value: value.toString()
-          }));
-          setShootChargers(chargers.length > 0 ? chargers : [{ type: '', value: '' }]);
+          const chargers = Object.entries(editData.shoot_charges).map(([type, value]) => {
+            if (Array.isArray(value) && value.length === 2) {
+              return {
+                type,
+                value: value[0].toString(),
+                paid: !!value[1]
+              };
+            } else {
+              // fallback for legacy format
+              return {
+                type,
+                value: value.toString(),
+                paid: false
+              };
+            }
+          });
+          setShootChargers(chargers.length > 0 ? chargers : [{ type: '', value: '', paid: false }]);
         } else {
-          setShootChargers([{ type: '', value: '' }]);
+          setShootChargers([{ type: '', value: '', paid: false }]);
         }
-        
-
+        // Populate product links from editData if available
+        setproduct_link(editData.product_link && Array.isArray(editData.product_link) && editData.product_link.length > 0 ? editData.product_link : [[""]]);
       } else {
         // Reset form to default values for new entry
         setFormData({
@@ -143,10 +177,11 @@ export default function ShootModal({
           total_hrs: '',
           media_assest: ''
         });
-        setShootChargers([{ type: '', value: '' }]);
+        setShootChargers([{ type: '', value: '', paid: false }]);
+        setproduct_link([[""]]); // Reset product links for new entry
       }
     }
-  }, [isOpen, editData, reportrixBrands]);
+  }, [editData, reportrixBrands]);
 
   // Handle outside click to save and close
   useEffect(() => {
@@ -211,10 +246,11 @@ export default function ShootModal({
               media_assest: formData.media_assest, // Use media_assest field
               shoot_charges: shootChargers.reduce((acc, charger) => {
                 if (charger.type && charger.value) {
-                  acc[charger.type] = Number(charger.value) || 0;
+                  acc[charger.type] = [Number(charger.value) || 0, !!charger.paid];
                 }
                 return acc;
-              }, {} as Record<string, number>)
+              }, {} as Record<string, [number, boolean]>),
+              product_link: getValidProductLinks() // uses ref
             };
 
             if (editData) {
@@ -243,7 +279,7 @@ export default function ShootModal({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [isOpen, formData, editData, shootChargers, onClose, onError]);
+  }, [isOpen, formData, editData, shootChargers, product_link, onClose, onError]);
 
   // Handle form input changes
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -280,7 +316,8 @@ export default function ShootModal({
     
     setShootChargers(prev => [...prev, {
       type: '',
-      value: ''
+      value: '',
+      paid: false
     }]);
   };
 
@@ -291,7 +328,14 @@ export default function ShootModal({
     }
   };
 
-
+  // Toggle paid status
+  const togglePaidStatus = (index: number) => {
+    setShootChargers(prev => {
+      const newChargers = [...prev];
+      newChargers[index] = { ...newChargers[index], paid: !newChargers[index].paid };
+      return newChargers;
+    });
+  };
 
   // Handle adding new photographer type
   const handleAddNewPhotographer = async (newPhotographerType: string) => {
@@ -323,7 +367,43 @@ export default function ShootModal({
     }
   };
 
+  // Product Links handlers
+  const handleProductLinkChange = (rowIdx: number, colIdx: number, value: string) => {
+    setproduct_link(prev => {
+      const updated = [...prev];
+      updated[rowIdx] = [...updated[rowIdx]];
+      updated[rowIdx][colIdx] = value;
+      return updated;
+    });
+  };
 
+  const addProductLinkNext = (rowIdx: number, colIdx: number) => {
+    setproduct_link(prev => {
+      const updated = [...prev];
+      updated[rowIdx] = [...updated[rowIdx], ""];
+      return updated;
+    });
+  };
+
+  const addProductLinkRow = (rowIdx: number) => {
+    setproduct_link(prev => {
+      const updated = [...prev];
+      updated.splice(rowIdx + 1, 0, [""]);
+      return updated;
+    });
+  };
+
+  const removeProductLink = (rowIdx: number, colIdx: number) => {
+    setproduct_link(prev => {
+      const updated = [...prev];
+      updated[rowIdx] = updated[rowIdx].filter((_, c) => c !== colIdx);
+      // Ensure there's always at least one empty input field
+      if (updated.every(row => row.length === 0)) {
+        return [[""]]; // Reset to one empty field if all are removed
+      }
+      return updated.filter(row => row.length > 0); // Remove empty rows
+    });
+  };
 
   // Prepare photographer options from profiles
   const photographerOptions = useMemo(() => {
@@ -363,12 +443,18 @@ export default function ShootModal({
     return profileOptions;
   }, [profiles]);
 
-  // Prepare shoot charger options
-  const shootChargerOptions = useMemo(() => {
+  // Prepare shoot charger options (global, for all charges)
+  const shootChargerOptionsGlobal = useMemo(() => {
     const userShootChargers = user?.dropdowns?.shoot_chargers || [];
     const allShootChargers = [...new Set([...userShootChargers, ...localShootChargerTypes])];
     return allShootChargers.map((item: string) => ({ label: item, value: item }));
   }, [user?.dropdowns?.shoot_chargers, localShootChargerTypes]);
+
+  // For each charge, filter out already selected types
+  const getShootChargerOptionsForIndex = (index: number) => {
+    const selectedTypes = shootChargers.map((charge, i) => i !== index ? charge.type : null).filter(Boolean);
+    return shootChargerOptionsGlobal.filter(opt => !selectedTypes.includes(opt.value));
+  };
 
 
 
@@ -398,21 +484,22 @@ export default function ShootModal({
 
       setSaving(true);
 
-      // Prepare data for API - convert photographer and model to numbers if they are profile IDs
+      // Always use the latest product_link from ref
       const submitData = {
         date: formData.date,
-        brand: formData.brand, // Use brand from form data
+        brand: formData.brand,
         photographer: isNaN(Number(formData.photographer)) ? undefined : Number(formData.photographer),
         model: isNaN(Number(formData.model)) ? undefined : Number(formData.model),
         products_covered: formData.productCovered,
         total_hrs: formData.total_hrs,
-        media_assest: formData.media_assest, // Use media_assest field
+        media_assest: formData.media_assest,
         shoot_charges: shootChargers.reduce((acc, charger) => {
           if (charger.type && charger.value) {
-            acc[charger.type] = Number(charger.value) || 0;
+            acc[charger.type] = [Number(charger.value) || 0, !!charger.paid];
           }
           return acc;
-        }, {} as Record<string, number>)
+        }, {} as Record<string, [number, boolean]>),
+        product_link: getValidProductLinks() // uses ref
       };
 
       if (editData) {
@@ -431,15 +518,11 @@ export default function ShootModal({
       onClose();
     } catch (error) {
       console.error('Error saving shoot:', error);
-      // Only call parent's onError for non-validation errors (e.g., API/network issues)
-      // For validation errors, fieldErrors are already set by validateFields()
-      if (error instanceof Error && !error.message.includes('required')) { // Example: refine condition if needed
-          onError(error.message);
+      if (error instanceof Error && !error.message.includes('required')) {
+        onError(error.message);
       } else if (!(error instanceof Error)) {
-          onError('Failed to save shoot');
+        onError('Failed to save shoot');
       }
-      // If validation failed within the API call itself (unlikely with frontend check),
-      // you might need specific error handling from your API response here.
     } finally {
       setSaving(false);
     }
@@ -463,8 +546,9 @@ export default function ShootModal({
               type,
               value: value.toString()
             })) : 
-            [{ type: '', value: '' }]
-        )
+            [{ type: '', value: '', paid: false }]
+        ) ||
+        JSON.stringify(product_link) !== JSON.stringify(editData.product_link || [[""]])
       );
     } else {
       // For new entry, check if any field has data
@@ -476,7 +560,8 @@ export default function ShootModal({
         formData.productCovered ||
         formData.total_hrs ||
         formData.media_assest || // Check media_assest too
-        shootChargers.some(charger => charger.type || charger.value)
+        shootChargers.some(charger => charger.type || charger.value) ||
+        product_link.some(row => row.some(link => link))
       );
     }
   };
@@ -495,13 +580,40 @@ export default function ShootModal({
   if (!isOpen) return null;
 
   return (
+
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-10">
       <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {editData ? 'Edit Shoot' : 'New Shoot'}
-          </h2>
+        {/* Modal Header with Brand next to title */}
+        <div className="flex items-center justify-between px-6 py-3 border-b flex-shrink-0 gap-4">
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-4 md:gap-6">
+            {/* Title */}
+            <h2 className="text-xl font-semibold text-gray-900 whitespace-nowrap">
+              {editData ? 'Edit Shoot' : 'New Shoot'}
+            </h2>
+
+            {/* Brand Dropdown */}
+            <div className="flex-shrink-0 min-w-[160px]">
+              <SimpleDropdown
+                options={[
+                  { label: 'beelittle', value: 'beelittle' },
+                  { label: 'zing', value: 'zing' },
+                  { label: 'prathiksham', value: 'prathiksham' },
+                  { label: 'adoreaboo', value: 'adoreaboo' },
+                ]}
+                value={formData.brand}
+                onChange={(value) => {
+                  const newValue = Array.isArray(value) ? value[0] : value;
+                  handleInputChange('brand', newValue);
+                }}
+                placeholder="Select Brand"
+                className={`min-w-[160px] ${fieldErrors.brand ? 'border-red-500' : ''}`}
+              />
+              {fieldErrors.brand && (
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.brand}</p>
+              )}
+            </div>
+          </div>
+
           <button
             onClick={handleCancel}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -513,11 +625,11 @@ export default function ShootModal({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 flex-1 overflow-y-auto">
-          {/* First Line: Date, Brand, Photographer, Model Name */}
+        <div className="p-6  flex-1 overflow-y-auto">
+          {/* First Line: Date, Total Hours, Photographer, Model Name (4 columns) */}
           <div className="grid grid-cols-4 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-xs  text-gray-500 mb-1">Date</label>
               <input
                 type="date"
                 value={formData.date}
@@ -530,24 +642,8 @@ export default function ShootModal({
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.date}</p>
               )}
             </div>
+            
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-              <SimpleDropdown
-                options={[{ label: 'beelittle', value: 'beelittle' }, { label: 'zing', value: 'zing' }, { label: 'prathiksham', value: 'prathiksham' }, { label: 'adoreaboo', value: 'adoreaboo' }]}
-                value={formData.brand}
-                onChange={(value) => {
-                  const newValue = Array.isArray(value) ? value[0] : value;
-                  handleInputChange('brand', newValue);
-                }}
-                placeholder="Select Brand"
-                className={`w-full ${fieldErrors.brand ? 'border-red-500' : ''}`}
-              />
-              {fieldErrors.brand && (
-                <p className="text-red-500 text-xs mt-1">{fieldErrors.brand}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Photographer</label>
               {loadingProfiles ? (
                 <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 flex items-center justify-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
@@ -557,6 +653,7 @@ export default function ShootModal({
                 <SmartDropdown
                   options={photographerOptions}
                   value={formData.photographer}
+                  label='Photographer'
                   onChange={(value) => {
                     const newValue = Array.isArray(value) ? value[0] : value;
                     handleInputChange('photographer', newValue);
@@ -575,7 +672,6 @@ export default function ShootModal({
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
               {loadingProfiles ? (
                 <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 flex items-center justify-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
@@ -585,6 +681,7 @@ export default function ShootModal({
                 <SmartDropdown
                   options={modelOptions}
                   value={formData.model}
+                  label='Model'
                   onChange={(value) => {
                     const newValue = Array.isArray(value) ? value[0] : value;
                     handleInputChange('model', newValue);
@@ -600,50 +697,52 @@ export default function ShootModal({
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.model}</p>
               )}
             </div>
+            <div>
+              <SmartInputBox
+                  value={formData.total_hrs}
+                  onChange={(value) => {
+                    // Only allow numbers and a single decimal point
+                    let filtered = value.replace(/[^\d.]/g, '');
+                    // Only allow one decimal point
+                    const parts = filtered.split('.');
+                    if (parts.length > 2) {
+                      filtered = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    handleInputChange('total_hrs', filtered);
+                  }}
+                  placeholder="Total Hours (e.g., 8.5)"
+                  label="Total Hours"
+                  className={`w-full ${fieldErrors.total_hrs ? 'border-red-500' : ''}`}
+                />
+              {fieldErrors.total_hrs && (
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.total_hrs}</p>
+              )}
+            </div>
           </div>
 
-          {/* Second Line: Product Covered, Total Hours, Media Assets */}
-          <div className="grid grid-cols-3 gap-6 mb-6">
+          {/* Second Line: Product Covered and Media Assets in same row */}
+          <div className="grid grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product Covered</label>
               <SmartInputBox
                 value={formData.productCovered}
                 onChange={(value) => handleInputChange('productCovered', value)}
                 placeholder="Enter product covered"
-                label=""
-                className={`${
-                  fieldErrors.productCovered ? 'border-red-500' : ''
-                }`}
+                label="Product Covered"
+                rows={3}
+                className={` ${fieldErrors.productCovered ? 'border-red-500' : ''}`}
               />
               {fieldErrors.productCovered && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.productCovered}</p>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Total Hours</label>
-              <SmartInputBox
-                value={formData.total_hrs}
-                onChange={(value) => handleInputChange('total_hrs', value)}
-                placeholder="Enter total hours (e.g., 8.5)"
-                label=""
-                className={`${
-                  fieldErrors.total_hrs ? 'border-red-500' : ''
-                }`}
-              />
-              {fieldErrors.total_hrs && (
-                <p className="text-red-500 text-xs mt-1">{fieldErrors.total_hrs}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Media Assets</label> {/* Changed label */}
+              <div>
               <SmartInputBox
                 value={formData.media_assest}
                 onChange={(value) => handleInputChange('media_assest', value)}
                 placeholder="Enter media assets status"
-                label=""
-                className={`${
-                  fieldErrors.media_assest ? 'border-red-500' : ''
-                }`}
+                label="Media Assets"
+                rows={3}
+                className={` ${fieldErrors.media_assest ? 'border-red-500' : ''}`}
               />
               {fieldErrors.media_assest && ( // Added error display
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.media_assest}</p>
@@ -651,130 +750,238 @@ export default function ShootModal({
             </div>
           </div>
 
-          {/* Third Section: Shoot Chargers */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Shoot Chargers</h3>
-            <div className="space-y-3">
-              {shootChargers.map((charger, index) => {
-                const isEvenIndex = index % 2 === 0;
-                // Only render the row for even indices or when it's the last item and odd
-                if (!isEvenIndex) return null;
+          {/* Third Section: Total Hours and Shoot Chargers */}
+          <div className="">
+            {/* <div className="flex items-end gap-6">
+              <div className="w-[475px]">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Total Hours</label>
+                <SmartInputBox
+                  value={formData.total_hrs}
+                  onChange={(value) => handleInputChange('total_hrs', value)}
+                  placeholder="Enter total hours (e.g., 8.5)"
+                  label=""
+                  className={`w-[100px]  ${
+                    fieldErrors.total_hrs ? 'border-red-500' : ''
+                  }`}
+                />
+                {fieldErrors.total_hrs && (
+                  <p className="text-red-500 text-xs mt-1">{fieldErrors.total_hrs}</p>
+                )}
+              </div>
+            </div> */}
 
-                const nextCharger = shootChargers[index + 1];
-
-                return (
-                  <div key={`charger-row-${Math.floor(index / 2)}`} className="grid grid-cols-2 gap-6">
-                    {/* First Charger in the Row */}
-                    <div className="bg-gray-50 p-3 rounded-md">
-                      <div className="grid grid-cols-12 gap-3">
-                        <div className="col-span-5">
-                          <SmartDropdown
-                            options={shootChargerOptions}
-                            value={charger.type}
-                            onChange={(value) => {
-                              const newValue = Array.isArray(value) ? value[0] : value;
-                              handleShootChargerChange(index, 'type', newValue);
-                            }}
-                            placeholder="Select Type"
-                            enableAddNew={true}
-                            addNewLabel="+ Add Type"
-                            addNewPlaceholder="Enter charger type"
-                            onAddNew={handleAddNewShootCharger}
-                            className="w-full"
-                          />
-                        </div>
-                        <div className="col-span-5">
-                          <SmartInputBox
-                            value={charger.value}
-                            onChange={(value) => handleShootChargerChange(index, 'value', value)}
-                            placeholder="Enter amount"
-                            label=""
-                          />
-                        </div>
-                        <div className="col-span-2 flex items-end pb-1">
-                          {shootChargers.length > 1 && (
-                            <Button
-                              onClick={() => removeShootCharger(index)}
-                              variant="outline"
-                              size="s"
-                              className="w-full h-[35px]"
+            {/* Product Links Section - NEWLY ADDED */}
+            <div className="mb-6">
+              <h3 className="text-[12px] font-medium text-gray-500 mb-1">Product Links</h3>
+              <div className="space-y-4">
+                {product_link.map((row, rowIdx) => (
+                  <div
+                    key={rowIdx}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start bg-gray-50 p-4 rounded-lg border border-gray-200"
+                  >
+                    {row.map((link, colIdx) => (
+                      <div
+                        key={colIdx}
+                        className="relative flex items-center w-full"
+                        onClick={(e: React.MouseEvent) => {
+                          if (e.ctrlKey && link.trim()) {
+                            const url = link.startsWith("http") ? link : `https://${link}`;
+                            window.open(url, "_blank");
+                          }
+                        }}
+                      >
+                        <SmartInputBox
+                          value={link}
+                          onChange={(value) => handleProductLinkChange(rowIdx, colIdx, value)}
+                          placeholder={`Product link ${rowIdx * 2 + colIdx + 1}`}
+                          label=""
+                          className="w-full"
+                        />
+                        {/* Remove Button (for each input) */}
+                        <button
+                          type="button"
+                          className="ml-2 px-2 py-1 rounded bg-red-100 text-red-700 text-xs hover:bg-red-200"
+                          onClick={() => removeProductLink(rowIdx, colIdx)}
+                        >
+                          −
+                        </button>
+                        {/* Plus Button (only beside the last input of the last row) */}
+                        {rowIdx === product_link.length - 1 &&
+                          colIdx === row.length - 1 && (
+                            <button
+                              type="button"
+                              className={`ml-2 px-2 py-1 rounded text-xs transition-colors ${!link.trim() ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                              onClick={() => addProductLinkNext(rowIdx, colIdx)}
+                              disabled={!link.trim()}
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </Button>
+                              +
+                            </button>
                           )}
-                        </div>
                       </div>
-                    </div>
-
-                    {/* Second Charger in the Row (if exists) */}
-                    {nextCharger && (
-                      <div className="bg-gray-50 p-3 rounded-md">
-                        <div className="grid grid-cols-12 gap-3">
-                          <div className="col-span-5">
-                            <SmartDropdown
-                              options={shootChargerOptions}
-                              value={nextCharger.type}
-                              onChange={(value) => {
-                                const newValue = Array.isArray(value) ? value[0] : value;
-                                handleShootChargerChange(index + 1, 'type', newValue);
-                              }}
-                              placeholder="Select Type"
-                              enableAddNew={true}
-                              addNewLabel="+ Add Type"
-                              addNewPlaceholder="Enter charger type"
-                              onAddNew={handleAddNewShootCharger}
-                              className="w-full"
-                            />
-                          </div>
-                          <div className="col-span-5">
-                            <SmartInputBox
-                              value={nextCharger.value}
-                              onChange={(value) => handleShootChargerChange(index + 1, 'value', value)}
-                              placeholder="Enter amount"
-                              label=""
-                            />
-                          </div>
-                          <div className="col-span-2 flex items-end pb-1">
-                            {shootChargers.length > 1 && (
-                              <Button
-                                onClick={() => removeShootCharger(index + 1)}
-                                variant="outline"
-                                size="s"
-                                className="w-full h-[35px]"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    ))}
                   </div>
-                );
-              })}
-              
-              <div className="mt-4">
-                <Button
-                  onClick={addNewShootCharger}
-                  variant="outline"
-                  size="s"
-                  className="w-full"
+                ))}
+              </div>
+            </div>
+
+            {/* Shoot Chargers Section */}
+<div className="">
+  <h3 className="text-[12px] font-medium text-gray-500 mb-2 flex items-center gap-2">
+    Shoot Charges
+  </h3>
+
+  <div className="space-y-4">
+    {/* Grid for charge cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {shootChargers.map((charge, index) => {
+        const optionsForThisCharge = getShootChargerOptionsForIndex(index);
+        return (
+          <div
+            key={index}
+            className="relative bg-white border border-gray-200 shadow-sm rounded-xl p-4 transition-all duration-200"
+          >
+            {/* Remove Button */}
+            {shootChargers.length > 1 && (
+              <button
+                onClick={() => removeShootCharger(index)}
+                className="absolute -top-3 -right-3 bg-white border border-gray-300 text-gray-400 hover:text-red-500 rounded-full focus:outline-none w-7 h-7 flex items-center justify-center shadow"
+                title="Remove charge"
+                type="button"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  + Add Shoot Charger
-                </Button>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+
+            {/* Card Content */}
+            <div className="flex flex-col gap-3">
+              {/* Type and Amount in one line */}
+              <div className="flex flex-wrap items-end gap-4">
+                {/* Charge Type Dropdown */}
+                <div className="flex-1 min-w-[160px]">
+                  <SmartDropdown
+                    options={optionsForThisCharge}
+                    value={charge.type}
+                    onChange={(value) => {
+                      const newValue = Array.isArray(value) ? value[0] : value;
+                      handleShootChargerChange(index, 'type', newValue);
+                    }}
+                    placeholder="Select Type"
+                    enableAddNew={true}
+                    label="Charge Type"
+                    addNewLabel="+ Add Type"
+                    addNewPlaceholder="Enter charge type"
+                    onAddNew={handleAddNewShootCharger}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Amount Input with Paid/Unpaid Badge beside label */}
+                <div className="w-36">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-medium text-gray-600">
+                      Amount (₹)
+                    </label>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        charge.paid
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}
+                    >
+                      {charge.paid ? 'Paid' : 'Unpaid'}
+                    </span>
+                  </div>
+
+                  <SmartInputBox
+                    value={charge.value}
+                    onChange={(value) =>
+                      handleShootChargerChange(index, 'value', value)
+                    }
+                    className="w-full"
+                    disabled={charge.type === ''}
+                  />
+                </div>
+              </div>
+
+              {/* Paid Status Toggle */}
+              <div className="flex items-center justify-between mt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={charge.paid}
+                    onChange={() => togglePaidStatus(index)}
+                    className="form-checkbox h-4 w-4 accent-gray-500 border-gray-300 rounded focus:ring-2 focus:ring-gray-300 outline-none"
+                  />
+                  <span
+                    className={`text-sm ${
+                      charge.paid ? 'text-green-600' : 'text-gray-500'
+                    }`}
+                  >
+                    {charge.paid ? 'Mark as Unpaid' : 'Mark as Paid'}
+                  </span>
+                </label>
               </div>
             </div>
           </div>
+        );
+      })}
+    </div>
+
+    {/* Add New Charge Button */}
+  <div className="pt-0">
+      <Button
+        onClick={addNewShootCharger}
+        variant="outline"
+        size="s"
+        className="w-full flex items-center justify-center gap-2 transition"
+        disabled={
+          !(
+            shootChargers.length > 0 &&
+            shootChargers[shootChargers.length - 1].type !== '' &&
+            shootChargers[shootChargers.length - 1].value
+          )
+        }
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          />
+        </svg>
+        Add New Charge
+      </Button>
+    </div>
+  </div>
+</div>
 
 
+
+          </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t bg-gray-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-3 border-t bg-gray-50">
           <Button
             onClick={handleCancel}
             variant="outline"

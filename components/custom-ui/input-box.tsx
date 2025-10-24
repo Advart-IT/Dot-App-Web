@@ -17,6 +17,7 @@ interface SmartInputBoxProps {
     label?: string;
     rows?: number;
     readOnly?: boolean; // Add this to make the input/textarea read-only
+    disabled?: boolean; // Add this to disable the input/textarea
     maxHeight?: number | string;
     autoExpand?: boolean;
     overflowBehavior?: 'scroll' | 'toggle';
@@ -47,6 +48,7 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
             label,
             rows = 1,
             readOnly = false, // Add this to make the input/textarea read-only
+            disabled = false, // Add this to disable the input/textarea
             maxHeight,
             autoExpand = false,
             overflowBehavior = 'scroll',
@@ -254,16 +256,17 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                                 onChange={handleChange}
                                 placeholder={placeholder}
                                 rows={rows}
-                                readOnly={readOnly} // Make textarea read-only if specified
+                                readOnly={readOnly}
+                                disabled={disabled}
                                 onBlur={handleBlur}
                                 onKeyDown={handleKeyDown}
                                 onClick={() => {
                                     if (overflowBehavior === 'toggle' && !expanded) {
-                                        setExpanded(true); // Expand the textarea on click
+                                        setExpanded(true);
                                     }
                                 }}
                                 className={`${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName}`}
-                                style={{ flex: 1 }} // Allow textarea to occupy remaining space
+                                style={{ flex: 1 }}
                             />
                         ) : (
                             <input
@@ -271,12 +274,12 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                                 value={value}
                                 onChange={handleChange}
                                 placeholder={placeholder}
-                                readOnly={readOnly} // Make textarea read-only if specified
+                                readOnly={readOnly}
+                                disabled={disabled}
                                 onBlur={handleBlur}
                                 onKeyDown={handleKeyDown}
                                 className={`${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName}`}
-                                //className={`${inputClassName || baseinputClassName} ${readOnly ? 'bg-gray-100 focus:ring-0 focus:outline-none' : 'focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200 ease-in-out'}`}
-                                style={{ flex: 1 }} // Allow input to occupy remaining space
+                                style={{ flex: 1 }}
                             />
                         )}
 
