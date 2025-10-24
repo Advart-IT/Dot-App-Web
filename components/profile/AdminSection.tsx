@@ -364,10 +364,11 @@ export default function AdminSection({ userData: initialUserData }: AdminSection
       });
       setDataPermissions(initialDataPermissions);
 
-      // Initialize admin permissions from current user's permissions
-      const currentUserBrandAdmin = initialUserData.permissions.brand_admin || false;
-      const currentUserReportrixAdmin = initialUserData.permissions.reportrix_admin || false;
-      const currentUserGeneralAdmin = initialUserData.permissions.admin || false;
+  // Initialize admin permissions from current user's permissions
+  const perms = initialUserData.permissions || {};
+  const currentUserBrandAdmin = perms.brand_admin || false;
+  const currentUserReportrixAdmin = perms.reportrix_admin || false;
+  const currentUserGeneralAdmin = perms.admin || false;
       
       setBrandAdmin(currentUserBrandAdmin);
       setReportrixAdmin(currentUserReportrixAdmin);

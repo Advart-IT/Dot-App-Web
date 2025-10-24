@@ -195,7 +195,7 @@ export default function UserProfile({ userData: initialUserData }: UserProfilePr
 
   return (
     <div className="w-full p-4 bg-white">
-      {/* Profile Section */}
+      {/* Profile Section - always visible */}
       <div className="mb-4 border border-gray-300 rounded-lg">
         <div className="flex justify-between items-center p-3 bg-gray-50 border-b border-gray-300 rounded-t-lg">
           <h2 className="text-sm font-medium">Profile Section</h2>

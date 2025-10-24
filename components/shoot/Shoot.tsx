@@ -729,22 +729,30 @@ export default function ShootModal({
                 placeholder="Enter product covered"
                 label="Product Covered"
                 rows={3}
-                className={` ${fieldErrors.productCovered ? 'border-red-500' : ''}`}
+                autoExpand={false}
+                maxHeight={72}
+                overflowBehavior="scroll"
+                textareaClassName={`w-full p-2 border rounded-md resize-none ${fieldErrors.productCovered ? 'border-red-500' : ''}`}
+                className=""
               />
               {fieldErrors.productCovered && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.productCovered}</p>
               )}
             </div>
-              <div>
+            <div>
               <SmartInputBox
                 value={formData.media_assest}
                 onChange={(value) => handleInputChange('media_assest', value)}
                 placeholder="Enter media assets status"
                 label="Media Assets"
                 rows={3}
-                className={` ${fieldErrors.media_assest ? 'border-red-500' : ''}`}
+                autoExpand={false}
+                maxHeight={72}
+                overflowBehavior="scroll"
+                textareaClassName={`w-full p-2 border rounded-md resize-none ${fieldErrors.media_assest ? 'border-red-500' : ''}`}
+                className=""
               />
-              {fieldErrors.media_assest && ( // Added error display
+              {fieldErrors.media_assest && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.media_assest}</p>
               )}
             </div>
