@@ -578,16 +578,14 @@ export default function ShootModal({
   };
 
   if (!isOpen) return null;
-
   return (
-
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-10">
-      <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+    <div className="fixed top-0 left-0 w-full h-full z-50 flex items-center justify-center" style={{ backdropFilter: 'blur(8px)', background: 'rgba(30, 30, 30, 0.35)' }}>
+      <div ref={modalRef} className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col border border-gray-200" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
         {/* Modal Header with Brand next to title */}
-        <div className="flex items-center justify-between px-6 py-3 border-b flex-shrink-0 gap-4">
-          <div className="flex flex-wrap md:flex-nowrap items-center gap-4 md:gap-6">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 flex-shrink-0 gap-4 bg-gradient-to-r from-white via-gray-50 to-white rounded-t-2xl">
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-4 md:gap-8">
             {/* Title */}
-            <h2 className="text-xl font-semibold text-gray-900 whitespace-nowrap">
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight whitespace-nowrap" style={{ letterSpacing: '-0.5px' }}>
               {editData ? 'Edit Shoot' : 'New Shoot'}
             </h2>
 
@@ -606,7 +604,7 @@ export default function ShootModal({
                   handleInputChange('brand', newValue);
                 }}
                 placeholder="Select Brand"
-                className={`min-w-[160px] ${fieldErrors.brand ? 'border-red-500' : ''}`}
+                className={`min-w-[160px] ${fieldErrors.brand ? 'border-red-500' : 'border-gray-300'} bg-white rounded-lg shadow-sm px-2 py-1`}
               />
               {fieldErrors.brand && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.brand}</p>
@@ -616,7 +614,8 @@ export default function ShootModal({
 
           <button
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-700 transition-colors rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            style={{ background: 'rgba(245,245,245,0.7)' }}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -625,18 +624,19 @@ export default function ShootModal({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6  flex-1 overflow-y-auto">
+        <div className="px-8 py-7 flex-1 overflow-y-auto bg-white rounded-b-2xl" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
           {/* First Line: Date, Total Hours, Photographer, Model Name (4 columns) */}
           <div className="grid grid-cols-4 gap-6 mb-6">
             <div>
-              <label className="block text-xs  text-gray-500 mb-1">Date</label>
+              <label className="block text-xs text-gray-500 mb-1">Date</label>
               <input
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange('date', e.target.value)}
-                className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full h-[40px] px-3 border rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-base ${
                   fieldErrors.date ? 'border-red-500' : 'border-gray-300'
                 }`}
+                style={{ minHeight: '40px' }}
               />
               {fieldErrors.date && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.date}</p>
@@ -783,12 +783,6 @@ export default function ShootModal({
                       <div
                         key={colIdx}
                         className="relative flex items-center w-full"
-                        onClick={(e: React.MouseEvent) => {
-                          if (e.ctrlKey && link.trim()) {
-                            const url = link.startsWith("http") ? link : `https://${link}`;
-                            window.open(url, "_blank");
-                          }
-                        }}
                       >
                         <SmartInputBox
                           value={link}
@@ -797,6 +791,27 @@ export default function ShootModal({
                           label=""
                           className="w-full"
                         />
+                        {/* External Link SVG Icon */}
+                        <button
+                          type="button"
+                          className="ml-2 px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs hover:bg-blue-100"
+                          style={{ display: 'flex', alignItems: 'center' }}
+                          onClick={() => {
+                            if (link.trim()) {
+                              const url = link.match(/^https?:\/\//) ? link : `https://${link}`;
+                              window.open(url, "_blank");
+                            }
+                          }}
+                          tabIndex={-1}
+                          aria-label="Open link"
+                          disabled={!link.trim()}
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 20, height: 20 }}>
+                            <path d="M7.5 3.75H4.16667C3.24619 3.75 2.5 4.49619 2.5 5.41667V15.4167C2.5 16.3371 3.24619 17.0833 4.16667 17.0833H14.1667C15.0871 17.0833 15.8333 16.3371 15.8333 15.4167V12.0833" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M13.3333 2.5H17.5V6.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8.33333 11.6667L17.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
                         {/* Remove Button (for each input) */}
                         <button
                           type="button"
@@ -907,9 +922,15 @@ export default function ShootModal({
 
                   <SmartInputBox
                     value={charge.value}
-                    onChange={(value) =>
-                      handleShootChargerChange(index, 'value', value)
-                    }
+                    onChange={(value) => {
+                      // Only allow numbers and a single decimal point
+                      let filtered = value.replace(/[^\d.]/g, '');
+                      const parts = filtered.split('.');
+                      if (parts.length > 2) {
+                        filtered = parts[0] + '.' + parts.slice(1).join('');
+                      }
+                      handleShootChargerChange(index, 'value', filtered);
+                    }}
                     className="w-full"
                     disabled={charge.type === ''}
                   />
@@ -981,43 +1002,42 @@ export default function ShootModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-3 border-t bg-gray-50">
-          <Button
-            onClick={handleCancel}
-            variant="outline"
-            size="m"
-            disabled={saving}
-            style={{ order: 1 }}
-          >
-            Cancel
-          </Button>
-          {editData && (
+        <div className="flex items-center justify-end gap-4 px-8 py-5 border-t border-gray-100 bg-gradient-to-r from-white via-gray-50 to-white rounded-b-2xl">
+          <div className="flex items-center gap-2 mr-auto">
             <Button
-              onClick={() => setShowDeleteModal(true)}
-              variant="danger"
+              onClick={handleCancel}
+              variant="outline"
               size="m"
               disabled={saving}
-              style={{ order: 2, marginRight: 'auto' }}
             >
-              Delete
+              Cancel
             </Button>
-          )}
+            {editData && (
+              <Button
+                onClick={() => setShowDeleteModal(true)}
+                variant="danger"
+                size="m"
+                disabled={saving}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
           <Button
             onClick={handleSubmit}
             variant="primary"
             size="m"
             disabled={saving}
-            style={{ order: 3 }}
           >
             {saving ? 'Saving...' : editData ? 'Update Shoot' : 'Save Shoot'}
           </Button>
           {/* Delete confirmation modal */}
           {showDeleteModal && editData && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-              <div className="bg-white rounded-lg shadow-xl p-6 min-w-[320px]">
-                <h3 className="text-lg font-semibold mb-4">Delete Shoot Confirmation</h3>
-                <p className="mb-6">Are you sure you want to delete this shoot for <b>{editData.brand}</b> on {editData.date}?</p>
-                <div className="flex justify-end gap-3">
+            <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backdropFilter: 'blur(4px)', background: 'rgba(30,30,30,0.18)' }}>
+              <div className="bg-white rounded-2xl shadow-2xl p-8 min-w-[320px] border border-gray-200">
+                <h3 className="text-xl font-bold mb-4 text-gray-900">Delete Shoot Confirmation</h3>
+                <p className="mb-6 text-gray-700">Are you sure you want to delete this shoot for <b>{editData.brand}</b> on {editData.date}?</p>
+                <div className="flex justify-end gap-4">
                   <Button variant="outline" size="m" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
                   <Button variant="danger" size="m" onClick={() => { setShowDeleteModal(false); onRequestDelete?.(editData); }}>Delete</Button>
                 </div>
