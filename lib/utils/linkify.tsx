@@ -19,11 +19,10 @@ export function LinkifiedInputBox({
   minHeight = "80px"
 }: LinkifiedInputBoxProps) {
   const divRef = useRef<HTMLDivElement>(null);
-  const [isFocused, setIsFocused] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // URL regex pattern
-  const urlRegex = /(https?:\/\/[^\s<>"'()]+)/g;
+  const [isFocused, setIsFocused] = useState(false);
+  // Improved URL regex: https://, http://, www., or any word containing .com/.in
+  const urlRegex = /((https?:\/\/|http?:\/\/|www\.)[^\s<>'"()]+|\b[^\s<>'"()]*\.(com|in)\b[^\s<>'"()]*)/gi;
 
   // Convert plain text to HTML with links
   const linkify = (text: string): string => {
@@ -46,8 +45,12 @@ export function LinkifiedInputBox({
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&quot;/g, '"');
-      
-      return `<a href="${decodedUrl}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;word-break:break-all;">${url}</a>`;
+      // Add protocol if missing for www. or .com/.in
+      let href = decodedUrl;
+      if (!/^https?:\/\//i.test(href)) {
+        href = 'https://' + href.replace(/^www\./i, 'www.');
+      }
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;word-break:break-all;">${url}</a>`;
     }).replace(/\n/g, "<br>");
   };
 
@@ -241,7 +244,8 @@ interface LinkifiedTextSafeProps {
 export function LinkifiedTextSafe({ text, className = "" }: LinkifiedTextSafeProps) {
   if (!text) return null;
 
-  const urlRegex = /(https?:\/\/[^\s<>"'()]+)/g;
+  // Improved URL regex: https://, http://, www., or any word containing .com/.in
+  const urlRegex = /((https?:\/\/|http?:\/\/|www\.)[^\s<>'"()]+|\b[^\s<>'"()]*\.(com|in)\b[^\s<>'"()]*)/gi;
   const parts: React.ReactNode[] = [];
   let key = 0;
 
@@ -262,12 +266,15 @@ export function LinkifiedTextSafe({ text, className = "" }: LinkifiedTextSafePro
           </span>
         );
       }
-
       // Add the link
+      let href = match[0];
+      if (!/^https?:\/\//i.test(href)) {
+        href = 'https://' + href.replace(/^www\./i, 'www.');
+      }
       parts.push(
         <a
           key={`link-${key++}`}
-          href={match[0]}
+          href={href}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline break-all"
@@ -275,7 +282,6 @@ export function LinkifiedTextSafe({ text, className = "" }: LinkifiedTextSafePro
           {match[0]}
         </a>
       );
-
       lastIndex = match.index + match[0].length;
     }
 
