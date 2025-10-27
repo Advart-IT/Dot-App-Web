@@ -207,8 +207,12 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.brand || 'N/A'}</td>
                 {/* Photographer */}
                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.photographer_name || 'N/A'}</td>
-                {/* Model */}
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{shoot.model_name || 'N/A'}</td>
+                {/* Model(s) */}
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {Array.isArray(shoot.model_names) && shoot.model_names.length > 0
+                    ? `${shoot.model_names[0]}${shoot.model_names.length > 1 ? ', +' + (shoot.model_names.length - 1) : ''}`
+                    : 'N/A'}
+                </td>
                 {/* Products Covered */}
                 <td className="px-4 py-4 text-sm text-gray-900">
                   <div className="max-w-[200px] truncate" title={shoot.products_covered || 'N/A'}>{shoot.products_covered || 'N/A'}</div>

@@ -984,12 +984,6 @@ export default function UserComponent({
             <h2 className="text-[20px] font-bold text-gray-900">
               {isCreating ? 'Create New Profile' : 'Profile Details'}
             </h2>
-            {/* Only show saving indicator for explicit actions, not background auto-saves (like tags) */}
-            {saving && !backgroundSaving && (
-              <p className="text-sm text-blue-600 mt-1">
-                {isCreating ? 'Creating...' : 'Saving...'}
-              </p>
-            )}
           </div>
 
           <div className="flex items-center space-x-4">
@@ -1066,16 +1060,15 @@ export default function UserComponent({
                         const newValue = Array.isArray(value) ? value[0] : value;
                         handleContactChange(index, 'type', newValue);
                       }}
-                        // Do not auto-save on dropdown change; only update state
                       placeholder="Select contact type"
                       enableAddNew={true}
                       addNewLabel="+ Add Contact Type"
                       addNewPlaceholder="Enter new contact type"
                       onAddNew={handleAddNewContact}
-                      className="w-full" // Keep it full width for responsiveness, but it will visually be constrained by the grid
+                      className="w-full"
                     />
                   </div>
-                  <div className="col-span-8 pt-0.5">
+                  <div className="col-span-8 pt-0.5 flex items-center gap-2">
                     <SmartInputBox
                       value={contact.value}
                       onChange={(value) => handleContactChange(index, 'value', value)}
@@ -1094,6 +1087,28 @@ export default function UserComponent({
                       className="w-full"
                       disabled={!contact.type}
                     />
+                    {/* Link icon for social contacts */}
+                    {['Instagram', 'Facebook', 'YouTube', 'LinkedIn'].includes(contact.type) && contact.value.trim() && (
+                      <button
+                        type="button"
+                        className="ml-2 text-blue-500 hover:text-blue-700"
+                        title={`Open ${contact.type} link`}
+                        onClick={() => {
+                          let url = contact.value.trim();
+                          if (!/^https?:\/\//i.test(url)) {
+                            url = 'https://' + url;
+                          }
+                          window.open(url, '_blank');
+                        }}
+                      >
+                        {/* Same SVG as in Shoot modal */}
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 20, height: 20 }}>
+                            <path d="M7.5 3.75H4.16667C3.24619 3.75 2.5 4.49619 2.5 5.41667V15.4167C2.5 16.3371 3.24619 17.0833 4.16667 17.0833H14.1667C15.0871 17.0833 15.8333 16.3371 15.8333 15.4167V12.0833" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M13.3333 2.5H17.5V6.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8.33333 11.6667L17.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                      </button> 
+                    )}
                   </div>
                   <div className="col-span-1 flex items-end">
                     {contacts.length > 1 && (
@@ -1102,9 +1117,9 @@ export default function UserComponent({
                           console.log(`Removing contact at index ${index}`);
                           removeContact(index);
                         }}
-                        variant="outline" // Or "ghost" if available and preferred
+                        variant="outline"
                         size="s"
-                        className="w-full h-9" // Adjust height to match input boxes if needed
+                        className="w-full h-9"
                       >
                         {/* Trash/Dustbin Icon */}
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

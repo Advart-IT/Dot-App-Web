@@ -6,7 +6,7 @@ import SmartInputBox from '@/components/custom-ui/input-box';
 import SmartDropdown from '@/components/custom-ui/dropdown-with-add';
 import SimpleDropdown from '@/components/custom-ui/dropdown2';
 import { useUser } from '@/hooks/usercontext';
-import { getProfilesList, type ProfileListItem } from '@/lib/user/user';
+import { getProfilesList, type ProfileListItem, addNewShootChargerType } from '@/lib/user/user';
 import { ShootResponse as BaseShootResponse, createShoot, updateShoot } from '@/lib/shoot/shoot-api';
 
 // Extend ShootResponse to include product_link for frontend type safety
@@ -60,11 +60,21 @@ export default function ShootModal({
   };
 
   // Form state
-  const [formData, setFormData] = useState({
+  interface ShootFormData {
+    date: string;
+    brand: string;
+    photographer: string;
+    model: string[];
+    productCovered: string;
+    total_hrs: string;
+    media_assest: string;
+  }
+
+  const [formData, setFormData] = useState<ShootFormData>({
     date: '',
     brand: '', // Initialize as empty string
     photographer: '', // Will store profile ID as string
-    model: '', // Will store profile ID as string  
+    model: [], // Will store profile IDs as array for multi-select
     productCovered: '',
     total_hrs: '',
     media_assest: '' // Renamed/used for "Media Assets"
@@ -138,28 +148,62 @@ export default function ShootModal({
           date: editData.date,
           brand: editData.brand || '',
           photographer: editData.photographer?.toString() || '',
-          model: editData.model?.toString() || '',
+          model: Array.isArray(editData.model)
+            ? editData.model.map(m => m.toString())
+            : (editData.model ? [(editData.model as string | number).toString()] : []),
           productCovered: editData.products_covered || '',
           total_hrs: editData.total_hrs || '',
           media_assest: editData.media_assest || ''
         });
+        // New logic for shoot_charges with models key
         if (editData.shoot_charges) {
-          const chargers = Object.entries(editData.shoot_charges).map(([type, value]) => {
-            if (Array.isArray(value) && value.length === 2) {
+          let chargers: ShootChargerForm[] = [];
+          // If models key exists, map model_names to charges
+          if (editData.shoot_charges.models && Array.isArray(editData.model_names)) {
+            chargers = editData.model_names.map((modelName: string) => {
+              const valueArr = editData.shoot_charges?.models?.[modelName] || ["", false];
               return {
-                type,
-                value: value[0].toString(),
-                paid: !!value[1]
+                type: 'model',
+                value: valueArr[0]?.toString() ?? '',
+                paid: !!valueArr[1]
               };
-            } else {
-              // fallback for legacy format
-              return {
-                type,
-                value: value.toString(),
-                paid: false
-              };
-            }
-          });
+            });
+            // Add other charges (non-model)
+            Object.entries(editData.shoot_charges).forEach(([type, value]) => {
+              if (type !== 'models') {
+                if (Array.isArray(value) && value.length === 2) {
+                  chargers.push({
+                    type,
+                    value: value[0].toString(),
+                    paid: !!value[1]
+                  });
+                } else {
+                  chargers.push({
+                    type,
+                    value: value.toString(),
+                    paid: false
+                  });
+                }
+              }
+            });
+          } else {
+            // fallback for legacy format
+            chargers = Object.entries(editData.shoot_charges).map(([type, value]) => {
+              if (Array.isArray(value) && value.length === 2) {
+                return {
+                  type,
+                  value: value[0].toString(),
+                  paid: !!value[1]
+                };
+              } else {
+                return {
+                  type,
+                  value: value.toString(),
+                  paid: false
+                };
+              }
+            });
+          }
           setShootChargers(chargers.length > 0 ? chargers : [{ type: '', value: '', paid: false }]);
         } else {
           setShootChargers([{ type: '', value: '', paid: false }]);
@@ -172,7 +216,7 @@ export default function ShootModal({
           date: '',
           brand: '', // Initialize as empty string
           photographer: '',
-          model: '',
+          model: [],
           productCovered: '',
           total_hrs: '',
           media_assest: ''
@@ -240,7 +284,9 @@ export default function ShootModal({
               date: formData.date,
               brand: formData.brand,
               photographer: isNaN(Number(formData.photographer)) ? undefined : Number(formData.photographer),
-              model: isNaN(Number(formData.model)) ? undefined : Number(formData.model),
+              model: Array.isArray(formData.model)
+                ? formData.model.map(m => isNaN(Number(m)) ? undefined : Number(m)).filter(m => m !== undefined)
+                : (formData.model ? [Number(formData.model)] : []),
               products_covered: formData.productCovered,
               total_hrs: formData.total_hrs,
               media_assest: formData.media_assest, // Use media_assest field
@@ -282,7 +328,7 @@ export default function ShootModal({
   }, [isOpen, formData, editData, shootChargers, product_link, onClose, onError]);
 
   // Handle form input changes
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = (field: keyof ShootFormData, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -359,8 +405,11 @@ export default function ShootModal({
   // Handle adding new shoot charger type
   const handleAddNewShootCharger = async (newShootChargerType: string) => {
     try {
-      // Add the new shoot charger type to local state
+      // Optimistically add to local state for instant UI feedback
       setLocalShootChargerTypes(prev => [...prev, newShootChargerType]);
+      // Save to backend
+      await addNewShootChargerType(newShootChargerType);
+      // Optionally, update user context dropdowns if needed (not shown here)
     } catch (error) {
       console.error('Error adding new shoot charger:', error);
       onError(error instanceof Error ? error.message : 'Failed to add new shoot charger');
@@ -434,29 +483,68 @@ export default function ShootModal({
       profile.tag && Array.isArray(profile.tag) && 
       profile.tag.some((tag: string) => tag.toLowerCase().includes('model'))
     );
-    
     const profileOptions = modelProfiles.map((profile: ProfileListItem) => ({
       label: profile.name,
       value: profile.s_no.toString()
     }));
-    
     return profileOptions;
   }, [profiles]);
+
+  // Select 'model' by default in model dropdown if available
+  useEffect(() => {
+    if (isOpen && modelOptions.length > 0 && !formData.model.length) {
+      // If there is a model with label 'model', select it by default
+      const defaultModel = modelOptions.find(opt => opt.label.toLowerCase() === 'model');
+      if (defaultModel) {
+        setFormData(prev => ({ ...prev, model: [defaultModel.value] }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, modelOptions]);
+
+  // Reorder shootChargers so model cards always come first, and other charges follow
+  useEffect(() => {
+    // Only run if there are models selected
+    if (formData.model && formData.model.length > 0) {
+      // Build new shootChargers: first N for models, rest for other charges
+      const modelCount = formData.model.length;
+      // Find all non-model charges (skip first N, and any with type !== 'model')
+      const otherCharges = shootChargers
+        .map((c, idx) => (idx >= modelCount || c.type !== 'model' ? c : null))
+        .filter(Boolean);
+      // Build model charges (preserve values if already present)
+      const modelCharges = formData.model.map((mid, idx) => {
+        // Try to find an existing model charge for this index
+        const existing = shootChargers[idx] && shootChargers[idx].type === 'model' ? shootChargers[idx] : null;
+        return existing || { type: 'model', value: '', paid: false };
+      });
+      // Only update if the order is wrong or model count changed
+      const newShootChargers = [...modelCharges, ...otherCharges].filter((c): c is ShootChargerForm => c !== null);
+      // Only update if different
+      if (JSON.stringify(newShootChargers) !== JSON.stringify(shootChargers)) {
+        setShootChargers(newShootChargers);
+      }
+    }
+  }, [formData.model]);
 
   // Prepare shoot charger options (global, for all charges)
   const shootChargerOptionsGlobal = useMemo(() => {
     const userShootChargers = user?.dropdowns?.shoot_chargers || [];
-    const allShootChargers = [...new Set([...userShootChargers, ...localShootChargerTypes])];
-    return allShootChargers.map((item: string) => ({ label: item, value: item }));
+    // Merge user shoot chargers and local types, deduplicated
+    const allTypes = Array.from(new Set([...userShootChargers, ...localShootChargerTypes]));
+    return allTypes.map((item: string) => ({ label: item, value: item }));
   }, [user?.dropdowns?.shoot_chargers, localShootChargerTypes]);
 
-  // For each charge, filter out already selected types
+  // For each charge, filter out already selected types, but always include the current charge's type
   const getShootChargerOptionsForIndex = (index: number) => {
     const selectedTypes = shootChargers.map((charge, i) => i !== index ? charge.type : null).filter(Boolean);
-    return shootChargerOptionsGlobal.filter(opt => !selectedTypes.includes(opt.value));
+    let options = shootChargerOptionsGlobal.filter(opt => !selectedTypes.includes(opt.value));
+    const currentType = shootChargers[index]?.type;
+    if (currentType && !options.some(opt => opt.value === currentType)) {
+      options = [{ label: currentType, value: currentType }, ...options];
+    }
+    return options;
   };
-
-
 
   // Validate individual fields for required fields (used for both create and update)
   const validateFields = () => {
@@ -484,21 +572,64 @@ export default function ShootModal({
 
       setSaving(true);
 
+      // Normalize photographer to a single number (or undefined)
+      let normalizedPhotographer: number | undefined = undefined;
+      if (Array.isArray(formData.photographer)) {
+        // If for some reason it's an array, take the first value
+        const val = formData.photographer[0];
+        normalizedPhotographer = isNaN(Number(val)) ? undefined : Number(val);
+      } else {
+        normalizedPhotographer = isNaN(Number(formData.photographer)) ? undefined : Number(formData.photographer);
+      }
+
+      // Normalize model to an array of numbers
+      let normalizedModel: number[] = [];
+      if (Array.isArray(formData.model)) {
+        normalizedModel = formData.model.map(m => Number(m)).filter(m => !isNaN(m));
+      } else if (formData.model) {
+        const m = Number(formData.model);
+        if (!isNaN(m)) normalizedModel = [m];
+      }
+
+      // Console log for debugging
+      console.log('Submitting shoot with:', {
+        photographer: normalizedPhotographer,
+        photographerType: typeof normalizedPhotographer,
+        model: normalizedModel,
+        modelType: Array.isArray(normalizedModel) ? 'array' : typeof normalizedModel,
+        formData
+      });
+
       // Always use the latest product_link from ref
+      // Refactor shoot_charges: model charges under 'models', others as before
+      const shootChargesObj: Record<string, any> = {};
+      // If there are models, map their charges under 'models' key
+      if (normalizedModel.length > 0) {
+        shootChargesObj.models = {};
+        normalizedModel.forEach((mid, idx) => {
+          const charge = shootChargers[idx] || { value: '', paid: false };
+          // Find the model name from modelOptions
+          const modelObj = modelOptions.find(opt => String(opt.value) === String(mid));
+          const modelName = modelObj?.label || String(mid);
+          shootChargesObj.models[modelName] = [Number(charge.value) || 0, !!charge.paid];
+        });
+      }
+      // Add other charges (after model charges)
+      shootChargers.slice(normalizedModel.length).forEach((charger) => {
+        if (charger.type) {
+          shootChargesObj[charger.type] = [Number(charger.value) || 0, !!charger.paid];
+        }
+      });
+
       const submitData = {
         date: formData.date,
         brand: formData.brand,
-        photographer: isNaN(Number(formData.photographer)) ? undefined : Number(formData.photographer),
-        model: isNaN(Number(formData.model)) ? undefined : Number(formData.model),
+        photographer: normalizedPhotographer,
+        model: normalizedModel,
         products_covered: formData.productCovered,
         total_hrs: formData.total_hrs,
         media_assest: formData.media_assest,
-        shoot_charges: shootChargers.reduce((acc, charger) => {
-          if (charger.type && charger.value) {
-            acc[charger.type] = [Number(charger.value) || 0, !!charger.paid];
-          }
-          return acc;
-        }, {} as Record<string, [number, boolean]>),
+        shoot_charges: shootChargesObj,
         product_link: getValidProductLinks() // uses ref
       };
 
@@ -536,7 +667,9 @@ export default function ShootModal({
         formData.date !== editData.date ||
         formData.brand !== (editData.brand || '') ||
         formData.photographer !== (editData.photographer?.toString() || '') ||
-        formData.model !== (editData.model?.toString() || '') ||
+        JSON.stringify(formData.model) !== JSON.stringify(Array.isArray(editData.model)
+          ? editData.model.map(m => m.toString())
+          : (editData.model ? [(editData.model as string | number).toString()] : [])) ||
         formData.productCovered !== (editData.products_covered || '') ||
         formData.total_hrs !== (editData.total_hrs || '') ||
         formData.media_assest !== (editData.media_assest || '') ||
@@ -678,20 +811,24 @@ export default function ShootModal({
                   <span className="text-sm text-gray-500">Loading profiles...</span>
                 </div>
               ) : (
-                <SmartDropdown
-                  options={modelOptions}
-                  value={formData.model}
-                  label='Model'
-                  onChange={(value) => {
-                    const newValue = Array.isArray(value) ? value[0] : value;
-                    handleInputChange('model', newValue);
-                  }}
-                  placeholder="Select Model"
-                  enableAddNew={false} // Disable adding new models for now
-                  className={`w-full ${
-                    fieldErrors.model ? 'border-red-500' : ''
-                  }`}
-                />
+                <>
+                  <SmartDropdown
+                    options={modelOptions}
+                    value={formData.model}
+                    label='Model'
+                    onChange={(value) => {
+                      // Always set as array for multi-select
+                      const newValue = Array.isArray(value) ? value : [value];
+                      handleInputChange('model', newValue);
+                    }}
+                    placeholder="Select Model(s)"
+                    enableAddNew={false}
+                    multiSelector={true}
+                    className={`w-full ${
+                      fieldErrors.model ? 'border-red-500' : ''
+                    }`}
+                  />
+                </>
               )}
               {fieldErrors.model && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.model}</p>
@@ -847,72 +984,47 @@ export default function ShootModal({
               </div>
             </div>
 
-            {/* Shoot Chargers Section */}
 <div className="">
   <h3 className="text-[12px] font-medium text-gray-500 mb-2 flex items-center gap-2">
     Shoot Charges
   </h3>
 
   <div className="space-y-4">
-    {/* Grid for charge cards */}
+    {/* Grid for charge cards - always show at least one card */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      {shootChargers.map((charge, index) => {
-        const optionsForThisCharge = getShootChargerOptionsForIndex(index);
+      {/* Model charge cards */}
+      {formData.model.map((mid, index) => {
+        const modelObj = modelOptions.find(opt => opt.value === mid);
+        // Always set charge type to 'model' for model cards
+        const charge = shootChargers[index] || { type: 'model', value: '', paid: false };
+        // If not already 'model', set it
+        if (charge.type !== 'model') {
+          setTimeout(() => handleShootChargerChange(index, 'type', 'model'), 0);
+        }
         return (
           <div
-            key={index}
+            key={mid}
             className="relative bg-white border border-gray-200 shadow-sm rounded-xl p-4 transition-all duration-200"
           >
-            {/* Remove Button */}
-            {shootChargers.length > 1 && (
-              <button
-                onClick={() => removeShootCharger(index)}
-                className="absolute -top-3 -right-3 bg-white border border-gray-300 text-gray-400 hover:text-red-500 rounded-full focus:outline-none w-7 h-7 flex items-center justify-center shadow"
-                title="Remove charge"
-                type="button"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            )}
-
             {/* Card Content */}
             <div className="flex flex-col gap-3">
-              {/* Type and Amount in one line */}
+              {/* Charge Type Dropdown - fixed to 'model' and disabled */}
               <div className="flex flex-wrap items-end gap-4">
                 {/* Charge Type Dropdown */}
                 <div className="flex-1 min-w-[160px]">
                   <SmartDropdown
-                    options={optionsForThisCharge}
-                    value={charge.type}
-                    onChange={(value) => {
-                      const newValue = Array.isArray(value) ? value[0] : value;
-                      handleShootChargerChange(index, 'type', newValue);
-                    }}
+                    options={[{ label: 'model', value: 'model' }]}
+                    value={'model'}
+                    onChange={() => {}}
                     placeholder="Select Type"
-                    enableAddNew={true}
+                    enableAddNew={false}
                     label="Charge Type"
-                    addNewLabel="+ Add Type"
-                    addNewPlaceholder="Enter charge type"
-                    onAddNew={handleAddNewShootCharger}
                     className="w-full"
+                    disabled={true}
                   />
                 </div>
-
-                {/* Amount Input with Paid/Unpaid Badge beside label */}
-                <div className="w-36">
+                {/* Amount Input with Paid/Unpaid Badge beside label, aligned to top */}
+                <div className="w-36 flex flex-col justify-start">
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-medium text-gray-600">
                       Amount (₹)
@@ -927,11 +1039,9 @@ export default function ShootModal({
                       {charge.paid ? 'Paid' : 'Unpaid'}
                     </span>
                   </div>
-
                   <SmartInputBox
                     value={charge.value}
                     onChange={(value) => {
-                      // Only allow numbers and a single decimal point
                       let filtered = value.replace(/[^\d.]/g, '');
                       const parts = filtered.split('.');
                       if (parts.length > 2) {
@@ -940,13 +1050,13 @@ export default function ShootModal({
                       handleShootChargerChange(index, 'value', filtered);
                     }}
                     className="w-full"
-                    disabled={charge.type === ''}
                   />
                 </div>
               </div>
-
-              {/* Paid Status Toggle */}
-              <div className="flex items-center justify-between mt-1">
+              {/* Model name as a separate row below the charge type + amount row, with reduced upper and lower gap */}
+              <div className="text-[12px] text-gray-600 font-medium leading-tight mt-[2px] ml-1">{modelObj?.label || mid}</div>
+              {/* Paid Status Toggle, remove top margin for tighter layout */}
+              <div className="flex items-center justify-between mt-0">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -967,6 +1077,89 @@ export default function ShootModal({
           </div>
         );
       })}
+      {/* Other Charges cards (always at least one, even if model cards exist) */}
+      {(() => {
+        const otherCharges = shootChargers.slice(formData.model.length);
+        // Always show at least one blank card if none exist
+        const displayCharges = otherCharges.length > 0 ? otherCharges : [{ type: '', value: '', paid: false }];
+        return displayCharges.map((charge, idx) => {
+          const chargeIndex = formData.model.length + idx;
+          return (
+            <div
+              key={`other-charge-${chargeIndex}`}
+              className="relative bg-white border border-gray-200 shadow-sm rounded-xl p-4 transition-all duration-200"
+            >
+              {/* No heading for Other Charge */}
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-end gap-4">
+                  <div className="flex-1 min-w-[160px]">
+                    <SmartDropdown
+                      options={shootChargerOptionsGlobal.filter(opt => opt.value !== 'model')}
+                      value={charge.type || ''}
+                      onChange={(value) => {
+                        const newValue = Array.isArray(value) ? value[0] : value;
+                        handleShootChargerChange(chargeIndex, 'type', newValue);
+                      }}
+                      placeholder="Select Type"
+                      enableAddNew={true}
+                      addNewLabel={"+ Add New Charge Type"}
+                      addNewPlaceholder={"Enter new charge type"}
+                      onAddNew={handleAddNewShootCharger}
+                      label="Charge Type"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="w-36">
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-medium text-gray-600">
+                        Amount (₹)
+                      </label>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${
+                          charge.paid
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                      >
+                        {charge.paid ? 'Paid' : 'Unpaid'}
+                      </span>
+                    </div>
+                    <SmartInputBox
+                      value={charge.value}
+                      onChange={(value) => {
+                        let filtered = value.replace(/[^\d.]/g, '');
+                        const parts = filtered.split('.');
+                        if (parts.length > 2) {
+                          filtered = parts[0] + '.' + parts.slice(1).join('');
+                        }
+                        handleShootChargerChange(chargeIndex, 'value', filtered);
+                      }}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={charge.paid}
+                      onChange={() => togglePaidStatus(chargeIndex)}
+                      className="form-checkbox h-4 w-4 accent-gray-500 border-gray-300 rounded focus:ring-2 focus:ring-gray-300 outline-none"
+                    />
+                    <span
+                      className={`text-sm ${
+                        charge.paid ? 'text-green-600' : 'text-gray-500'
+                      }`}
+                    >
+                      {charge.paid ? 'Mark as Unpaid' : 'Mark as Paid'}
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          );
+        });
+      })()}
     </div>
 
     {/* Add New Charge Button */}

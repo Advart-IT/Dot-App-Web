@@ -2,7 +2,7 @@
 
 import React from "react";
 
-type ButtonVariant = "primary" | "outline" | "danger"  | "secondary" | "gray" | "text" | "link" | "icon";
+type ButtonVariant = "primary" | "outline" | "danger"  | "secondary" | "gray" | "text" | "link" | "icon" | "blue";
 type ButtonSize = "s" | "m" | "l" | "none";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,6 +19,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     primary: "bg-newprimary text-newsecondary hover:bg-newprimary/70",
     danger: "bg-dng text-themeBase hover:bg-dng/70 ",
     outline: "border border-themeBase-l2 bg-themeBase text-dtxt-d hover:border-newsecondary ",
+    blue : "bg-blue-500 text-white hover:bg-blue-600",
     secondary: "bg-newsecondary text-themeBase hover:bg-newsecondary/70",
     icon: "bg-transparent p-x5 hover:bg-themeBase-l2",
     gray: "bg-themeBase-l1 text-dtxt-d hover:bg-themeBase-l1/70",

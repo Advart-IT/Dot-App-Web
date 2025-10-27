@@ -1,3 +1,50 @@
+/**
+ * Add new shoot charge type using the content/dropdown API
+ * POST /api/v1/Content/dropdown
+ */
+export async function addNewShootChargerType(newType: string): Promise<AddDropdownItemResponse> {
+  try {
+    console.log('=== addNewShootChargerType Debug ===');
+    console.log('New shoot charger type:', newType);
+    console.log('API_URL:', API_URL);
+    const response = await fetch(`${API_URL}/api/v1/Content/dropdown`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        column: "shoot_chargers",
+        value: newType,
+        is_active: true
+      }),
+    });
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+    if (!response.ok) {
+      let errorMessage = `Failed to add new shoot charger type: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        console.error('Error response data:', errorData);
+        errorMessage = errorData.detail || errorMessage;
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+        errorMessage = `Failed to add new shoot charger type: ${response.status} ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+    const result = await response.json();
+    console.log('Add shoot charger type success response:', result);
+    return result;
+  } catch (error) {
+    console.error('Error adding new shoot charger type:', error);
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred while adding new shoot charger type');
+    }
+  }
+}
 export async function addNewAdditionalDetailType(newAdditionalDetailType: string): Promise<AddDropdownItemResponse> {
   try {
     console.log('=== addNewAdditionalDetailType Debug ===');

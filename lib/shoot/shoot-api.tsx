@@ -6,16 +6,13 @@ export interface ShootTargetBrandResult {
   start_date: string; // ISO date string (YYYY-MM-DD)
   end_date: string;   // ISO date string (YYYY-MM-DD)
 }
-
 export interface ShootTargetPrintResponse {
   results: ShootTargetBrandResult[];
 }
-
 export interface ShootTargetPrint {
   start_date: string; // ISO date string (YYYY-MM-DD)
   end_date: string;   // ISO date string (YYYY-MM-DD)
 }
-
 /**
  * Print active targets for brands within a date range, and show achieved count.
  * @param printData - { start_date, end_date }
@@ -41,13 +38,12 @@ export const printShootTargets = async (
   }
 };
 import { API_URL } from "../profile/apiurl";
-
 // Types based on Python Pydantic models
 export interface ShootCreate {
   date: string; // ISO date string (YYYY-MM-DD)
   brand?: string;
   photographer?: number; // Profile s_no of the photographer
-  model?: number; // Profile s_no of the model
+  model?: number[]; // Profile s_no(s) of the model(s)
   products_covered?: string;
   total_hrs?: string; // Total hours in decimal format (e.g., '8.50')
   shoot_charges?: Record<string, any>; // JSON object for shoot charges
@@ -55,14 +51,12 @@ export interface ShootCreate {
   media_assest?: string; // Note: Python uses 'media_assest' (with typo)
   product_link?: string[][]; // Product links as nested array
 }
-
-
 export interface ShootUpdate {
   shoot_id: number; // ID of the shoot to update or delete
   date?: string; // ISO date string (YYYY-MM-DD)
   brand?: string;
   photographer?: number; // Profile s_no of the photographer
-  model?: number; // Profile s_no of the model
+  model?: number[]; // Profile s_no(s) of the model(s)
   products_covered?: string;
   total_hrs?: string; // Total hours in decimal format (e.g., '8.50')
   shoot_charges?: Record<string, any>; // JSON object for shoot charges
@@ -93,8 +87,8 @@ export interface ShootResponse {
   brand?: string;
   photographer?: number;
   photographer_name?: string; // Name of the photographer from profile
-  model?: number;
-  model_name?: string; // Name of the model from profile
+  model?: number[];
+  model_names?: string[]; // Names of the models from profile
   products_covered?: string;
   total_hrs?: string;
   shoot_charges?: Record<string, any>;
