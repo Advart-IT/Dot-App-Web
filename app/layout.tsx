@@ -1,5 +1,3 @@
-
-
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -7,6 +5,7 @@ import { UserProvider } from "@/hooks/usercontext"
 import { ToastProvider } from "@/components/custom-ui/toast-provider"
 import "./globals.css"
 import { CollectionsProvider } from "@/hooks/collections"
+import { InfluencerReviewProvider } from "@/hooks/influencerReviewContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -60,7 +59,9 @@ export default function RootLayout({
         <UserProvider>
           <CollectionsProvider>
             <ToastProvider>
-              {children}
+              <InfluencerReviewProvider>
+                {children}
+              </InfluencerReviewProvider>
             </ToastProvider>
           </CollectionsProvider>
         </UserProvider>

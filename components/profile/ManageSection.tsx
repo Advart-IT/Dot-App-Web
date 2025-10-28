@@ -32,6 +32,10 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const [profilePermissionEnabled, setProfilePermissionEnabled] = useState<boolean>(false);
   const [shootPermissionEnabled, setShootPermissionEnabled] = useState<boolean>(false);
   
+  // Influencer Access Type state
+  const [influencerAccessType, setInfluencerAccessType] = useState<string>('');
+  const [influencerLoading, setInfluencerLoading] = useState<boolean>(false);
+  
   // Loading states
   const [loading, setLoading] = useState<boolean>(false);
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);
@@ -54,6 +58,12 @@ export default function ManageSection({ userData }: ManageSectionProps) {
   const statsContentOptions = [
     { label: 'Social Media', value: 'Social_media' },
     { label: 'Ads', value: 'Ads' }
+  ];
+
+  // Influencer Access Type options
+  const influencerAccessOptions = [
+    { label: 'Reviewer', value: 'reviewer' }, // Changed from 'viewer' to 'reviewer'
+    { label: 'Creator', value: 'creator' }
   ];
 
   // Modal states
@@ -143,6 +153,11 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           // Update profile and shoot permissions from the fetched data
           setProfilePermissionEnabled(permissions.permissions?.profile || false);
           setShootPermissionEnabled(permissions.permissions?.shoot || false);
+          
+          // Update influencer access type from the fetched data
+          const influencerValue = permissions.permissions?.influencer;
+          const influencerRole = Array.isArray(influencerValue) ? influencerValue[0] || '' : '';
+          setInfluencerAccessType(influencerRole.toLowerCase());
         } else {
           // Reset to initial values when no user is selected
           setAdminAccessEnabled(false);
@@ -152,12 +167,13 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           setSelectedStatsContent([]);
           setProfilePermissionEnabled(false);
           setShootPermissionEnabled(false);
+          setInfluencerAccessType('');
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
-    setModalType('info');
-    setModalMessage('Failed to load user data');
-    setModalOpen(true);
+        setModalType('info');
+        setModalMessage('Failed to load user data');
+        setModalOpen(true);
       } finally {
         setLoading(false);
       }
@@ -181,18 +197,18 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       // Call API to create new brand
       await createNewBrand(newBrandName.trim());
       
-  setModalType('info');
-  setModalMessage('Brand created successfully!');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage('Brand created successfully!');
+      setModalOpen(true);
       
       // Optionally, you might want to refresh the page or update the dropdown options
       // For now, we'll just show success message
       
     } catch (error) {
       console.error('Failed to create brand:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to create brand');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to create brand');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -213,18 +229,18 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       // Call API to create new designation
       await createNewDesignation(newDesignationName.trim());
       
-  setModalType('info');
-  setModalMessage('Designation created successfully!');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage('Designation created successfully!');
+      setModalOpen(true);
       
       // Optionally, you might want to refresh the page or update the dropdown options
       // For now, we'll just show success message
       
     } catch (error) {
       console.error('Failed to create designation:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to create designation');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to create designation');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -286,9 +302,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       // Call API with email, department, and designation
       await inviteUser(inviteEmail.trim(), departmentToSend, selectedDesignation.trim());
       
-  setModalType('info');
-  setModalMessage('Invitation sent successfully!');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage('Invitation sent successfully!');
+      setModalOpen(true);
       
       // Reset and close modal
       setInviteEmail('');
@@ -297,9 +313,9 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       setShowInviteModal(false);
     } catch (error) {
       console.error('Failed to send invite:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to send invite');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to send invite');
+      setModalOpen(true);
     } finally {
       setInviteLoading(false);
     }
@@ -332,14 +348,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       });
       
       setAdminAccessEnabled(enabled);
-  setModalType('info');
-  setModalMessage(`Admin access ${enabled ? 'granted' : 'revoked'} successfully!`);
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(`Admin access ${enabled ? 'granted' : 'revoked'} successfully!`);
+      setModalOpen(true);
     } catch (error) {
       console.error('Failed to update admin access:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to update admin access');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update admin access');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -369,14 +385,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       await toggleUserStatus(selectedUserId, enabled);
       
       setManageActivityEnabled(enabled);
-  setModalType('info');
-  setModalMessage(`User ${enabled ? 'activated' : 'deactivated'} successfully!`);
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(`User ${enabled ? 'activated' : 'deactivated'} successfully!`);
+      setModalOpen(true);
     } catch (error) {
       console.error('Failed to update user status:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to update user status');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update user status');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -405,14 +421,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       });
       
       setSelectedInviteLevel(newLevel);
-  setModalType('info');
-  setModalMessage('Invite level updated successfully!');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage('Invite level updated successfully!');
+      setModalOpen(true);
     } catch (error) {
       console.error('Failed to update invite level:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to update invite level');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update invite level');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -457,14 +473,14 @@ export default function ManageSection({ userData }: ManageSectionProps) {
       console.log('Update response:', response);
       
       setStatsPeopleEnabled(enabled);
-  setModalType('info');
-  setModalMessage(`People stats permission ${enabled ? 'granted' : 'revoked'} successfully!`);
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(`People stats permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+      setModalOpen(true);
     } catch (error) {
       console.error('Failed to update people stats permission:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to update people stats permission');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update people stats permission');
+      setModalOpen(true);
     } finally {
       setStatsLoading(false);
     }
@@ -496,15 +512,15 @@ export default function ManageSection({ userData }: ManageSectionProps) {
         profile: enabled
       } as any);
       
-  setProfilePermissionEnabled(enabled);
-  setModalType('info');
-  setModalMessage(`Profile permission ${enabled ? 'granted' : 'revoked'} successfully!`);
-  setModalOpen(true);
+      setProfilePermissionEnabled(enabled);
+      setModalType('info');
+      setModalMessage(`Profile permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+      setModalOpen(true);
     } catch (error) {
       console.error('Failed to update profile permission:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to update profile permission');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update profile permission');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -535,18 +551,75 @@ export default function ManageSection({ userData }: ManageSectionProps) {
         shoot: enabled
       });
       setShootPermissionEnabled(enabled);
-  setModalType('info');
-  setModalMessage(`Shoot permission ${enabled ? 'granted' : 'revoked'} successfully!`);
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(`Shoot permission ${enabled ? 'granted' : 'revoked'} successfully!`);
+      setModalOpen(true);
     } catch (error) {
       console.error('Failed to update shoot permission:', error);
-  setModalType('info');
-  setModalMessage(error instanceof Error ? error.message : 'Failed to update shoot permission');
-  setModalOpen(true);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update shoot permission');
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleInfluencerAccessTypeUpdate = async (newType: string) => {
+    if (!selectedUserId) {
+      setModalType('info');
+      setModalMessage('Please select a user first');
+      setModalOpen(true);
+      return;
+    }
+
+    const confirmMessage = `Are you sure you want to change influencer access type to ${newType}?`;
+    await new Promise<void>((resolve) => {
+      setModalType('confirm');
+      setModalMessage(confirmMessage);
+      setModalOnConfirm(() => resolve);
+      setModalOpen(true);
+    });
+
+    try {
+      setInfluencerLoading(true);
+      
+      // Fetch current permissions to get the existing profile and shoot status
+      const currentPermissionsResponse = await fetchUserPermissions(selectedUserId, 'profile'); // Use 'profile' filter to get profile/shoot/influencer
+      const currentProfileStatus = currentPermissionsResponse.permissions?.profile || false;
+      const currentShootStatus = currentPermissionsResponse.permissions?.shoot || false;
+      
+      console.log('Current profile status:', currentProfileStatus);
+      console.log('Current shoot status:', currentShootStatus);
+      console.log('Current influencer status:', currentPermissionsResponse.permissions?.influencer);
+
+      // Updated API call to use filter_type "profile" 
+      // and pass the newType in the influencer array
+      // Also pass the current profile and shoot status to satisfy the backend requirement
+      await updateUserPermissions(selectedUserId, {
+        filter_type: 'profile', 
+        profile: currentProfileStatus, // Pass current value
+        shoot: currentShootStatus,     // Pass current value
+        influencer: [newType]          // Pass the selected type (e.g., "reviewer", "creator")
+      });
+      
+      setInfluencerAccessType(newType);
+      // Update local state if necessary, though useEffect should handle this after the update
+      setProfilePermissionEnabled(currentProfileStatus);
+      setShootPermissionEnabled(currentShootStatus);
+      
+      setModalType('info');
+      setModalMessage('Influencer access type updated successfully!');
+      setModalOpen(true);
+    } catch (error) {
+      console.error('Failed to update influencer access type:', error);
+      setModalType('info');
+      setModalMessage(error instanceof Error ? error.message : 'Failed to update influencer access type');
+      setModalOpen(true);
+    } finally {
+      setInfluencerLoading(false);
+    }
+  };
+
   // Email validation function
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -771,59 +844,59 @@ export default function ManageSection({ userData }: ManageSectionProps) {
           </div>
         )}
 
-{/* Stats Content Permission - Only show for admin users */}
-{currentUserIsAdmin && (
-  <div className=" flex justify-between items-center flex-end p-4 bg-gray-100 rounded-md">
-    <div className="flex items-center space-x-4">
-      <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Stats Content Permission</span>
-    </div>
-      <div >
-        <SmartDropdown
-          options={statsContentOptions}
-          value={selectedStatsContent}
-          onChange={async (val) => {
-            const values = Array.isArray(val) ? val : [val].filter(Boolean);
-            setSelectedStatsContent(values as string[]);
-            
-            // Auto-update when dropdown changes
-            if (selectedUserId) {
-              try {
-                setStatsLoading(true);
-                console.log('=== Auto-updating Stats Content ===');
-                console.log('Selected User ID:', selectedUserId);
-                console.log('New Content Values:', values);
-                console.log('Current People Permission:', statsPeopleEnabled);
-                
-                const updateData = {
-                  filter_type: 'stats',
-                  stats: {
-                    people: statsPeopleEnabled,
-                    content: values as string[]
-                  }
-                };
-                console.log('Auto-update ', updateData);
-                
-                const response = await updateUserPermissions(selectedUserId, updateData as any);
-                console.log('Auto-update response:', response);
-              } catch (error) {
-                console.error('Failed to auto-update stats content:', error);
-                // Revert on error
-                setSelectedStatsContent(selectedStatsContent);
-                alert(error instanceof Error ? error.message : 'Failed to update stats content');
-              } finally {
-                setStatsLoading(false);
-              }
-            }
-          }}
-          placeholder="Select Stats Content"
-          className="w-[250px]"
-          disabled={statsLoading || !selectedUserId}
-          multiSelector={true}
-          enableSearch={false}
-        />
-      </div>
-  </div>
-)}
+        {/* Stats Content Permission - Only show for admin users */}
+        {currentUserIsAdmin && (
+          <div className=" flex justify-between items-center flex-end p-4 bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Stats Content Permission</span>
+            </div>
+              <div >
+                <SmartDropdown
+                  options={statsContentOptions}
+                  value={selectedStatsContent}
+                  onChange={async (val) => {
+                    const values = Array.isArray(val) ? val : [val].filter(Boolean);
+                    setSelectedStatsContent(values as string[]);
+                    
+                    // Auto-update when dropdown changes
+                    if (selectedUserId) {
+                      try {
+                        setStatsLoading(true);
+                        console.log('=== Auto-updating Stats Content ===');
+                        console.log('Selected User ID:', selectedUserId);
+                        console.log('New Content Values:', values);
+                        console.log('Current People Permission:', statsPeopleEnabled);
+                        
+                        const updateData = {
+                          filter_type: 'stats',
+                          stats: {
+                            people: statsPeopleEnabled,
+                            content: values as string[]
+                          }
+                        };
+                        console.log('Auto-update ', updateData);
+                        
+                        const response = await updateUserPermissions(selectedUserId, updateData as any);
+                        console.log('Auto-update response:', response);
+                      } catch (error) {
+                        console.error('Failed to auto-update stats content:', error);
+                        // Revert on error
+                        setSelectedStatsContent(selectedStatsContent);
+                        alert(error instanceof Error ? error.message : 'Failed to update stats content');
+                      } finally {
+                        setStatsLoading(false);
+                      }
+                    }
+                  }}
+                  placeholder="Select Stats Content"
+                  className="w-[250px]"
+                  disabled={statsLoading || !selectedUserId}
+                  multiSelector={true}
+                  enableSearch={false}
+                />
+              </div>
+          </div>
+        )}
 
         {/* Profile Permission Toggle - Only show for admin users */}
         {currentUserIsAdmin && (
@@ -884,6 +957,31 @@ export default function ManageSection({ userData }: ManageSectionProps) {
             </div>
           </div>
         )}
+
+        {/* Influencer Access Type - Only show for admin users */}
+        {currentUserIsAdmin && (
+          <div className="flex justify-between items-center p-4 bg-gray-100 rounded-md">
+            <label className="text-sm font-medium text-gray-700 mr-4">
+              Influencer Access Type
+            </label>
+            <div className="w-48">
+              <SmartDropdown
+                options={influencerAccessOptions} // Uses the updated options
+                value={influencerAccessType}
+                onChange={(val) => {
+                  const newType = val as string; // This will be 'reviewer' or 'creator'
+                  if (newType !== influencerAccessType) {
+                    handleInfluencerAccessTypeUpdate(newType);
+                  }
+                }}
+                placeholder="Select Access Type"
+                className="w-full"
+                disabled={influencerLoading || !selectedUserId}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Message for users with no permissions */}
         {!currentUserIsAdmin && !hasInvitePermissions && (
           <div className="p-6 text-center">

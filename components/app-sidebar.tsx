@@ -1,11 +1,12 @@
 "use client"
-
-import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react";
+import { hasInfluencerInReview } from "@/lib/Influencer/Influencer";
+import { useInfluencerReview } from "@/hooks/influencerReviewContext";
+import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useUser } from "@/hooks/usercontext"
-import { LogOut, Home, CheckSquare, Menu, X, PanelRight, PanelLeft, Edit, ChartLine, Settings,SquareActivity, UserRound, Clapperboard  } from "lucide-react"
+import { LogOut, Home, CheckSquare, Menu, X, PanelRight, PanelLeft, Edit, ChartLine, Settings,SquareActivity, UserRound, Clapperboard,Instagram  } from "lucide-react"
 
 interface NavItem {
     title: string
@@ -18,11 +19,29 @@ interface AppSidebarProps {
     onToggle?: () => void
     navItems?: NavItem[]
     className?: string
+    // optional explicit prop (will be combined with context/api)
+    hasInReviewProp?: boolean
 }
-export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }: AppSidebarProps) {
+
+// Define the API response type
+interface InfluencerReviewStatus {
+    has_in_review: boolean;
+}
+
+export function AppSidebar({ isOpen = true, onToggle, navItems, className = "", hasInReviewProp }: AppSidebarProps) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const { user, logout } = useUser()
+    const [hasApiReview, setHasApiReview] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const { hasInReviewItems } = useInfluencerReview();
+
+    // Check if user is a reviewer
+    const isReviewer = user?.permissions?.influencer?.includes("reviewer");
+    
+    // Combine both sources of truth: API, context and optional explicit prop
+    const hasReview = hasApiReview || hasInReviewItems || !!hasInReviewProp;
+
     // Extend permissions type for type safety
     type PermissionsFull = {
         shoot?: boolean;
@@ -38,6 +57,29 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
     }
 
     const isDesktopSidebarOpen = isOpen
+
+    // Fetch influencer review status when component mounts and if user is a reviewer
+    useEffect(() => {
+        const fetchReviewStatus = async () => {
+            if (isReviewer) {
+                try {
+                    setIsLoading(true);
+                    const response = await hasInfluencerInReview();
+                    // Assuming the API returns a boolean directly based on your API call
+                    setHasApiReview(response);
+                } catch (error) {
+                    console.error("Error fetching review status:", error);
+                    setHasApiReview(false);
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                setIsLoading(false);
+            }
+        };
+
+        fetchReviewStatus();
+    }, [isReviewer]);
 
     const defaultNavItems: NavItem[] = [
         {
@@ -59,6 +101,18 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
             title: "Data",
             url: "/data",
             icon: ChartLine,
+        },
+        {
+            title: "Influencer",
+            url: "/Influencer",
+            icon: ({ className }: { className?: string }) => (
+                <div className="relative">
+                    <Instagram className={className} />
+                    {isReviewer && !isLoading && hasReview && (
+                        <span className="absolute -top-1 -right-1 block h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-white"></span>
+                    )}
+                </div>
+            ),
         },
     ...((permissions as any).shoot ? [{
         title: "Shoot",
@@ -126,7 +180,7 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
                       ${isDesktopSidebarOpen ? "px-3" : "justify-center px-2"}
                     `}
                                     >
-                                        <item.icon className={`h-5 w-5 ${isDesktopSidebarOpen ? "mr-3" : ""}`} />
+                                        {React.createElement(item.icon, { className: `h-5 w-5 ${isDesktopSidebarOpen ? "mr-3" : ""}` })}
                                         {isDesktopSidebarOpen && <span className="text-sm">{item.title}</span>}
                                     </Link>
                                 </li>
@@ -235,7 +289,7 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "" }
                 ${isActive ? "text-gray-900 font-medium" : "text-gray-500 hover:text-gray-900"}
               `}
                                     >
-                                        <item.icon className="h-5 w-5 mr-3" />
+                                        {React.createElement(item.icon, { className: "h-5 w-5 mr-3" })}
                                         <span className="text-sm">{item.title}</span>
                                     </Link>
                                 </li>

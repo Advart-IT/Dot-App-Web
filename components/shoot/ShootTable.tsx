@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import type { ShootResponse } from '@/lib/shoot/shoot-api';
-import { printShootTargets, ShootTargetBrandResult } from '@/lib/shoot/shoot-api';
+import type { ShootTargetBrandResult } from '@/lib/shoot/shoot-api';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 
@@ -13,22 +13,13 @@ interface ShootTableProps {
   onDelete?: (shoot: ShootResponse) => void;
   startDate?: string; // ISO date string (YYYY-MM-DD)
   endDate?: string;   // ISO date string (YYYY-MM-DD)
+  targetsFromParent?: ShootTargetBrandResult[] | null;
 }
 
 // Simple target summary component
-function TargetSummary({ targets, loading, error, startDate, endDate }: {
+function TargetSummary({ targets }: {
   targets: ShootTargetBrandResult[] | null;
-  loading: boolean;
-  error: string | null;
-  startDate: string;
-  endDate: string;
 }) {
-  if (loading) {
-    return <div className="mb-4 text-blue-600">Loading targets...</div>;
-  }
-  if (error) {
-    return <div className="mb-4 text-red-600">{error}</div>;
-  }
   if (!targets || targets.length === 0) {
     return <div className="mb-4 text-gray-500">No targets found for this period.</div>;
   }
@@ -58,28 +49,9 @@ function TargetSummary({ targets, loading, error, startDate, endDate }: {
   );
 }
 
-export default function ShootTable({ shoots, loading = false, error, onEdit, onDelete, startDate, endDate }: ShootTableProps) {
-  const [targets, setTargets] = useState<ShootTargetBrandResult[] | null>(null);
-  const [targetLoading, setTargetLoading] = useState(false);
-  const [targetError, setTargetError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (startDate && endDate) {
-      setTargetLoading(true);
-      setTargetError(null);
-      printShootTargets({ start_date: startDate, end_date: endDate })
-        .then((res) => {
-          setTargets(res.results);
-          setTargetLoading(false);
-        })
-        .catch((err) => {
-          setTargetError(err instanceof Error ? err.message : 'Failed to fetch targets');
-          setTargetLoading(false);
-        });
-    } else {
-      setTargets(null);
-    }
-  }, [startDate, endDate, shoots]);
+export default function ShootTable({ shoots, loading = false, error, onEdit, onDelete, startDate, endDate, targetsFromParent }: ShootTableProps) {
+  // Always use targetsFromParent for summary
+  const targets = targetsFromParent ?? null;
 
   // Calculate total of shoot_charges object
   const calculateShootChargesTotal = (shootCharges: Record<string, any> | undefined): number => {
@@ -114,16 +86,16 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
     });
   };
 
-  if (loading) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="p-6 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-500">Loading shoots...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="bg-white rounded-lg shadow-sm p-4">
+  //       <div className="p-6 text-center">
+  //         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+  //         <p className="mt-2 text-gray-500">Loading shoots...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -144,15 +116,7 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
     return (
       <div className="bg-white rounded-lg shadow-sm p-4">
         {/* Target summary above empty table */}
-        {startDate && endDate && (
-          <TargetSummary
-            targets={targets}
-            loading={targetLoading}
-            error={targetError}
-            startDate={startDate}
-            endDate={endDate}
-          />
-        )}
+        <TargetSummary targets={targets} />
         <div className="p-6 text-center">
           <div className="text-gray-400 mb-2">
             <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,15 +132,7 @@ export default function ShootTable({ shoots, loading = false, error, onEdit, onD
   return (
     <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-sm overflow-hidden p-3">
       {/* Target summary above the table */}
-      {startDate && endDate && (
-        <TargetSummary
-          targets={targets}
-          loading={targetLoading}
-          error={targetError}
-          startDate={startDate}
-          endDate={endDate}
-        />
-      )}
+      <TargetSummary targets={targets} />
       <table className="w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>

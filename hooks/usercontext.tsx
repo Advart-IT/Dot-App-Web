@@ -13,6 +13,7 @@ interface User {
   depatment?: string; // Note: backend has typo 'depatment' instead of 'department'
   permissions: {
     admin: boolean;
+    influencer: string; // Added influencer permission
     brands: {
       [brandName: string]: {
         [formatType: string]: Array<"reviewer" | "creator" | "viewer">;
@@ -46,12 +47,14 @@ interface User {
     ads_type: string[];
     tags: string[];
     contact?: string[];
-    additional_details?: string[];
-  designation?: string[];
-  category?: any;
-  photographers?: string[];
-  shoot_chargers?: string[];
-  expenses?: string[];
+    designation?: string[];
+    category?: any;
+    photographers?: string[];
+    shoot_chargers?: string[];
+    expenses?: string[];
+    inf_status?: string[];
+    colab_type?: string[];
+    product_status?: string[];
   };
 }
 

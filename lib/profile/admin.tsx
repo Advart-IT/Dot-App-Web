@@ -11,6 +11,7 @@ export interface UserPermissionsResponse {
     brand_admin?: boolean;
     invite_level?: string;
     reportrix_admin?: boolean;
+    influencer?: string;
     profile?: boolean;
   shoot?: boolean;
     Stats?: {

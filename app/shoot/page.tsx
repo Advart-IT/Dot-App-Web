@@ -6,7 +6,7 @@ import SmartDropdown from "@/components/custom-ui/dropdown2";
 import { useUser } from '@/hooks/usercontext';
 import ShootModal from '@/components/shoot/Shoot';
 import ShootTable from '@/components/shoot/ShootTable';
-import { printShoots, ShootResponse, ShootPrintResponse, deleteShoot } from '@/lib/shoot/shoot-api';
+import { printShoots, printShootTargets, ShootResponse, ShootPrintResponse, ShootTargetBrandResult } from '@/lib/shoot/shoot-api';
 import AppModal from '@/components/custom-ui/AppModal';
 
 export default function ShootPage() {
@@ -21,6 +21,9 @@ export default function ShootPage() {
   const [shoots, setShoots] = useState<ShootResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [shootData, setShootData] = useState<ShootPrintResponse | null>(null);
+  const [targets, setTargets] = useState<ShootTargetBrandResult[] | null>(null);
+  const [targetsLoading, setTargetsLoading] = useState<boolean>(false);
+  const [targetsError, setTargetsError] = useState<string | null>(null);
 
   // Initialize month and year to current date
   useEffect(() => {
@@ -78,41 +81,49 @@ export default function ShootPage() {
     return { startDate, endDate };
   };
 
-  // Fetch shoots data
-  const fetchShootsData = async () => {
+
+  // Fetch shoots and targets data
+  const fetchShootsAndTargets = async () => {
     if (!selectedMonth || !selectedYear) return;
-    
     setLoading(true);
+    setTargetsLoading(true);
     setError(null);
-    
+    setTargetsError(null);
     try {
       const { startDate, endDate } = getMonthDateRange(selectedMonth, selectedYear);
-      
-      const response = await printShoots({
+      // Fetch shoots
+      const shootsResponse = await printShoots({
         date_filter: 'between',
         start_date: startDate,
         end_date: endDate,
-        // Remove brand filter to get all data
         page: 1,
         limit: 100,
       });
-      
-      setShootData(response);
-      setShoots(response.shoots || []);
+      setShootData(shootsResponse);
+      setShoots(shootsResponse.shoots || []);
+      // Fetch targets
+      const targetsResponse = await printShootTargets({
+        start_date: startDate,
+        end_date: endDate,
+      });
+      setTargets(targetsResponse.results || []);
     } catch (err) {
-      console.error('Error fetching shoots:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch shoots');
+      console.error('Error fetching shoots/targets:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch shoots/targets');
       setShoots([]);
+      setTargets([]);
     } finally {
       setLoading(false);
+      setTargetsLoading(false);
     }
   };
 
   // Fetch data when month or year changes
   useEffect(() => {
     if (selectedMonth && selectedYear) {
-      fetchShootsData();
+      fetchShootsAndTargets();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth, selectedYear]);
 
   const handleOpenModal = () => {
@@ -122,18 +133,18 @@ export default function ShootPage() {
   };
 
   const handleEditShoot = (shoot: ShootResponse) => {
-  setEditingShoot(shoot);
-  setShowModal(true);
-  setError(null);
+    // Always use the latest shoot object from state (in case it was updated)
+    const latest = shoots.find(s => s.id === shoot.id) || shoot;
+    console.log('[handleEditShoot] Opening modal for shoot id:', shoot.id, 'Latest:', latest);
+    setEditingShoot(latest);
+    setShowModal(true);
+    setError(null);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingShoot(null);
-    // Refresh data when modal closes (in case new shoot was added/updated)
-    if (selectedMonth && selectedYear) {
-      fetchShootsData();
-    }
+    // No fetchShootsData here; UI is updated via onCreate/onUpdate/onRequestDelete
   };
 
   const handleError = (errorMessage: string) => {
@@ -141,10 +152,6 @@ export default function ShootPage() {
   };
 
   const handleDeleteShoot = (shoot: ShootResponse) => {
-  // No longer needed, handled in modal
-  };
-
-  const confirmDeleteShoot = async () => {
     // No longer needed, handled in modal
   };
 
@@ -225,6 +232,7 @@ export default function ShootPage() {
               onDelete={handleDeleteShoot}
               startDate={startDate}
               endDate={endDate}
+              targetsFromParent={targets}
             />
           </div>
         </div>
@@ -236,18 +244,154 @@ export default function ShootPage() {
       onError={handleError}
       editData={editingShoot}
       reportrixBrands={reportrixBrands}
-      onRequestDelete={async (shoot) => {
-        try {
-          await deleteShoot(shoot.id);
-          setShowModal(false);
-          setEditingShoot(null);
-          if (selectedMonth && selectedYear) {
-            fetchShootsData();
-          }
-        } catch (err) {
-          console.error('Error deleting shoot:', err);
-          setError(err instanceof Error ? err.message : 'Failed to delete shoot');
+      onCreate={(response) => {
+        // Add new shoot (ensure all fields are present)
+        setShoots(prev => [response, ...prev]);
+        setShootData(prev => ({
+          ...prev,
+          shoots: [response, ...(prev?.shoots || [])],
+        }));
+        // Update the relevant brand's target in the summary using the response (case-insensitive)
+        if (response.target_summary && Array.isArray(response.target_summary)) {
+          setTargets(prevTargets => {
+            if (!prevTargets) return response.target_summary;
+            const updated = [...prevTargets];
+            response.target_summary.forEach((newTarget: import('@/lib/shoot/shoot-api').ShootTargetBrandResult) => {
+              const idx = updated.findIndex(t => t.brand?.toLowerCase() === newTarget.brand?.toLowerCase());
+              if (idx !== -1) updated[idx] = newTarget;
+              else updated.push(newTarget);
+            });
+            return updated;
+          });
+        } else if (response.target) {
+          setTargets(prevTargets => {
+            if (!prevTargets) return [response.target];
+            const updated = [...prevTargets];
+            const idx = updated.findIndex(t => t.brand?.toLowerCase() === response.target.brand?.toLowerCase());
+            if (idx !== -1) updated[idx] = response.target;
+            else updated.push(response.target);
+            return updated;
+          });
         }
+        setShowModal(false);
+        setEditingShoot(null);
+      }}
+      onUpdate={(response) => {
+        console.log('[onUpdate] API response:', response);
+        // Use s_no for id, merge updated_fields into previous shoot object
+        setShoots(prev => {
+          const updated = prev.map(s => {
+            if (s.id === response.s_no) {
+              let merged = { ...s, ...response.updated_fields };
+              // Deep merge shoot_charges if present
+              if (response.updated_fields && response.updated_fields.shoot_charges) {
+                merged.shoot_charges = {
+                  ...s.shoot_charges,
+                  ...response.updated_fields.shoot_charges,
+                  models: {
+                    ...(s.shoot_charges?.models || {}),
+                    ...(response.updated_fields.shoot_charges.models || {})
+                  }
+                };
+              }
+              // If the API also returns other top-level fields (like target), merge them too
+              Object.keys(response).forEach(key => {
+                if (key !== 'updated_fields' && key !== 's_no') {
+                  merged[key] = response[key];
+                }
+              });
+              console.log('[onUpdate] Merged shoot:', merged);
+              return merged;
+            }
+            return s;
+          });
+          console.log('[onUpdate] Updated shoots array:', updated);
+          return updated;
+        });
+        setShootData(prev => ({
+          ...prev,
+          shoots: prev?.shoots?.map(s => {
+            if (s.id === response.s_no) {
+              let merged = { ...s, ...response.updated_fields };
+              if (response.updated_fields && response.updated_fields.shoot_charges) {
+                merged.shoot_charges = {
+                  ...s.shoot_charges,
+                  ...response.updated_fields.shoot_charges,
+                  models: {
+                    ...(s.shoot_charges?.models || {}),
+                    ...(response.updated_fields.shoot_charges.models || {})
+                  }
+                };
+              }
+              Object.keys(response).forEach(key => {
+                if (key !== 'updated_fields' && key !== 's_no') {
+                  merged[key] = response[key];
+                }
+              });
+              return merged;
+            }
+            return s;
+          }) || [],
+        }));
+        // Update the relevant brand's target in the summary using the response (case-insensitive)
+        if (response.target_summary && Array.isArray(response.target_summary)) {
+          setTargets(prevTargets => {
+            if (!prevTargets) return response.target_summary;
+            const updated = [...prevTargets];
+            response.target_summary.forEach((newTarget: import('@/lib/shoot/shoot-api').ShootTargetBrandResult) => {
+              const idx = updated.findIndex(t => t.brand?.toLowerCase() === newTarget.brand?.toLowerCase());
+              if (idx !== -1) updated[idx] = newTarget;
+              else updated.push(newTarget);
+            });
+            console.log('[onUpdate] Updated targets array (target_summary):', updated);
+            return updated;
+          });
+        } else if (response.target) {
+          setTargets(prevTargets => {
+            if (!prevTargets) return [response.target];
+            const updated = [...prevTargets];
+            const idx = updated.findIndex(t => t.brand?.toLowerCase() === response.target.brand?.toLowerCase());
+            if (idx !== -1) updated[idx] = response.target;
+            else updated.push(response.target);
+            console.log('[onUpdate] Updated targets array (target):', updated);
+            return updated;
+          });
+        }
+        setShowModal(false);
+        setEditingShoot(null);
+      }}
+      onRequestDelete={(response) => {
+        if (response.s_no) {
+          setShoots(prev => prev.filter(s => s.id !== response.s_no));
+          setShootData(prev => ({
+            ...prev,
+            shoots: prev?.shoots?.filter(s => s.id !== response.s_no) || [],
+          }));
+        }
+        // Update the relevant brand's target in the summary using the response (case-insensitive)
+        if (response.target_summary && Array.isArray(response.target_summary)) {
+          setTargets(prevTargets => {
+            if (!prevTargets) return response.target_summary;
+            const updated = [...prevTargets];
+            response.target_summary.forEach((newTarget: import('@/lib/shoot/shoot-api').ShootTargetBrandResult) => {
+              const idx = updated.findIndex(t => t.brand?.toLowerCase() === newTarget.brand?.toLowerCase());
+              if (idx !== -1) updated[idx] = newTarget;
+              else updated.push(newTarget);
+            });
+            return updated;
+          });
+        } else if (response.target) {
+          setTargets(prevTargets => {
+            if (!prevTargets) return [response.target];
+            const updated = [...prevTargets];
+            const idx = updated.findIndex(t => t.brand?.toLowerCase() === response.target.brand?.toLowerCase());
+            if (idx !== -1) updated[idx] = response.target;
+            else updated.push(response.target);
+            return updated;
+          });
+        }
+        setShowModal(false);
+        setEditingShoot(null);
       }}
     />
     {/* Custom Delete Confirmation Modal removed, handled in ShootModal */}

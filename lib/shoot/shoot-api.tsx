@@ -1,3 +1,54 @@
+// Utility: Build minimal update payload for updateShoot
+// Pass original (ShootResponse), changedFields (Partial<ShootUpdate>), and shoot_id
+// Helper: stable stringify for objects (sorts keys, preserves types)
+function stableStringify(obj: any): string {
+  if (Array.isArray(obj)) {
+    // Preserve types in arrays
+    return JSON.stringify(obj.map(v => (typeof v === 'object' && v !== null ? JSON.parse(stableStringify(v)) : v)));
+  } else if (obj && typeof obj === 'object') {
+    const allKeys = Object.keys(obj).sort();
+    const sortedObj: any = {};
+    for (const k of allKeys) {
+      sortedObj[k] = typeof obj[k] === 'object' && obj[k] !== null ? JSON.parse(stableStringify(obj[k])) : obj[k];
+    }
+    return JSON.stringify(sortedObj);
+  } else {
+    return JSON.stringify(obj);
+  }
+}
+
+export function getChangedShootFields(
+  original: Partial<ShootResponse>,
+  changedFields: Partial<ShootUpdate>,
+  shoot_id: number
+): ShootUpdate {
+  const payload: any = { shoot_id };
+  for (const key in changedFields) {
+    if (key === 'shoot_id') continue;
+    const newValue = (changedFields as any)[key];
+    const oldValue = (original as any)[key];
+    let changed = false;
+    if (key === 'shoot_charges') {
+      // Use stable stringify for deep compare, normalize number/string in arrays
+      changed = stableStringify(newValue) !== stableStringify(oldValue);
+    } else {
+      // Shallow compare for primitives, deep compare for arrays/objects
+      const isObject = (v: any) => v && typeof v === 'object';
+      const isArray = Array.isArray;
+      if (isArray(newValue) && isArray(oldValue)) {
+        changed = JSON.stringify(newValue) !== JSON.stringify(oldValue);
+      } else if (isObject(newValue) && isObject(oldValue)) {
+        changed = JSON.stringify(newValue) !== JSON.stringify(oldValue);
+      } else {
+        changed = newValue !== oldValue;
+      }
+    }
+    if (changed) {
+      payload[key] = newValue;
+    }
+  }
+  return payload;
+}
 // Types for Shoot Target Print API
 export interface ShootTargetBrandResult {
   brand: string;

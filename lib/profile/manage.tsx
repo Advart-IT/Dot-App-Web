@@ -11,8 +11,9 @@ interface ToggleUserStatusRequest {
   is_active: boolean;
 }
 
+// Updated interface to include influencer permissions
 export interface UpdatePermissionsRequest {
-  filter_type: 'admin' | 'invite_level' | 'stats' | 'profile' | 'shoot';
+  filter_type: 'admin' | 'invite_level' | 'stats' | 'profile' | 'shoot' | 'content' | 'data' | 'all'; // Added 'all', 'content', 'data'
   admin?: boolean;
   invite_level?: 'own_brand' | 'any_brand';
   profile?: boolean;
@@ -21,6 +22,12 @@ export interface UpdatePermissionsRequest {
     people?: boolean;
     content?: string[];
   };
+  // Added fields for other filter types that might be needed
+  brands?: Record<string, Record<string, string[]>>; // For 'content' filter
+  brand_admin?: boolean; // For 'content' filter
+  reportrix?: Record<string, string[]>; // For 'data' filter (Note: API expects list of brands, this is object)
+  reportrix_admin?: boolean; // For 'data' filter
+  influencer?: string[]; // For 'all', 'content', 'data', 'stats', 'profile', 'shoot' filters
 }
 
 interface UserPermissions {
@@ -30,7 +37,12 @@ interface UserPermissions {
   brand_admin: boolean;
   reportrix_admin: boolean;
   brands: Record<string, Record<string, string[]>>;
-  reportrix: Record<string, string[]>;
+  reportrix: Record<string, string[]>; // Note: API returns list of brands, this is object
+  Stats: {
+    people: boolean;
+    content: string[];
+  };
+  influencer: string[]; // Added influencer permissions
   profile?: boolean;
   shoot?: boolean;
 }
@@ -54,6 +66,7 @@ interface ToggleUserStatusResponse {
   is_active: boolean;
   previous_status: boolean;
 }
+
 // Invite user to join the platform
 export async function inviteUser(email: string, department: string, designation: string): Promise<InviteUserResponse> {
   try {
@@ -237,6 +250,34 @@ export async function updateUserPermissions(
   data: UpdatePermissionsRequest
 ): Promise<any> {
   try {
+    console.log('=== updateUserPermissions Debug ===');
+    console.log('Employee ID:', employeeId);
+    console.log('Request data:', data);
+
+    // Validate required fields based on filter_type
+    if (data.filter_type === 'admin' && data.admin === undefined) {
+      throw new Error('Admin status must be provided for admin filter');
+    }
+    if (data.filter_type === 'content' && data.brands === undefined) {
+      throw new Error('Brands must be provided for content filter');
+    }
+    if (data.filter_type === 'data' && data.reportrix === undefined) {
+      throw new Error('Reportrix must be provided for data filter');
+    }
+    if (data.filter_type === 'invite_level' && data.invite_level === undefined) {
+      throw new Error('Invite level must be provided for invite_level filter');
+    }
+    if (data.filter_type === 'stats' && data.stats === undefined) {
+      throw new Error('Stats must be provided for stats filter');
+    }
+    if (data.filter_type === 'profile' && data.profile === undefined && data.shoot === undefined) {
+      throw new Error('Profile or shoot status must be provided for profile filter');
+    }
+    if (data.filter_type === 'shoot' && data.shoot === undefined) {
+      throw new Error('Shoot status must be provided for shoot filter');
+    }
+    // Note: 'all' filter might not require other specific fields if influencer is the only one being updated
+
     const response = await fetch(`${API_URL}/api/v1/auth/update_permissions/${employeeId}`, {
       method: 'POST',
       headers: {
@@ -246,18 +287,23 @@ export async function updateUserPermissions(
       body: JSON.stringify(data),
     });
 
+    console.log('Response status:', response.status);
     if (!response.ok) {
       let errorMessage = `Failed to update permissions: ${response.status}`;
       try {
         const errorData = await response.json();
+        console.error('Error response data:', errorData);
         errorMessage = errorData.detail || errorMessage;
-      } catch {
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
         errorMessage = `Failed to update permissions: ${response.status} ${response.statusText}`;
       }
       throw new Error(errorMessage);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('Success response:', result);
+    return result;
   } catch (error) {
     console.error('Error updating permissions:', error);
     

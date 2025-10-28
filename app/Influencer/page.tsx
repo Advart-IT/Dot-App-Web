@@ -86,16 +86,16 @@ function InfluencerPage() {
 
     // Function to fetch current tab data
     const fetchTabData = async (status: string) => {
-        // Don't fetch for In Review tab as it's managed separately
-        if (status === 'In Review') {
-            return;
-        }
-
         setLoading(true);
         setError(null);
         try {
             const result = await fetchDataForStatus(status);
-            setCurrentTabData(result);
+            if (status === 'In Review') {
+                setInReviewData(result);
+                inReviewFetched.current = true;
+            } else {
+                setCurrentTabData(result);
+            }
         } catch (err: any) {
             setError(err?.message || 'Failed to fetch data');
         } finally {
@@ -115,11 +115,9 @@ function InfluencerPage() {
         fetchInitialData();
     }, []); // Empty dependency array for initial load only
 
-    // Fetch data when tab changes (except for In Review)
+    // Fetch data when tab changes (always fetch In Review data)
     useEffect(() => {
-        if (topStatus !== 'In Review') {
-            fetchTabData(topStatus);
-        }
+        fetchTabData(topStatus);
     }, [topStatus]);
 
     // Function to reset In Review fetch status
@@ -135,18 +133,31 @@ function InfluencerPage() {
         const newStatus = data.workflow_status || 'working';
         const currentStatus = workflowStatusMap[topStatus];
 
-        // If In Review involvement happened, clear the fetched guard so next read will refresh
-        if (newStatus === 'in_review' || currentStatus === 'in_review') {
-            resetInReviewFetchStatus();
+        // Always reset In Review fetch guard when status changes
+        resetInReviewFetchStatus();
+
+        // For existing items, remove from both lists to avoid duplicates
+        if (data.s_no) {
+            setInReviewData(prev => prev.filter(item => item.s_no !== data.s_no));
+            setCurrentTabData(prev => prev.filter(item => item.s_no !== data.s_no));
         }
 
-        // Remove the item from any in-memory lists we currently hold to avoid duplicates
-        setInReviewData(prev => prev.filter(item => item.s_no !== data.s_no));
-        setCurrentTabData(prev => prev.filter(item => item.s_no !== data.s_no));
+        // For new items or updates, ensure we have the influencer name
+        const influencerOption = data.influencer_id ? 
+            influencerOptions.find(opt => 
+                opt.value === data.influencer_id.toString() || 
+                opt.value === data.influencer_id
+            ) : null;
+            
+        if (influencerOption && !data.influencer_name) {
+            data.influencer_name = influencerOption.label;
+        }
 
-        // If deleting, we're done after removal
+        // If deleting, remove from both lists and return
         if (action === 'delete') {
-            console.log("State updated (delete):", { action, itemId: data.s_no, currentTab: topStatus });
+            // Remove from both current tab and in-review data
+            setCurrentTabData(prev => prev.filter(item => item.s_no !== data.s_no));
+            setInReviewData(prev => prev.filter(item => item.s_no !== data.s_no));
             return;
         }
 
@@ -154,7 +165,32 @@ function InfluencerPage() {
         const addOrUpdate = (prev: InfluencerTableRow[], incoming: any) => {
             const existingIndex = prev.findIndex(item => item.s_no === incoming.s_no);
             const newArray = [...prev];
-            const toInsert = { ...incoming, workflow_status: newStatus } as InfluencerTableRow;
+
+            // Find the influencer name from options if not directly provided
+            let influencerName = incoming.influencer_name;
+            if (!influencerName && incoming.influencer_id) {
+                const option = influencerOptions.find(opt => 
+                    opt.value === incoming.influencer_id.toString() || 
+                    opt.value === incoming.influencer_id
+                );
+                influencerName = option?.label || '';
+            }
+            
+            // Ensure workflow_status is set in the inserted item
+            const toInsert = { 
+                ...incoming, 
+                workflow_status: newStatus,
+                // Ensure other required fields are included
+                s_no: incoming.s_no,
+                influencer_name: influencerName,
+                influencer_id: incoming.influencer_id,
+                status: incoming.status,
+                colab_type: incoming.colab_type,
+                product_status: incoming.product_status,
+                brad: incoming.brad || '',
+                concept: incoming.concept || '',
+            } as InfluencerTableRow;
+            
             if (existingIndex !== -1) {
                 newArray[existingIndex] = { ...newArray[existingIndex], ...toInsert };
             } else {
@@ -163,16 +199,46 @@ function InfluencerPage() {
             return newArray.sort((a, b) => (a.s_no || 0) - (b.s_no || 0));
         };
 
-        // Place the updated item into the appropriate in-memory list only if we currently hold that list.
+        // Always update the lists based on workflow status
         if (newStatus === 'in_review') {
+            // Update In Review list and remove from current tab if needed
             setInReviewData(prev => addOrUpdate(prev, data));
-        } else if (newStatus === workflowStatusMap[topStatus]) {
-            // If the item moved into the currently-visible tab, update the current tab state
-            setCurrentTabData(prev => addOrUpdate(prev, data));
+            if (currentStatus === 'in_review') {
+                setCurrentTabData(prev => prev.filter(item => item.s_no !== data.s_no));
+            }
+        } else {
+            // Remove from In Review if moving out
+            setInReviewData(prev => prev.filter(item => item.s_no !== data.s_no));
+            
+            // Update current tab if it matches the new status
+            if (newStatus === workflowStatusMap[topStatus]) {
+                setCurrentTabData(prev => addOrUpdate(prev, data));
+            } else if (currentStatus === workflowStatusMap[topStatus]) {
+                // If item was in current tab but moved to a different status, remove it
+                setCurrentTabData(prev => prev.filter(item => item.s_no !== data.s_no));
+            }
         }
 
-        // Note: other tabs (Working/Re-Edit/Approved when not currently loaded) will be fetched fresh on visit.
-        console.log("State updated:", { action, newStatus, itemId: data.s_no, currentTab: topStatus, updatedData: data });
+        // If we just updated an item in a tab that's not currently visible,
+        // set its fetch status to false so it will reload when selected
+        Object.entries(workflowStatusMap).forEach(([tab, status]) => {
+            if (newStatus === status && tab !== topStatus) {
+                // Mark that tab for refresh when it becomes active
+                console.log(`Marking ${tab} for refresh due to update`);
+                if (tab === 'In Review') {
+                    resetInReviewFetchStatus();
+                }
+            }
+        });
+
+        console.log("State updated:", { 
+            action, 
+            newStatus, 
+            currentStatus,
+            itemId: data.s_no, 
+            currentTab: topStatus, 
+            updatedData: data 
+        });
     };
 
     const handleEditInfluencer = (row: InfluencerTableRow) => {

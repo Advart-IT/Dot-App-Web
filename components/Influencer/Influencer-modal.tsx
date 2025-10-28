@@ -14,7 +14,7 @@ interface Option {
 interface InfluencerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (arg0: any) => void;
+  onCreate: (data: any, action?: 'create' | 'update' | 'delete') => void;
   influencerOptions: Option[];
   statusOptions: Option[];
   colabOptions: Option[];
@@ -397,7 +397,9 @@ const workflowStatusValue = customWorkflowStatus
 
     // Prepare payload - always include all fields with empty strings when needed
     const payload = {
+      s_no: editData?.s_no, // Include s_no for existing items
       influencer_id: influencerIdNum,
+      influencer_name: influencerOptions.find(opt => opt.value === formData.influencer)?.label || '',
       status: formData.status,
       workflow_status: workflowStatusValue,
       post_due_date: formData.postDueDate || null,
@@ -496,9 +498,12 @@ const workflowStatusValue = customWorkflowStatus
           comments: editData.comments || ""
         };
         
-        const result = await updateInfluencer(deletePayload);
+        await updateInfluencer(deletePayload);
         setLoading(false);
-        if (typeof onCreate === 'function') onCreate(result);
+        if (typeof onCreate === 'function') {
+            // Only pass the minimum required data for state updates
+            onCreate({ s_no: editData.s_no }, 'delete');
+        }
         onClose();
       }
     } catch (err: any) {
