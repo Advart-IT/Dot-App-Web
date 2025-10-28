@@ -161,7 +161,7 @@ export default function ShootPage() {
   const { startDate, endDate } = getMonthDateRange(selectedMonth, selectedYear);
 
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-themeBase-l1">
+    <div className="min-h-screen  flex flex-col bg-themeBase-l1">
       {/* Top Bar */}
       <div className="bg-themeBase border-b border-themeBase-l2 px-6 py-4 flex items-center justify-between">
         {/* Left Section: Title */}

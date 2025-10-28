@@ -309,10 +309,20 @@
               };
 
               if (editData) {
-                // Instead of updating here, just close. All update logic is in handleSubmit.
+                // Update the shoot data and trigger the update callback
+                const response = await updateShoot({
+                  ...submitData,
+                  shoot_id: editData.id
+                });
+                if (onUpdate) {
+                  onUpdate(response);
+                }
                 onClose();
               } else {
-                await createShoot(submitData);
+                const response = await createShoot(submitData);
+                if (onCreate) {
+                  onCreate(response);
+                }
                 onClose();
               }
             } catch (error) {
