@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/custom-ui/button2';
 import { fetchContentMonthlyStats } from '@/lib/stats/stats-data';
 import TaskDataGrid from './stats-grid/Datagris';
@@ -48,6 +48,10 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
     error: null as string | null
   });
 
+  // Track fetching state to prevent multiple fetches
+  const fetchingRef = useRef<string | null>(null); // Track what's currently being fetched (date_contentType)
+  const hasFetchedRef = useRef<Set<string>>(new Set()); // Track what has been fetched
+
   // Get current state based on selected content type
   const currentState = selectedContentType === 'social_media' ? socialMediaState : adsState;
   const setCurrentState = selectedContentType === 'social_media' ? setSocialMediaState : setAdsState;
@@ -76,7 +80,17 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
         return;
       }
 
+      // Create unique fetch key to prevent duplicate fetches
+      const fetchKey = `${selectedDate}_${selectedContentType}`;
+      
+      // Prevent multiple fetches for the same date and content type
+      if (fetchingRef.current === fetchKey || hasFetchedRef.current.has(fetchKey)) {
+        return;
+      }
+
       try {
+        fetchingRef.current = fetchKey; // Mark as currently fetching
+        hasFetchedRef.current.add(fetchKey); // Mark as attempted
         setCurrentState(prev => ({ ...prev, loading: true, error: null }));
         
         const [year, month] = selectedDate.split('-').map(Number);
@@ -104,11 +118,14 @@ export default function Content({ selectedDate, dataCache, setDataCache, userCon
           error: 'Failed to fetch content stats data. Please try again.',
           loading: false 
         }));
+        hasFetchedRef.current.delete(fetchKey); // Remove from attempted on error to allow retry
+      } finally {
+        fetchingRef.current = null; // Clear fetching flag
       }
     };
 
     fetchData();
-  }, [selectedDate, selectedContentType, dataCache, setDataCache, availableContentTypes.length]);
+  }, [selectedDate, selectedContentType]); // Only depend on selectedDate and selectedContentType
 
   const handleContentClick = (contentData: any) => {
     console.log('Content clicked:', contentData);

@@ -1,80 +1,54 @@
-import { useUser } from "@/hooks/usercontext";
-import React, { useState, useEffect } from "react";
-import { updateTaskDetails } from "@/lib/tasks/task";
-import { LinkifiedInputBox, LinkifiedTextSafe } from "@/lib/utils/linkify";
+import { useUser } from "@/hooks/usercontext"; // Import UserContext
+import { useState } from "react";
+import { updateTaskDetails } from "@/lib/tasks/task"; // Import the API function
+import SmartInputBox from "@/components/custom-ui/input-box"; // Import SmartInputBox
 
-interface TaskOutputProps {
-  task: any;
-  setTask: React.Dispatch<React.SetStateAction<any>>;
-}
+export default function TaskOutput({ task, setTask }: { task: any; setTask: React.Dispatch<React.SetStateAction<any>> }) {
+  const { user } = useUser(); // Load user data from UserContext
+  const [newOutput, setNewOutput] = useState(task.output || ""); // State for the updated output
 
-export default function TaskOutput({ task, setTask }: TaskOutputProps) {
-  const { user } = useUser();
-  const [newOutput, setNewOutput] = useState(task.output || "");
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Sync newOutput with task.output when task changes
-  useEffect(() => {
-    setNewOutput(task.output || "");
-  }, [task.output]);
-
-  const canEditFields =
-    task.task_type?.toLowerCase() === "normal" &&
-    user?.employee_id === task.assigned_to;
+  const canEditFields = 
+    task.task_type?.toLowerCase() === "normal" && user?.employee_id === task.assigned_to; // Check if the user can edit
 
   const handleSave = async () => {
-    // Don't save if nothing changed
-    if (newOutput === task.output) return;
-
-    setIsSaving(true);
-    setError(null);
-
     try {
-      const payload = { task_id: task.task_id, output: newOutput };
-      const updatedTask = await updateTaskDetails(payload);
-      
-      setTask((prevTask: any) => ({
-        ...prevTask,
-        output: updatedTask.updated_fields.output,
-      }));
+      const payload = { task_id: task.task_id, output: newOutput }; // Send output as payload
+      const updatedTask = await updateTaskDetails(payload); // Update the output via API
+      setTask((prevTask: any) => ({ ...prevTask, output: updatedTask.updated_fields.output })); // Update the task state
     } catch (err) {
       console.error("Failed to update output:", err);
-      setError("Failed to save changes. Please try again.");
-      // Revert to original value on error
-      setNewOutput(task.output || "");
-    } finally {
-      setIsSaving(false);
     }
   };
 
+
+
   return (
-    <div className="space-y-2">
-      {canEditFields ? (
-        <>
-          <LinkifiedInputBox
-            value={newOutput}
-            onChange={setNewOutput}
-            onChangeComplete={handleSave}
-            placeholder="Enter output details..."
-            minHeight="80px"
-            className="transition-opacity"
-          />
-          {isSaving && (
-            <p className="text-sm text-gray-500 italic">Saving...</p>
-          )}
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
-        </>
+     <div >
+      
+      {canEditFields  ? (
+        <SmartInputBox
+          value={newOutput}
+          onChange={(value: string) => setNewOutput(value)} // Update the new output
+          onChangeComplete={handleSave} // Save on blur or Enter
+          placeholder="Enter output here..."
+          enableLink={true}
+          rows={3} // Set the number of rows
+          maxHeight="4 rows" // Optional: Set a max height
+          isTextarea={true} // Use textarea for multi-line input
+          overflowBehavior="toggle" // Toggle overflow behavior
+          autoExpand={true} // Enable auto-expansion
+        />
       ) : (
-        <div className="border rounded-md p-3 bg-gray-50 min-h-[80px]">
-          {task.output ? (
-            <LinkifiedTextSafe text={task.output} />
-          ) : (
-            <span className="text-gray-400">No output provided.</span>
-          )}
-        </div>
+        <SmartInputBox
+          value={task.output || "No output provided."} // Display output or fallback text
+          onChange={() => {}} // No-op for read-only mode
+          rows={3} // Set the number of rows
+          readOnly={true} // Make the input read-only
+          maxHeight="4 rows" // Optional: Set a max height
+          isTextarea={true} // Use textarea for multi-line input
+          overflowBehavior="scroll" // Toggle overflow behavior
+          autoExpand={true} // Enable auto-expansion
+        />
       )}
     </div>
   );

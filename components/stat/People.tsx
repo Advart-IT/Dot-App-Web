@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { fetchAllUsersMonthlyStats } from '@/lib/stats/stats-data';
 import TaskDataGrid from './stats-grid/Datagris';
 
@@ -26,6 +26,8 @@ export default function People({ selectedDate, dataCache, setDataCache }: People
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const fetchingRef = useRef<string | null>(null); // Track which date is currently being fetched
+  const hasFetchedRef = useRef<Set<string>>(new Set()); // Track which dates have been fetched
 
   // Auto-fetch data when selectedDate changes, with caching
   useEffect(() => {
@@ -36,10 +38,19 @@ export default function People({ selectedDate, dataCache, setDataCache }: People
       const cachedData = dataCache[selectedDate]?.people;
       if (cachedData) {
         setStatsData(cachedData);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+
+      // Prevent multiple fetches for the same date
+      if (fetchingRef.current === selectedDate || hasFetchedRef.current.has(selectedDate)) {
         return;
       }
 
       try {
+        fetchingRef.current = selectedDate; // Mark as currently fetching
+        hasFetchedRef.current.add(selectedDate); // Mark as attempted
         setLoading(true);
         setError(null);
         
@@ -63,13 +74,15 @@ export default function People({ selectedDate, dataCache, setDataCache }: People
       } catch (error) {
         console.error('Failed to fetch stats data:', error);
         setError('Failed to fetch stats data. Please try again.');
+        hasFetchedRef.current.delete(selectedDate); // Remove from attempted on error to allow retry
       } finally {
         setLoading(false);
+        fetchingRef.current = null; // Clear fetching flag
       }
     };
 
     fetchData();
-  }, [selectedDate, dataCache, setDataCache]);
+  }, [selectedDate]); // Only depend on selectedDate
 
   const handleUserClick = (userData: any) => {
     console.log('User clicked:', userData);

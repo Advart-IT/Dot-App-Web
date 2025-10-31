@@ -221,7 +221,11 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
     const handleSave = async (action: 'save-and-close' | 'save-and-continue' = 'save-and-close') => {
 
         // Sanitize the data
-        const sanitizedData = sanitizeData(editableData);
+        let sanitizedData = sanitizeData(editableData);
+        // Always include category if present in editableData, even if empty string
+        if (editableData.category !== undefined) {
+            sanitizedData = { ...sanitizedData, category: editableData.category };
+        }
 
         // Call the API to save the data
         try {
@@ -231,7 +235,6 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
                 ...response,
                 updated_at: response.created_at || response.updated_at, // Use created_at if updated_at is missing
             };
-
 
             // Combine all data into one object, ensuring no duplicates
             const combinedData = {
@@ -245,17 +248,13 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
 
             // Handle different actions
             if (action === 'save-and-continue') {
-
                 setLocalMode("edit");
-
                 setTimeout(() => {
                     populateColumns();
-
                     // After populating columns, update editableData to include all expected fields
                     setTimeout(() => {
                         setEditableData(prevData => {
                             const updatedData = { ...prevData };
-
                             // Get all expected keys from the populated columns
                             const allExpectedKeys = [
                                 ...thirdRowKeys,
@@ -264,34 +263,24 @@ export default function ContentView({ rowData, onClose, onUpdate, mode }: Conten
                                 ...fifthRowKeys,
                                 ...sixthRowKeys
                             ];
-
-
                             // Add missing keys with empty values
                             allExpectedKeys.forEach(key => {
                                 if (!updatedData.hasOwnProperty(key)) {
                                     updatedData[key] = "";
                                 }
                             });
-
                             return updatedData;
                         });
                     }, 50);
                 }, 100);
-
                 setShouldUpdate(true); // Set shouldUpdate to true to indicate updates are needed - adding this because the pop-up closes immediately when we directly pass the onUpdate call backt to parent
-
             } else {
                 // Pass the combined data back to the parent
                 onUpdate?.(combinedData);
-
                 onClose();
             }
-
-
-
         } catch (error) {
             console.error("Error saving data:", error);
-
             // Optionally, show an error message to the user
             alert("Failed to save the data. Please try again.");
         }

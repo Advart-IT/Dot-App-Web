@@ -102,18 +102,18 @@ export function AppSidebar({ isOpen = true, onToggle, navItems, className = "", 
             url: "/data",
             icon: ChartLine,
         },
-        {
-            title: "Influencer",
-            url: "/Influencer",
-            icon: ({ className }: { className?: string }) => (
-                <div className="relative">
-                    <Instagram className={className} />
-                    {isReviewer && !isLoading && hasReview && (
-                        <span className="absolute -top-1 -right-1 block h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-white"></span>
-                    )}
-                </div>
-            ),
-        },
+        // {
+        //     title: "Influencer",
+        //     url: "/Influencer",
+        //     icon: ({ className }: { className?: string }) => (
+        //         <div className="relative">
+        //             <Instagram className={className} />
+        //             {isReviewer && !isLoading && hasReview && (
+        //                 <span className="absolute -top-1 -right-1 block h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-white"></span>
+        //             )}
+        //         </div>
+        //     ),
+        // },
     ...((permissions as any).shoot ? [{
         title: "Shoot",
         url: "/shoot",

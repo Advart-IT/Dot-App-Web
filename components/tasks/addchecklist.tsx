@@ -51,6 +51,7 @@ const AddChecklist = forwardRef((props: AddChecklistProps, ref) => {
     };
 
     const handleFocusInput = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation(); // Prevent event bubbling
         if (inputRef.current) {
             inputRef.current.focus();
         } else {
@@ -59,10 +60,10 @@ const AddChecklist = forwardRef((props: AddChecklistProps, ref) => {
     };
 
     return (
-        <div className="checklist-container" onClick={handleFocusInput}>
+        <div className="checklist-container">
             {/* Display Local Checklist Names */}
             {!task_id && localChecklistNames.length > 0 && (
-                <div className="w-full">
+                <div className="w-full" onClick={(e) => e.stopPropagation()}>
                     <div className="space-y-2">
                         {localChecklistNames.map((name, index) => (
                             <div key={index} className="flex items-center space-x-2 w-full">
@@ -72,6 +73,7 @@ const AddChecklist = forwardRef((props: AddChecklistProps, ref) => {
                                         setLocalChecklistNames((prev) => {
                                             const updatedNames = [...prev];
                                             updatedNames[index] = updatedName; // Update the specific checklist name
+                                            onAdd(updatedNames.join(",")); // Immediately send updated names to parent
                                             return updatedNames;
                                         });
                                     }}
@@ -91,6 +93,10 @@ const AddChecklist = forwardRef((props: AddChecklistProps, ref) => {
                                     }}
                                     isTextarea={true}
                                     className="flex-grow" // Ensure the input box spans the full width
+                                    disableEvents={{
+                                        blur: false,
+                                        keydown: false
+                                    }}
                                 />
                             </div>
                         ))}
@@ -101,25 +107,7 @@ const AddChecklist = forwardRef((props: AddChecklistProps, ref) => {
             {/* Add Checklist Button */}
             <div className="w-full">
                 {isAdding ? (
-                    <div
-                        onClick={(e) => {
-                            const target = e.target as HTMLElement;
-
-                            // Check if the clicked element is a <textarea>
-                            if (target.tagName.toLowerCase() === "textarea") {
-                                setTimeout(() => {
-                                    if (inputRef.current) {
-                                        inputRef.current.focus();
-                                    } else {
-                                        console.log("⚠️ Input/textarea ref is null after textarea click");
-                                    }
-                                }, 0); // Delay to ensure the textarea is rendered before focusing
-                            } else {
-                                console.log("⚠️ Click occurred outside the <textarea>");
-                            }
-                        }}
-                        className="w-full"
-                    >
+                    <div className="w-full" onClick={handleFocusInput}>
                         <SmartInputBox
                             ref={inputRef} // Attach the ref to SmartInputBox
                             value={checklistName}

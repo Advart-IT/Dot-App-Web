@@ -33,6 +33,7 @@ interface SmartInputBoxProps {
         blur?: boolean; // Disable `handleBlur`
         keydown?: boolean; // Disable `handleKeyDown`
     };
+    enableLink?: boolean; // New prop to enable link functionality
 }
 
 const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartInputBoxProps>(
@@ -61,21 +62,72 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
             validate,
             onChangeComplete,
             disableEvents = {},
+            enableLink = false, // Default to false
         },
         ref // Forwarded ref
     ) => {
         const textareaRef = useRef<HTMLTextAreaElement>(null);
         const inputRef = useRef<HTMLInputElement>(null);
+        const overlayRef = useRef<HTMLDivElement>(null); // Ref for overlay to sync scroll
         const committedValueRef = useRef(value);
         const [expanded, setExpanded] = useState(false);
         const [isOverflowing, setIsOverflowing] = useState(false);
+        const [overlayHeight, setOverlayHeight] = useState<string>('auto'); // Track overlay height
         const ignoreBlurRef = useRef(false);
+        const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+        const linkPositionsRef = useRef<{ start: number; end: number; url: string }[]>([]);
 
         const handleToggleExpand = () => setExpanded(!expanded);
 
         const baseTextareaClassName = "w-full p-2 pr-12 border rounded-md resize-none ";
         const baseinputClassName = "w-full p-2 border rounded-md ";
         const baseCharLimitClassName = "absolute text-[9.5px] bottom-[-0.5px] right-1 text-gray-400 bg-transparent px-1";
+
+        // Function to render text with highlighted links
+        const renderTextWithLinks = (text: string) => {
+            if (!enableLink || !text) return text;
+            
+            const links = findUrlPositions(text);
+            if (links.length === 0) return text;
+
+            const parts = [];
+            let lastIndex = 0;
+
+            links.forEach((link, index) => {
+                // Add text before the link
+                if (link.start > lastIndex) {
+                    parts.push(
+                        <span key={`text-${index}`} className="text-gray-900">
+                            {text.substring(lastIndex, link.start)}
+                        </span>
+                    );
+                }
+                
+                // Add the link with blue color
+                parts.push(
+                    <span 
+                        key={`link-${index}`} 
+                        className="text-blue-600 underline cursor-pointer"
+                        onClick={(e) => handleLinkClick(e, link.url)}
+                    >
+                        {link.url}
+                    </span>
+                );
+                
+                lastIndex = link.end;
+            });
+
+            // Add remaining text after the last link
+            if (lastIndex < text.length) {
+                parts.push(
+                    <span key="text-end" className="text-gray-900">
+                        {text.substring(lastIndex)}
+                    </span>
+                );
+            }
+
+            return parts;
+        };
 
         const getMaxHeight = (maxHeight: number | string | undefined, rows: number, scrollHeight: number) => {
             // console.log('\n[getMaxHeight] Received Parameters:');
@@ -126,16 +178,19 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                     element.style.height = `${minHeight}px`;
                     element.style.overflowY = 'hidden';
                     setIsOverflowing(false); // No overflow
+                    setOverlayHeight(`${minHeight}px`); // Update overlay height
                     // console.log("Height set to minHeight:", element.style.height);
                 } else if (scrollHeight > minHeight && scrollHeight <= calculatedMaxHeight) {
                     // Case 2: Content is between minHeight and maxHeight
                     element.style.height = `${scrollHeight}px`;
                     element.style.overflowY = 'hidden';
                     setIsOverflowing(false); // No overflow
+                    setOverlayHeight(`${scrollHeight}px`); // Update overlay height
                     // console.log("Height set to scrollHeight:", element.style.height);
                 } else {
                     // Case 3: Content exceeds maxHeight
-                    element.style.height = expanded ? `${scrollHeight}px` : `${calculatedMaxHeight}px`;
+                    const currentHeight = expanded ? `${scrollHeight}px` : `${calculatedMaxHeight}px`;
+                    element.style.height = currentHeight;
                     element.style.overflowY =
                         overflowBehavior === 'toggle'
                             ? 'hidden'
@@ -145,11 +200,39 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                                     ? 'auto'
                                     : 'hidden'; // Explicitly handle "scroll" behavior
                     setIsOverflowing(scrollHeight > calculatedMaxHeight); // Check if content overflows
+                    setOverlayHeight(currentHeight); // Update overlay height dynamically
                     // console.log("Height set to maxHeight or expanded height:", element.style.height);
                 }
 
             }
         }, [value, autoExpand, maxHeight, overflowBehavior, rows, isTextarea, expanded]);
+
+        // Function to detect URLs in text and return positions
+        const findUrlPositions = (text: string) => {
+            if (!enableLink) return [];
+            
+            // Regex to match URLs starting with http/https/www and ending with domains
+            const urlRegex = /(?:https?:\/\/|www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.(?:com|org|net|in|co\.in)\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+            
+            const positions: { start: number; end: number; url: string }[] = [];
+            let match;
+
+            while ((match = urlRegex.exec(text)) !== null) {
+                positions.push({
+                    start: match.index,
+                    end: match.index + match[0].length,
+                    url: match[0]
+                });
+            }
+
+            return positions;
+        };
+
+        useEffect(() => {
+            if (enableLink) {
+                linkPositionsRef.current = findUrlPositions(value);
+            }
+        }, [value, enableLink]);
 
         const handleBlur = () => {
             // console.log("🔄 handleBlur triggered");
@@ -222,6 +305,80 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
             onCancel?.(); // Trigger the onCancel callback if provided
         };
 
+        const handleLinkClick = (e: React.MouseEvent, url: string) => {
+            e.stopPropagation(); // Prevent event bubbling
+            if (enableLink && url) {
+                // Check if the value is a valid URL
+                try {
+                    const validUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+                    window.open(validUrl.href, '_blank', 'noopener,noreferrer');
+                } catch (err) {
+                    console.warn('Invalid URL provided:', url);
+                }
+            }
+        };
+
+        const handleSingleClick = (e: React.MouseEvent) => {
+            // If it's a link and we want to allow editing, we'll need to handle the click differently
+            if (enableLink) {
+                // If the input is disabled or readOnly, open the link on single click
+                if (disabled || readOnly) {
+                    // Find the link at the cursor position
+                    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+                    if (target.selectionStart !== undefined && target.selectionStart !== null) {
+                        const cursorPos = target.selectionStart;
+                        
+                        for (const link of linkPositionsRef.current) {
+                            if (cursorPos >= link.start && cursorPos <= link.end) {
+                                handleLinkClick(e, link.url);
+                                return;
+                            }
+                        }
+                    }
+                } else {
+                    // Set a timeout to see if a second click comes in
+                    if (clickTimeoutRef.current) {
+                        // Double click detected - clear the timeout and open link
+                        clearTimeout(clickTimeoutRef.current);
+                        clickTimeoutRef.current = null;
+                        e.preventDefault(); // Prevent default behavior for double click
+                    } else {
+                        // First click - set timeout to detect if it's a single click
+                        clickTimeoutRef.current = setTimeout(() => {
+                            clickTimeoutRef.current = null;
+                            // For single click, do nothing special - input remains editable
+                        }, 300); // 300ms is typical for double-click detection
+                    }
+                }
+            }
+        };
+
+        const handleDoubleClick = (e: React.MouseEvent) => {
+            if (enableLink && !(disabled || readOnly)) { // Only handle double click if not disabled or readOnly
+                e.preventDefault(); // Prevent default double-click behavior
+                
+                // Get the cursor position relative to the input
+                const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+                if (target.selectionStart !== undefined && target.selectionStart !== null) {
+                    const cursorPos = target.selectionStart;
+                    
+                    // Find which link the cursor is over
+                    for (const link of linkPositionsRef.current) {
+                        if (cursorPos >= link.start && cursorPos <= link.end) {
+                            handleLinkClick(e, link.url);
+                            return;
+                        }
+                    }
+                }
+            }
+        };
+
+        // Sync scroll position between textarea and overlay
+        const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+            if (overlayRef.current && textareaRef.current) {
+                overlayRef.current.scrollTop = textareaRef.current.scrollTop;
+            }
+        };
 
         // Allow parent to access the actual input or textarea ref
         useImperativeHandle(ref, () => (isTextarea ? textareaRef.current : inputRef.current) as HTMLInputElement | HTMLTextAreaElement);
@@ -235,7 +392,26 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
             }
         };
 
+        // Conditionally apply link styles if enableLink is true
+        const getLinkTextareaClassName = () => {
+            if (enableLink && (readOnly || disabled)) {
+                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName} ${enableLink ? 'cursor-pointer text-transparent caret-gray-900' : ''}`;
+            }
+            if (enableLink) {
+                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName} ${enableLink ? 'cursor-text text-transparent caret-gray-900' : ''}`;
+            }
+            return readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName;
+        };
 
+        const getLinkInputClassName = () => {
+            if (enableLink && (readOnly || disabled)) {
+                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName} ${enableLink ? 'cursor-pointer text-transparent caret-gray-900' : ''}`;
+            }
+            if (enableLink) {
+                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName} ${enableLink ? 'cursor-text text-transparent caret-gray-900' : ''}`;
+            }
+            return readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName;
+        };
 
         return (
             <div className={`flex flex-col w-full ${className}`} onClick={() => {
@@ -250,40 +426,82 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                     {/* This div will contain both input/textarea and cancel button */}
                     <div className="relative w-full flex items-center text-14">
                         {isTextarea ? (
-                            <textarea
-                                ref={textareaRef}
-                                value={value}
-                                onChange={handleChange}
-                                placeholder={placeholder}
-                                rows={rows}
-                                readOnly={readOnly}
-                                disabled={disabled}
-                                onBlur={handleBlur}
-                                onKeyDown={handleKeyDown}
-                                onClick={() => {
-                                    if (overflowBehavior === 'toggle' && !expanded) {
-                                        setExpanded(true);
-                                    }
-                                }}
-                                className={`${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName}`}
-                                style={{ flex: 1 }}
-                            />
+                            <>
+                                <textarea
+                                    ref={textareaRef}
+                                    value={value}
+                                    onChange={handleChange}
+                                    placeholder={placeholder}
+                                    rows={rows}
+                                    readOnly={readOnly}
+                                    disabled={disabled}
+                                    onBlur={handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    onScroll={handleScroll}
+                                    onClick={(e) => {
+                                        if (enableLink) {
+                                            handleSingleClick(e);
+                                        } else if (overflowBehavior === 'toggle' && !expanded) {
+                                            setExpanded(true);
+                                        }
+                                    }}
+                                    onDoubleClick={handleDoubleClick}
+                                    className={`${getLinkTextareaClassName()} ${disabled || readOnly ? 'cursor-pointer' : ''}`}
+                                    style={{ flex: 1 }}
+                                />
+                                {/* Overlay for styled text with links */}
+                                {enableLink && value && (
+                                    <div 
+                                        ref={overlayRef}
+                                        className="absolute top-0 left-0 w-full p-2 pr-12 pointer-events-none whitespace-pre-wrap break-words"
+                                        style={{
+                                            lineHeight: '1.5',
+                                            fontFamily: 'inherit',
+                                            fontSize: 'inherit',
+                                            height: overlayHeight,
+                                            overflowY: overflowBehavior === 'scroll' ? 'scroll' : 'hidden',
+                                            maxHeight: overlayHeight,
+                                        }}
+                                    >
+                                        {renderTextWithLinks(value)}
+                                    </div>
+                                )}
+                            </>
                         ) : (
-                            <input
-                                ref={inputRef}
-                                value={value}
-                                onChange={handleChange}
-                                placeholder={placeholder}
-                                readOnly={readOnly}
-                                disabled={disabled}
-                                onBlur={handleBlur}
-                                onKeyDown={handleKeyDown}
-                                className={`${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName}`}
-                                style={{ flex: 1 }}
-                            />
+                            <>
+                                <input
+                                    ref={inputRef}
+                                    value={value}
+                                    onChange={handleChange}
+                                    placeholder={placeholder}
+                                    readOnly={readOnly}
+                                    disabled={disabled}
+                                    onBlur={handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    onClick={(e) => {
+                                        if (enableLink) {
+                                            handleSingleClick(e);
+                                        }
+                                    }}
+                                    onDoubleClick={handleDoubleClick}
+                                    className={`${getLinkInputClassName()} ${disabled || readOnly ? 'cursor-pointer' : ''}`}
+                                    style={{ flex: 1 }}
+                                />
+                                {/* Overlay for styled text with links */}
+                                {enableLink && value && (
+                                    <div 
+                                        className="absolute top-0 left-0 w-full p-2 pointer-events-none whitespace-nowrap overflow-hidden text-ellipsis"
+                                        style={{
+                                            lineHeight: '1.5',
+                                            fontFamily: 'inherit',
+                                            fontSize: 'inherit',
+                                        }}
+                                    >
+                                        {renderTextWithLinks(value)}
+                                    </div>
+                                )}
+                            </>
                         )}
-
-
 
                         {/* Character Limit Display */}
                         {charLimit && showCharLimit && (

@@ -51,9 +51,10 @@ export default function TaskDescription({
           required={true}
           rows={3} // Use multiple rows for the description
           isTextarea={true}
+          enableLink={true}
           autoExpand={true}
           maxHeight="7 rows"
-          overflowBehavior="toggle"
+          overflowBehavior="scroll"
           placeholder="Edit task description"
           textareaClassName="bg-transparent border p-4 w-full resize-none rounded-md min-h-[60px] border-[#dfdfdf] focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -63,8 +64,9 @@ export default function TaskDescription({
           value={task.description || "No Description provided."} // Display output or fallback text
           onChange={() => {}} // No-op for read-only mode
           rows={3} // Set the number of rows
+          enableLink={true}
           readOnly={true} // Make the input read-only
-          maxHeight="4 rows" // Optional: Set a max height
+          maxHeight="3 rows" // Optional: Set a max height
           isTextarea={true} // Use textarea for multi-line input
           overflowBehavior="toggle" // Toggle overflow behavior
           autoExpand={true} // Enable auto-expansion
