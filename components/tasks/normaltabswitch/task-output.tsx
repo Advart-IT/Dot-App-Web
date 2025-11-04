@@ -20,8 +20,6 @@ export default function TaskOutput({ task, setTask }: { task: any; setTask: Reac
     }
   };
 
-
-
   return (
      <div >
       
@@ -44,6 +42,7 @@ export default function TaskOutput({ task, setTask }: { task: any; setTask: Reac
           onChange={() => {}} // No-op for read-only mode
           rows={3} // Set the number of rows
           readOnly={true} // Make the input read-only
+          enableLink={true}
           maxHeight="4 rows" // Optional: Set a max height
           isTextarea={true} // Use textarea for multi-line input
           overflowBehavior="scroll" // Toggle overflow behavior
