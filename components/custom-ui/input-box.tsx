@@ -354,7 +354,7 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
         };
 
         const handleDoubleClick = (e: React.MouseEvent) => {
-            if (enableLink && !(disabled || readOnly)) { // Only handle double click if not disabled or readOnly
+            if (enableLink) { // Handle double click for both editable and read-only modes
                 e.preventDefault(); // Prevent default double-click behavior
                 
                 // Get the cursor position relative to the input
@@ -394,23 +394,17 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
 
         // Conditionally apply link styles if enableLink is true
         const getLinkTextareaClassName = () => {
-            if (enableLink && (readOnly || disabled)) {
-                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName} ${enableLink ? 'cursor-pointer text-transparent caret-gray-900' : ''}`;
-            }
-            if (enableLink) {
-                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName} ${enableLink ? 'cursor-text text-transparent caret-gray-900' : ''}`;
+            if (enableLink && readOnly && !disabled) {
+                return `${textareaClassName || baseTextareaClassName} opacity-0`;
             }
             return readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : textareaClassName || baseTextareaClassName;
         };
 
         const getLinkInputClassName = () => {
-            if (enableLink && (readOnly || disabled)) {
-                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName} ${enableLink ? 'cursor-pointer text-transparent caret-gray-900' : ''}`;
+            if (enableLink && readOnly && !disabled) {
+                return `${inputClassName || baseinputClassName} opacity-0`;
             }
-            if (enableLink) {
-                return `${readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName} ${enableLink ? 'cursor-text text-transparent caret-gray-900' : ''}`;
-            }
-            return readOnly ? 'w-full p-2 pr-12 border rounded-md resize-none bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName;
+            return readOnly ? 'w-full p-2 border rounded-md bg-gray-50 focus:ring-0 focus:outline-none' : inputClassName || baseinputClassName;
         };
 
         return (
@@ -449,11 +443,11 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                                     className={`${getLinkTextareaClassName()} ${disabled || readOnly ? 'cursor-pointer' : ''}`}
                                     style={{ flex: 1 }}
                                 />
-                                {/* Overlay for styled text with links */}
-                                {enableLink && value && (
+                                {/* Overlay for styled text with links - Only show when readOnly and NOT disabled */}
+                                {enableLink && value && readOnly && !disabled && (
                                     <div 
                                         ref={overlayRef}
-                                        className="absolute top-0 left-0 w-full p-2 pr-12 pointer-events-none whitespace-pre-wrap break-words"
+                                        className="absolute top-0 left-0 w-full p-2 pr-12 whitespace-pre-wrap break-words z-10 pointer-events-auto"
                                         style={{
                                             lineHeight: '1.5',
                                             fontFamily: 'inherit',
@@ -461,6 +455,9 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                                             height: overlayHeight,
                                             overflowY: overflowBehavior === 'scroll' ? 'scroll' : 'hidden',
                                             maxHeight: overlayHeight,
+                                            backgroundColor: 'rgb(249, 250, 251)',
+                                            border: '1px solid rgb(209, 213, 219)',
+                                            borderRadius: '6px',
                                         }}
                                     >
                                         {renderTextWithLinks(value)}
@@ -487,14 +484,17 @@ const SmartInputBox = forwardRef<HTMLInputElement | HTMLTextAreaElement, SmartIn
                                     className={`${getLinkInputClassName()} ${disabled || readOnly ? 'cursor-pointer' : ''}`}
                                     style={{ flex: 1 }}
                                 />
-                                {/* Overlay for styled text with links */}
-                                {enableLink && value && (
+                                {/* Overlay for styled text with links - Only show when readOnly and NOT disabled */}
+                                {enableLink && value && readOnly && !disabled && (
                                     <div 
-                                        className="absolute top-0 left-0 w-full p-2 pointer-events-none whitespace-nowrap overflow-hidden text-ellipsis"
+                                        className="absolute top-0 left-0 w-full p-2 whitespace-nowrap overflow-hidden text-ellipsis z-10 pointer-events-auto"
                                         style={{
                                             lineHeight: '1.5',
                                             fontFamily: 'inherit',
                                             fontSize: 'inherit',
+                                            backgroundColor: 'rgb(249, 250, 251)',
+                                            border: '1px solid rgb(209, 213, 219)',
+                                            borderRadius: '6px',
                                         }}
                                     >
                                         {renderTextWithLinks(value)}
